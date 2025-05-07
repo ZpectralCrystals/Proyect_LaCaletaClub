@@ -1,0 +1,75 @@
+/* Header.css */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #005f73;
+    color: white;
+    padding: 1rem 2rem;
+    position: relative;
+  }
+  
+  .nav {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .nav-redes a {
+    color: white;
+    margin: 0 5px;
+    font-size: 1.2rem;
+  }
+  
+  .menu-toggle {
+    display: none;
+    cursor: pointer;
+  }
+  
+  .btn-acceso {
+    background: #ff6b00;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+  
+  /* Mobile */
+  @media (max-width: 768px) {
+    .nav {
+      display: none;
+      flex-direction: column;
+      background: #003d4d;
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      padding: 1rem;
+    }
+    .nav.open {
+      display: flex;
+    }
+    .menu-toggle {
+      display: block;
+      color: white;
+      font-size: 1.5rem;
+    }
+  }
+  .hero {
+    background: url('/fondo-cevicheria.jpg') center/cover no-repeat;
+    color: white;
+    text-align: center;
+    padding: 6rem 2rem;
+  }
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  .btn-hero {
+    background: #ff6b00;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+  
