@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Header: React.FC = () => {
   return (
-    <header className="bg-gray-900 text-white flex justify-between items-center p-4 shadow-lg px-[160px]">
+    <header className="bg-[#e2ded3] text-white flex justify-between items-center p-4 shadow-lg px-[160px]">
       <div className="text-xl font-bold">PONERLOGO</div>
       <nav className="flex space-x-4">
         <Link to="/" className="text-white hover:text-blue-400 transition-colors">
