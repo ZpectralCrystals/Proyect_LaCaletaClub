@@ -12,7 +12,11 @@ const Navbar = () => {
     <header className="bg-gray-900 text-white shadow-lg fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <div className="text-2xl font-bold text-blue-300">PONERLOGO</div>
+        <div className="text-2xl font-bold text-blue-300">
+        <Link to="/" className="text-xl font-bold text-yellow-400">
+          <img src="/logo/la_caleta_texto_claro_transparente.png" alt="La Caleta Logo" className="w-80 h-30" />
+        </Link>
+        </div>
 
         {/* Botón hamburguesa (móvil) */}
         <button onClick={toggleMenu} className="lg:hidden text-white text-2xl">

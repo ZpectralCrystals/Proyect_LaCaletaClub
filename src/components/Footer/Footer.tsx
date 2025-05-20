@@ -5,7 +5,9 @@ const Footer = () => {
 
         {/* Logo + descripción */}
         <div>
-          <h2 className="text-2xl font-bold mb-2 text-white">CevicheClub</h2>
+        
+          <img src="/logo/la_caleta_texto_claro_transparente.png" alt="La Caleta Logo" className="w-80 h-30" />
+        
           <p className="text-sm text-blue-100 leading-relaxed">
             Disfruta del mejor ceviche, acumula puntos por cada visita y canjea promociones únicas en tu cevichería favorita.
           </p>

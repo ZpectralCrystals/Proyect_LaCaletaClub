@@ -8,6 +8,7 @@ import Contacto from "../pages/Contacto/Contacto";
 import Recomendaciones from "../pages/Recomendaciones/Recomendaciones";
 import Carrito from "../pages/Carrito/Carrito";
 import Paginas from "../pages/Paginas/Paginas";
+import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 
 // Páginas administrativas (privadas)
 import Category from "../pagesAdmin/Category/Category";
@@ -23,8 +24,8 @@ export function Router() {
     return (
         <BrowserRouter>
             <div className="pt-24 bg-white min-h-screen">
+                <ScrollToTop />
                 <Navbar />
-
                 <Routes>
                     {/* Rutas públicas */}
                     <Route path="/" element={<Inicio />} />
