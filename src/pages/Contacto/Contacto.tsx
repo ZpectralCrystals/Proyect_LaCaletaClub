@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useToast } from "@/components/ui/toast/use-toast";
 
 type SedeKey = "Umacollo" | "Lambramani" | "Cerro Colorado";
 
@@ -13,7 +14,7 @@ const sedes: Record<SedeKey, SedeInfo> = {
     direccion: "Emmel G-4, frente al Estadio",
     telefono: "913204134",
     mapa:
-      "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15599.59506510208!2d-71.536!3d-16.395!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91424a58d218d075%3A0x0!2sJF23%2B7C%20Yanahuara!5e0!3m2!1ses-419!2spe!4v1716061234567",
+      "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15599.59506510208!2d-71.536!3d-16.395!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91424a58d218d075%3A0x0!2sJF23%2B7C%20Yanahuara!5e0!3m2!1ses-419!2pe!4v1716061234567",
   },
   Lambramani: {
     direccion: "Av. Lambramani B-2, a una cuadra del óvalo",
@@ -32,19 +33,44 @@ const sedes: Record<SedeKey, SedeInfo> = {
 const Contacto = () => {
   const [sede, setSede] = useState<SedeKey>("Umacollo");
   const [nombre, setNombre] = useState("");
-  const [correo, setCorreo] = useState("");
+  const [telefonoUsuario, setTelefonoUsuario] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const { toast } = useToast();
 
   const { direccion, telefono, mapa } = sedes[sede];
 
   const handleWhatsAppClick = () => {
+    if (!nombre || !telefonoUsuario || !mensaje) {
+      toast({
+        title: "Formulario incompleto ❌",
+        description: "Completa todos los campos antes de continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/^\d+$/.test(telefonoUsuario)) {
+      toast({
+        title: "Teléfono inválido ☎️",
+        description: "Ingresa solo números en el campo de teléfono.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const text = `Hola CevicheClub 👋, me gustaría contactar con la sede *${sede}*.
 
 🧑 Nombre: ${nombre}
-📧 Correo: ${correo}
+📱 Teléfono: ${telefonoUsuario}
 📝 Mensaje: ${mensaje}`;
 
     const url = `https://wa.me/51${telefono}?text=${encodeURIComponent(text)}`;
+
+    toast({
+      title: "Redirigiendo a WhatsApp 📲",
+      description: `Conectando con la sede ${sede}...`,
+    });
+
     window.open(url, "_blank");
   };
 
@@ -54,7 +80,6 @@ const Contacto = () => {
         <h1 className="text-4xl font-bold text-sky-800 mb-8 text-center">Contáctanos</h1>
 
         <section className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Formulario */}
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div>
               <label className="block text-sm font-medium mb-1">Selecciona una sede</label>
@@ -74,18 +99,19 @@ const Contacto = () => {
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                required
                 className="w-full border border-sky-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Correo</label>
+              <label className="block text-sm font-medium mb-1">Teléfono</label>
               <input
-                type="email"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                required
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={telefonoUsuario}
+                onChange={(e) => setTelefonoUsuario(e.target.value)}
                 className="w-full border border-sky-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400"
+                placeholder="Ej. 912345678"
               />
             </div>
             <div>
@@ -94,21 +120,14 @@ const Contacto = () => {
                 rows={4}
                 value={mensaje}
                 onChange={(e) => setMensaje(e.target.value)}
-                required
                 className="w-full border border-sky-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400"
               ></textarea>
             </div>
           </form>
 
-          {/* Información de contacto */}
           <div className="space-y-4 text-sky-900">
-            <p>
-              📍 <strong>{sede}:</strong> {direccion}
-            </p>
-            <p>
-              📞 <strong>Teléfono:</strong> +51 {telefono}
-            </p>
-           
+            <p>📍 <strong>{sede}:</strong> {direccion}</p>
+            <p>📞 <strong>Teléfono:</strong> +51 {telefono}</p>
 
             <button
               onClick={handleWhatsAppClick}
@@ -119,7 +138,6 @@ const Contacto = () => {
           </div>
         </section>
 
-        {/* Mapa dinámico */}
         <div className="mt-10 rounded-xl overflow-hidden shadow-md">
           <iframe
             title={`Mapa sede ${sede}`}
