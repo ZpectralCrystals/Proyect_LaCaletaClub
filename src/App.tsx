@@ -11,6 +11,7 @@ import Contacto from './pages/Contacto/Contacto';
 import Carrito from './pages/Carrito/Carrito';
 import Footer from './components/Footer/Footer';
 import ProductsAdmin from "./pagesAdmin/Products/Products.js";
+import CategoriasAdmin from "./pagesAdmin/Category/Category.js";
 
 
 const App: React.FC = () => {
@@ -30,6 +31,8 @@ const App: React.FC = () => {
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/adminproducts" element={<ProductsAdmin />} />
+        <Route path="/admincategories" element={<CategoriasAdmin />} />
+        
       </Routes>
     </Router>
     

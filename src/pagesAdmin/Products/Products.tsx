@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -29,15 +30,21 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 interface Product {
     id: number;
     name: string;
-    type: string;
+    type: number; // ID de la categoría
     price: number;
     description: string;
     image: string;
     varietyOptions: string[];
 }
 
+interface Category {
+    id: number;
+    descripcion: string;
+}
+
 export default function ProductsAdmin() {
     const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [open, setOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
@@ -51,11 +58,9 @@ export default function ProductsAdmin() {
         varietyOptions: '',
     });
 
-    // Estado para el alert
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
     const [alertType, setAlertType] = useState<'error' | 'success' | null>(null);
 
-    // Mostrar alerta y limpiar después de 4 segundos
     const showAlert = (type: 'error' | 'success', message: string) => {
         setAlertType(type);
         setAlertMessage(message);
@@ -79,8 +84,19 @@ export default function ProductsAdmin() {
         } else setProducts(data || []);
     };
 
+    const fetchCategories = async () => {
+  const { data, error } = await supabase.from('categoriatab').select('id, descripcion');
+  if (error) {
+    console.error('Error al cargar categorías:', error);
+    showAlert('error', 'Error cargando categorías');
+  } else {
+    setCategories(data || []);
+  }
+};
+
     useEffect(() => {
         fetchProducts();
+        fetchCategories();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +105,9 @@ export default function ProductsAdmin() {
 
     const handleSubmit = async () => {
         const parsedPrice = parseFloat(form.price);
-        if (!form.name || !form.type || isNaN(parsedPrice) || !form.image) {
+        const parsedType = parseInt(form.type);
+
+        if (!form.name || isNaN(parsedType) || isNaN(parsedPrice) || !form.image) {
             showAlert('error', 'Por favor completa todos los campos obligatorios');
             return;
         }
@@ -103,7 +121,7 @@ export default function ProductsAdmin() {
                 .from('productostab')
                 .update({
                     name: form.name,
-                    type: form.type,
+                    type: parsedType,
                     price: parsedPrice,
                     description: form.description,
                     image: form.image,
@@ -112,7 +130,7 @@ export default function ProductsAdmin() {
                 .eq('id', editingProduct.id);
 
             if (error) {
-                console.error('Error updating product:', error);
+                console.error('Error actualizando producto:', error);
                 showAlert('error', 'Error actualizando producto');
                 return;
             }
@@ -123,7 +141,7 @@ export default function ProductsAdmin() {
                 .insert([
                     {
                         name: form.name,
-                        type: form.type,
+                        type: parsedType,
                         price: parsedPrice,
                         description: form.description,
                         image: form.image,
@@ -132,7 +150,7 @@ export default function ProductsAdmin() {
                 ]);
 
             if (error) {
-                console.error('Error inserting product:', error);
+                console.error('Error agregando producto:', error);
                 showAlert('error', 'Error agregando producto');
                 return;
             }
@@ -149,7 +167,7 @@ export default function ProductsAdmin() {
         setEditingProduct(product);
         setForm({
             name: product.name,
-            type: product.type,
+            type: product.type.toString(),
             price: product.price.toString(),
             description: product.description,
             image: product.image,
@@ -167,7 +185,7 @@ export default function ProductsAdmin() {
         if (!selectedDeleteId) return;
         const { error } = await supabase.from('productostab').delete().eq('id', selectedDeleteId);
         if (error) {
-            console.error('Error deleting product:', error);
+            console.error('Error eliminando producto:', error);
             showAlert('error', 'Error eliminando producto');
             return;
         }
@@ -177,19 +195,18 @@ export default function ProductsAdmin() {
         fetchProducts();
     };
 
+    const getCategoryName = (id: number) => {
+  const category = categories.find((cat) => cat.id === id);
+  return category?.descripcion || 'Sin categoría';
+};
+
     return (
         <div className="p-6">
-            {/* Alert arriba */}
             {alertMessage && (
-               
-                    <Alert
-                        variant={alertType === 'error' ? 'destructive' : 'default'}
-                        className="shadow-lg"
-                    >
-                        <AlertTitle>{alertType === 'error' ? 'Error' : 'Éxito'}</AlertTitle>
-                        <AlertDescription>{alertMessage}</AlertDescription>
-                    </Alert>
-               
+                <Alert variant={alertType === 'error' ? 'destructive' : 'default'} className="shadow-lg mb-4">
+                    <AlertTitle>{alertType === 'error' ? 'Error' : 'Éxito'}</AlertTitle>
+                    <AlertDescription>{alertMessage}</AlertDescription>
+                </Alert>
             )}
 
             <div className="flex justify-between items-center mb-6">
@@ -211,7 +228,18 @@ export default function ProductsAdmin() {
                         </DialogHeader>
                         <div className="space-y-2">
                             <Input name="name" placeholder="Nombre" value={form.name} onChange={handleChange} />
-                            <Input name="type" placeholder="Tipo" value={form.type} onChange={handleChange} />
+                            <Select value={form.type} onValueChange={(value) => setForm({ ...form, type: value })}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecciona una categoría" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {categories.map((cat) => (
+                                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                                            {cat.descripcion}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             <Input
                                 name="price"
                                 placeholder="Precio"
@@ -220,12 +248,7 @@ export default function ProductsAdmin() {
                                 onChange={handleChange}
                                 step="0.01"
                             />
-                            <Input
-                                name="description"
-                                placeholder="Descripción"
-                                value={form.description}
-                                onChange={handleChange}
-                            />
+                            <Input name="description" placeholder="Descripción" value={form.description} onChange={handleChange} />
                             <Input name="image" placeholder="URL Imagen" value={form.image} onChange={handleChange} />
                             <Input
                                 name="varietyOptions"
@@ -245,7 +268,7 @@ export default function ProductsAdmin() {
                         <tr>
                             <th className="border px-4 py-2">ID</th>
                             <th className="border px-4 py-2">Nombre</th>
-                            <th className="border px-4 py-2">Tipo</th>
+                            <th className="border px-4 py-2">Categoría</th>
                             <th className="border px-4 py-2">Precio</th>
                             <th className="border px-4 py-2">Descripción</th>
                             <th className="border px-4 py-2">Imagen</th>
@@ -258,7 +281,7 @@ export default function ProductsAdmin() {
                             <tr key={product.id}>
                                 <td className="border px-4 py-2">{product.id}</td>
                                 <td className="border px-4 py-2">{product.name}</td>
-                                <td className="border px-4 py-2">{product.type}</td>
+                                <td className="border px-4 py-2">{getCategoryName(product.type)}</td>
                                 <td className="border px-4 py-2">${product.price.toFixed(2)}</td>
                                 <td className="border px-4 py-2">{product.description}</td>
                                 <td className="border px-4 py-2">
@@ -270,24 +293,12 @@ export default function ProductsAdmin() {
                                 </td>
                                 <td className="border px-4 py-2">{product.varietyOptions?.join(', ')}</td>
                                 <td className="border px-4 py-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleEdit(product)}
-                                        className="mr-2"
-                                        aria-label={`Editar ${product.name}`}
-                                    >
+                                    <Button variant="ghost" size="sm" onClick={() => handleEdit(product)} className="mr-2">
                                         <FontAwesomeIcon icon={faPen} />
                                     </Button>
-
                                     <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                                         <AlertDialogTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => openDeleteDialog(product.id)}
-                                                aria-label={`Eliminar ${product.name}`}
-                                            >
+                                            <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(product.id)}>
                                                 <FontAwesomeIcon icon={faTrash} />
                                             </Button>
                                         </AlertDialogTrigger>
