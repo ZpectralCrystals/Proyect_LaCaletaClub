@@ -30,7 +30,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 interface Product {
     id: number;
     name: string;
-    type: number; 
+    type: number;
     price: number;
     description: string;
     image: string;
@@ -85,14 +85,14 @@ export default function ProductsAdmin() {
     };
 
     const fetchCategories = async () => {
-  const { data, error } = await supabase.from('categoriatab').select('id, descripcion');
-  if (error) {
-    console.error('Error al cargar categorías:', error);
-    showAlert('error', 'Error cargando categorías');
-  } else {
-    setCategories(data || []);
-  }
-};
+        const { data, error } = await supabase.from('categoriatab').select('id, descripcion');
+        if (error) {
+            console.error('Error al cargar categorías:', error);
+            showAlert('error', 'Error cargando categorías');
+        } else {
+            setCategories(data || []);
+        }
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -196,9 +196,9 @@ export default function ProductsAdmin() {
     };
 
     const getCategoryName = (id: number) => {
-  const category = categories.find((cat) => cat.id === id);
-  return category?.descripcion || 'Sin categoría';
-};
+        const category = categories.find((cat) => cat.id === id);
+        return category?.descripcion || 'Sin categoría';
+    };
 
     return (
         <div className="p-6">
