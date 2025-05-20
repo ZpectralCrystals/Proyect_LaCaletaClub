@@ -30,7 +30,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 interface Product {
     id: number;
     name: string;
-    type: number; // ID de la categoría
+    type: number; 
     price: number;
     description: string;
     image: string;
