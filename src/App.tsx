@@ -19,7 +19,7 @@ const App: React.FC = () => {
     <div className="App">
       
       
-      
+      <Popup/>
       <Router>
       <Header />
       <Routes>
