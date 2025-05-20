@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Popup from "./components/Popup/Popup";
 import Navbar from "./components/Navbar/Navbar";
-import Header from "./components/Header/Header";
 import Inicio from './pages/Inicio/Inicio.js';
 import Menu from './pages/Menu/Menu';
 import Paginas from './pages/Paginas/Paginas';
