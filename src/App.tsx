@@ -10,13 +10,14 @@ import Recomendaciones from './pages/Recomendaciones/Recomendaciones';
 import Contacto from './pages/Contacto/Contacto';
 import Carrito from './pages/Carrito/Carrito';
 import Footer from './components/Footer/Footer';
+import ProductsAdmin from "./pagesAdmin/Products/Products.js";
 
 
 const App: React.FC = () => {
   return (
     <div className="App">
       
-      <Popup />
+      
       
       <Router>
       <Header />
@@ -28,6 +29,7 @@ const App: React.FC = () => {
         <Route path="/recomendaciones" element={<Recomendaciones />} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/carrito" element={<Carrito />} />
+        <Route path="/adminproducts" element={<ProductsAdmin />} />
       </Routes>
     </Router>
     
