@@ -19,11 +19,14 @@ import Products from "../pagesAdmin/Products/Products";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 
+// Popups
+import Popup from "@/components/Popup/Popup";
 
 export function Router() {
     return (
         <BrowserRouter>
             <div className="pt-24 bg-white min-h-screen">
+                <Popup/>
                 <ScrollToTop />
                 <Navbar />
                 <Routes>
