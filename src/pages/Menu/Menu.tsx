@@ -1,36 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { supabase } from "@/lib/supabaseClient";
 
-interface Plato {
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  categoria: string;
+interface Producto {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  type: string; 
 }
 
-const platos: Plato[] = [
-  { nombre: "Ceviche Tradicional de Pescado", descripcion: "Pescado fresco con ají limo, cebolla, choclo y camote", precio: 32, categoria: "Ceviches" },
-  { nombre: "Ceviche La Caleta", descripcion: "Pescado en crema La Caleta con choclo y camote", precio: 33, categoria: "Ceviches" },
-  { nombre: "Ceviche Mixto", descripcion: "Pescado y mariscos marinados en limón con ají limo", precio: 34, categoria: "Ceviches" },
-  { nombre: "Ceviche Premium", descripcion: "Pescado, pulpo y langostinos en crema La Caleta", precio: 35, categoria: "Ceviches" },
-  { nombre: "Ceviche Carretillero", descripcion: "Pescado marinado con chicharrón de pescado y calamar", precio: 36, categoria: "Ceviches" },
-  { nombre: "Tiradito de Pescado", descripcion: "Láminas de pescado en salsa cítrica", precio: 29, categoria: "Tiraditos" },
-  { nombre: "Tiradito Mirasol", descripcion: "Tiradito en crema de ají mirasol", precio: 32, categoria: "Tiraditos" },
-  { nombre: "Tiradito 4 Continentes", descripcion: "Cuatro salsas del mundo sobre tiradito", precio: 45, categoria: "Tiraditos" },
-  { nombre: "Piqueo Caliente La Caleta", descripcion: "Arroz de mariscos, chaufa, chicharrón de pescado", precio: 70, categoria: "Especiales" },
-  { nombre: "Combinado Norteño", descripcion: "Arroz a la norteña, ceviche y papa a la huancaína", precio: 40, categoria: "Especiales" },
-  { nombre: "Chicha Morada", descripcion: "Refresco tradicional peruano", precio: 10, categoria: "Bebidas" },
-  { nombre: "Jugo de Maracuyá", descripcion: "Jugo natural de maracuyá", precio: 10, categoria: "Bebidas" },
-  { nombre: "Pisco Sour", descripcion: "Coctel peruano con pisco, limón y clara de huevo", precio: 20, categoria: "Bebidas" },
-  { nombre: "Cusqueña", descripcion: "Cerveza nacional", precio: 12, categoria: "Bebidas" },
-];
-
-const categorias = [...new Set(platos.map((p) => p.categoria))];
+interface Categoria {
+  id: string;
+  descripcion: string;
+}
 
 const Menu = () => {
-  const [categoriaActiva, setCategoriaActiva] = useState("Ceviches");
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categoriaActiva, setCategoriaActiva] = useState<string>("");
 
-  const platosFiltrados = platos.filter((p) => p.categoria === categoriaActiva);
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: categoriasData } = await supabase.from("categoriatab").select("*");
+      const { data: productosData } = await supabase.from("productostab").select("*");
+
+      if (categoriasData && productosData) {
+        setCategorias(categoriasData);
+        setProductos(productosData);
+        setCategoriaActiva(categoriasData[0]?.id); 
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const productosFiltrados = productos.filter((p) => p.type === categoriaActiva);
 
   return (
     <main className="bg-white min-h-screen py-16 px-6">
@@ -42,15 +48,15 @@ const Menu = () => {
         <div className="flex flex-wrap justify-center gap-4 mb-10">
           {categorias.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setCategoriaActiva(cat)}
+              key={cat.id}
+              onClick={() => setCategoriaActiva(cat.id)}
               className={`px-5 py-2 rounded-full border font-semibold transition-all ${
-                categoriaActiva === cat
+                categoriaActiva === cat.id
                   ? "bg-sky-700 text-white"
                   : "bg-white border-sky-300 text-sky-700 hover:bg-sky-100"
               }`}
             >
-              {cat}
+              {cat.descripcion}
             </button>
           ))}
         </div>
@@ -65,14 +71,17 @@ const Menu = () => {
             transition={{ duration: 0.3 }}
             className="grid md:grid-cols-2 gap-8 text-left"
           >
-            {platosFiltrados.map((plato, i) => (
+            {productosFiltrados.map((producto) => (
               <div
-                key={i}
+                key={producto.id}
                 className="bg-blue-50 p-6 rounded-xl shadow-md border-l-4 border-sky-700"
               >
-                <h2 className="text-xl font-bold text-sky-800">{plato.nombre}</h2>
-                <p className="text-gray-700 mt-2">{plato.descripcion}</p>
-                <p className="text-sky-600 font-semibold mt-4 text-lg">S/ {plato.precio}</p>
+                <h2 className="text-xl font-bold text-sky-800">{producto.name}</h2>
+                <p className="text-gray-700 mt-2">{producto.description}</p>
+                <p className="text-sky-600 font-semibold mt-4 text-lg">S/ {producto.price}</p>
+                {producto.image && (
+                  <img src={producto.image} alt={producto.name} className="mt-4 rounded-md" />
+                )}
               </div>
             ))}
           </motion.div>
@@ -83,6 +92,7 @@ const Menu = () => {
 };
 
 export default Menu;
+
 // import React from 'react';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import {
