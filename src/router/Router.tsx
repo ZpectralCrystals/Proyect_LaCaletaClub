@@ -16,6 +16,8 @@ import Products from "../pagesAdmin/Products/Products";
 
 // Layout general
 import Layout from "@/components/Layout/Layout";
+import IniciarSesion from "@/pages/IniciarSesion/IniciarSesion";
+import RegistrarUsuario from "@/pages/RegistrarUsuario/RegistrarUsuario";
 
 export function Router() {
   return (
@@ -30,6 +32,8 @@ export function Router() {
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/paginas" element={<Paginas />} />
+          <Route path="/iniciasesion" element={<IniciarSesion />} />
+          <Route path="/registro" element={<RegistrarUsuario />} />
         </Route>
 
         {/* Admin sin layout (o puedes crear otro layout de admin) */}
