@@ -147,7 +147,7 @@ export default function CategoriasAdmin() {
 
   return (
     <div className="p-6">
-      <Toaster /> {/* ✅ Toaster de sonner */}
+      <Toaster />
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Categorías</h1>
