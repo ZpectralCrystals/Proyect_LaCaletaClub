@@ -23,7 +23,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { faPen, faTrash, faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, AlertTitle, AlertDescription } from '../../components/ui/alert';
+import { toast, Toaster } from 'sonner'; // ✅ Importar sonner
 
 interface Categoria {
   id: number;
@@ -39,23 +39,13 @@ export default function CategoriasAdmin() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
 
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [alertType, setAlertType] = useState<'error' | 'success' | null>(null);
-
   const showAlert = (type: 'error' | 'success', message: string) => {
-    setAlertType(type);
-    setAlertMessage(message);
-  };
-
-  useEffect(() => {
-    if (alertMessage) {
-      const timer = setTimeout(() => {
-        setAlertMessage(null);
-        setAlertType(null);
-      }, 4000);
-      return () => clearTimeout(timer);
+    if (type === 'error') {
+      toast.error(message);
+    } else {
+      toast.success(message);
     }
-  }, [alertMessage]);
+  };
 
   const fetchCategorias = async () => {
     const { data, error } = await supabase.from('categoriatab').select('*');
@@ -124,23 +114,22 @@ export default function CategoriasAdmin() {
   };
 
   const confirmDelete = async () => {
-  if (!selectedDeleteId) return;
-  const { error } = await supabase
-    .from('categoriatab')
-    .delete()                // <-- Aquí cambia update por delete
-    .eq('id', selectedDeleteId);
+    if (!selectedDeleteId) return;
+    const { error } = await supabase
+      .from('categoriatab')
+      .delete()
+      .eq('id', selectedDeleteId);
 
-  if (error) {
-    showAlert('error', 'Error al eliminar categoría');
-    return;
-  }
+    if (error) {
+      showAlert('error', 'Error al eliminar categoría');
+      return;
+    }
 
-  showAlert('success', 'Categoría eliminada');
-  setSelectedDeleteId(null);
-  setDeleteDialogOpen(false);
-  fetchCategorias();
-};
-
+    showAlert('success', 'Categoría eliminada');
+    setSelectedDeleteId(null);
+    setDeleteDialogOpen(false);
+    fetchCategorias();
+  };
 
   const toggleActive = async (categoria: Categoria) => {
     const { error } = await supabase
@@ -158,12 +147,7 @@ export default function CategoriasAdmin() {
 
   return (
     <div className="p-6">
-      {alertMessage && (
-        <Alert variant={alertType === 'error' ? 'destructive' : 'default'} className="shadow-lg">
-          <AlertTitle>{alertType === 'error' ? 'Error' : 'Éxito'}</AlertTitle>
-          <AlertDescription>{alertMessage}</AlertDescription>
-        </Alert>
-      )}
+      <Toaster /> {/* ✅ Toaster de sonner */}
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Categorías</h1>
@@ -234,11 +218,11 @@ export default function CategoriasAdmin() {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                        <p>Esto desactivará la categoría.</p>
+                        <p>Esto eliminará la categoría permanentemente.</p>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>Desactivar</AlertDialogAction>
+                        <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
