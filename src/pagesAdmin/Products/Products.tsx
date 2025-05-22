@@ -70,7 +70,7 @@ export default function ProductsAdmin() {
     varietyOptions: '',
   });
 
-  // Reemplazamos alert tradicional con sonner toast
+  
   const showAlert = (type: 'error' | 'success', message: string) => {
     if (type === 'error') toast.error(message);
     else toast.success(message);

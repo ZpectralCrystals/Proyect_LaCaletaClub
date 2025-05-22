@@ -23,7 +23,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { faPen, faTrash, faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { toast, Toaster } from 'sonner'; // ✅ Importar sonner
+import { toast, Toaster } from 'sonner';
 
 interface Categoria {
   id: number;
