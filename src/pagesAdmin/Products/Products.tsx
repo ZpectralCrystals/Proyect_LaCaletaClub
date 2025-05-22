@@ -22,9 +22,8 @@ import {
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash, faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { Alert, AlertTitle, AlertDescription } from '../../components/ui/alert';
 
 interface Product {
@@ -35,6 +34,7 @@ interface Product {
     description: string;
     image: string;
     varietyOptions: string[];
+    isActive: boolean;
 }
 
 interface Category {
@@ -146,6 +146,7 @@ export default function ProductsAdmin() {
                         description: form.description,
                         image: form.image,
                         varietyOptions: varietyArray,
+                        isActive: true,
                     },
                 ]);
 
@@ -183,7 +184,10 @@ export default function ProductsAdmin() {
 
     const confirmDelete = async () => {
         if (!selectedDeleteId) return;
-        const { error } = await supabase.from('productostab').delete().eq('id', selectedDeleteId);
+        const { error } = await supabase
+            .from('productostab')
+            .delete()
+            .eq('id', selectedDeleteId);
         if (error) {
             console.error('Error eliminando producto:', error);
             showAlert('error', 'Error eliminando producto');
@@ -194,6 +198,24 @@ export default function ProductsAdmin() {
         setDeleteDialogOpen(false);
         fetchProducts();
     };
+
+    
+
+    const toggleActive = async (id: number, current: boolean) => {
+    const { error } = await supabase
+        .from('productostab')
+        .update({ isActive: !current })
+        .eq('id', id);
+    if (error) {
+        console.error('Error actualizando estado activo:', error);
+        showAlert('error', 'Error actualizando estado del producto');
+        return;
+    }
+
+    showAlert('success', `Producto ${!current ? 'activado' : 'desactivado'} con éxito`);
+    fetchProducts();
+};
+
 
     const getCategoryName = (id: number) => {
         const category = categories.find((cat) => cat.id === id);
@@ -240,22 +262,10 @@ export default function ProductsAdmin() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Input
-                                name="price"
-                                placeholder="Precio"
-                                type="number"
-                                value={form.price}
-                                onChange={handleChange}
-                                step="0.01"
-                            />
+                            <Input name="price" placeholder="Precio" type="number" value={form.price} onChange={handleChange} step="0.01" />
                             <Input name="description" placeholder="Descripción" value={form.description} onChange={handleChange} />
                             <Input name="image" placeholder="URL Imagen" value={form.image} onChange={handleChange} />
-                            <Input
-                                name="varietyOptions"
-                                placeholder="Opciones de Variedad (separadas por coma)"
-                                value={form.varietyOptions}
-                                onChange={handleChange}
-                            />
+                            <Input name="varietyOptions" placeholder="Opciones de Variedad (separadas por coma)" value={form.varietyOptions} onChange={handleChange} />
                             <Button onClick={handleSubmit}>{editingProduct ? 'Actualizar' : 'Agregar'}</Button>
                         </div>
                     </DialogContent>
@@ -272,7 +282,8 @@ export default function ProductsAdmin() {
                             <th className="border px-4 py-2">Precio</th>
                             <th className="border px-4 py-2">Descripción</th>
                             <th className="border px-4 py-2">Imagen</th>
-                            <th className="border px-4 py-2">Opciones Variedad</th>
+                            <th className="border px-4 py-2">Variedades</th>
+                            <th className="border px-4 py-2">Estado</th>
                             <th className="border px-4 py-2">Acciones</th>
                         </tr>
                     </thead>
@@ -284,14 +295,13 @@ export default function ProductsAdmin() {
                                 <td className="border px-4 py-2">{getCategoryName(product.type)}</td>
                                 <td className="border px-4 py-2">${product.price.toFixed(2)}</td>
                                 <td className="border px-4 py-2">{product.description}</td>
+                                <td className="border px-4 py-2">{product.image ? <img src={product.image} alt={product.name} className="h-12 w-12 object-cover" /> : 'N/A'}</td>
+                                <td className="border px-4 py-2">{product.varietyOptions.join(', ')}</td>
                                 <td className="border px-4 py-2">
-                                    {product.image ? (
-                                        <img src={product.image} alt={product.name} className="h-12 w-12 object-cover" />
-                                    ) : (
-                                        'N/A'
-                                    )}
+                                    <Button variant="ghost" size="sm" onClick={() => toggleActive(product.id, product.isActive)}>
+                                        <FontAwesomeIcon icon={product.isActive ? faToggleOn : faToggleOff} className={product.isActive ? 'text-green-500' : 'text-gray-500'} />
+                                    </Button>
                                 </td>
-                                <td className="border px-4 py-2">{product.varietyOptions?.join(', ')}</td>
                                 <td className="border px-4 py-2">
                                     <Button variant="ghost" size="sm" onClick={() => handleEdit(product)} className="mr-2">
                                         <FontAwesomeIcon icon={faPen} />
@@ -309,7 +319,7 @@ export default function ProductsAdmin() {
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+                                                <AlertDialogAction onClick={confirmDelete}>Desactivar</AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>

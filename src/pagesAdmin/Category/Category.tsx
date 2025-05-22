@@ -21,13 +21,14 @@ import {
 } from '../../components/ui/alert-dialog';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
-import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash, faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, AlertTitle, AlertDescription } from '../../components/ui/alert';
 
 interface Categoria {
   id: number;
   descripcion: string;
+  isActive: boolean;
 }
 
 export default function CategoriasAdmin() {
@@ -93,7 +94,9 @@ export default function CategoriasAdmin() {
 
       showAlert('success', 'Categoría actualizada');
     } else {
-      const { error } = await supabase.from('categoriatab').insert([{ descripcion: form.descripcion }]);
+      const { error } = await supabase.from('categoriatab').insert([
+        { descripcion: form.descripcion, isActive: true },
+      ]);
 
       if (error) {
         showAlert('error', 'Error agregando categoría');
@@ -121,16 +124,36 @@ export default function CategoriasAdmin() {
   };
 
   const confirmDelete = async () => {
-    if (!selectedDeleteId) return;
-    const { error } = await supabase.from('categoriatab').delete().eq('id', selectedDeleteId);
+  if (!selectedDeleteId) return;
+  const { error } = await supabase
+    .from('categoriatab')
+    .delete()                // <-- Aquí cambia update por delete
+    .eq('id', selectedDeleteId);
+
+  if (error) {
+    showAlert('error', 'Error al eliminar categoría');
+    return;
+  }
+
+  showAlert('success', 'Categoría eliminada');
+  setSelectedDeleteId(null);
+  setDeleteDialogOpen(false);
+  fetchCategorias();
+};
+
+
+  const toggleActive = async (categoria: Categoria) => {
+    const { error } = await supabase
+      .from('categoriatab')
+      .update({ isActive: !categoria.isActive })
+      .eq('id', categoria.id);
+
     if (error) {
-      showAlert('error', 'Error eliminando categoría');
-      return;
+      showAlert('error', 'Error actualizando estado');
+    } else {
+      showAlert('success', `Categoría ${!categoria.isActive ? 'activada' : 'desactivada'}`);
+      fetchCategorias();
     }
-    showAlert('success', 'Categoría eliminada');
-    setSelectedDeleteId(null);
-    setDeleteDialogOpen(false);
-    fetchCategorias();
   };
 
   return (
@@ -178,6 +201,7 @@ export default function CategoriasAdmin() {
             <tr>
               <th className="border px-4 py-2">ID</th>
               <th className="border px-4 py-2">Descripción</th>
+              <th className="border px-4 py-2">Estado</th>
               <th className="border px-4 py-2">Acciones</th>
             </tr>
           </thead>
@@ -186,6 +210,16 @@ export default function CategoriasAdmin() {
               <tr key={cat.id}>
                 <td className="border px-4 py-2">{cat.id}</td>
                 <td className="border px-4 py-2">{cat.descripcion}</td>
+                <td className="border px-4 py-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleActive(cat)}
+                    title={cat.isActive ? 'Desactivar' : 'Activar'}
+                  >
+                    <FontAwesomeIcon icon={cat.isActive ? faToggleOn : faToggleOff} />
+                  </Button>
+                </td>
                 <td className="border px-4 py-2">
                   <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)} className="mr-2">
                     <FontAwesomeIcon icon={faPen} />
@@ -200,11 +234,11 @@ export default function CategoriasAdmin() {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                        <p>Esta acción no se puede deshacer.</p>
+                        <p>Esto desactivará la categoría.</p>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+                        <AlertDialogAction onClick={confirmDelete}>Desactivar</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>

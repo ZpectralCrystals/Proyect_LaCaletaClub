@@ -16,6 +16,7 @@ import Products from "../pagesAdmin/Products/Products";
 
 // Layout general
 import Layout from "@/components/Layout/Layout";
+import LayoutAdmin from "@/components/LayoutAdmin/LayoutAdmin";
 
 export function Router() {
   return (
@@ -33,9 +34,11 @@ export function Router() {
         </Route>
 
         {/* Admin sin layout (o puedes crear otro layout de admin) */}
-        <Route path="/admin/categorias" element={<Category />} />
-        <Route path="/admin/productos" element={<Products />} />
-        <Route path="/admin/promociones" element={<Discounts />} />
+        <Route element={<LayoutAdmin />}>
+          <Route path="/admin/categorias" element={<Category />} />
+          <Route path="/admin/productos" element={<Products />} />
+          <Route path="/admin/promociones" element={<Discounts />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
