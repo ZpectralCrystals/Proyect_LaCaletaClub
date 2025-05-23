@@ -64,7 +64,7 @@ export default function CarritoList() {
   if (loading) return <p className="text-center">Cargando productos...</p>;
 
   return (
-    <div className="flex flex-wrap justify-center">
+    <div className="flex flex-wrap justify-center pt-20">
       {products.map((product) => (
         <CarritoItem
           key={product.id}
