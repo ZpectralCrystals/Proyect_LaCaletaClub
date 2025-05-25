@@ -12,9 +12,6 @@ const Header: React.FC = () => {
         <Link to="/menu" className="text-white hover:text-blue-400 transition-colors">
           Menu
         </Link>
-        <Link to="/paginas" className="text-white hover:text-blue-400 transition-colors">
-          Paginas
-        </Link>
         <Link to="/blog" className="text-white hover:text-blue-400 transition-colors">
           Blog
         </Link>

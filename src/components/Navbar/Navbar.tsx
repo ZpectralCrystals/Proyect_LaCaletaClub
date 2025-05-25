@@ -27,7 +27,7 @@ const Navbar = () => {
         <nav className="hidden lg:flex space-x-6 text-white">
           <Link to="/" className="hover:text-blue-400">Inicio</Link>
           <Link to="/menu" className="hover:text-blue-400">Menú</Link>
-          <Link to="/paginas" className="hover:text-blue-400">Páginas</Link>
+          
           <Link to="/blog" className="hover:text-blue-400">Blog</Link>
           <Link to="/recomendaciones" className="hover:text-blue-400">Recomendaciones</Link>
           <Link to="/contacto" className="hover:text-blue-400">Contacto</Link>
