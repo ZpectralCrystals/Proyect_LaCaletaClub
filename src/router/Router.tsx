@@ -7,7 +7,8 @@ import Blog from "../pages/Blog/Blog";
 import Contacto from "../pages/Contacto/Contacto";
 import Recomendaciones from "../pages/Recomendaciones/Recomendaciones";
 import Carrito from "../pages/Carrito/Carrito";
-
+import IniciarSesion from "@/pages/IniciarSesion/IniciarSesion";
+import RegistrarUsuario from "@/pages/RegistrarUsuario/RegistrarUsuario";
 // Páginas administrativas
 import Category from "../pagesAdmin/Category/Category";
 import Discounts from "../pagesAdmin/Discounts/Discounts";
@@ -30,6 +31,8 @@ export function Router() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/carrito" element={<Carrito />} />
+          <Route path="/iniciasesion" element={<IniciarSesion />} />
+          <Route path="/registro" element={<RegistrarUsuario />} />
           
         </Route>
 
