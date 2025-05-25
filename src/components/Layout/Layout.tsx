@@ -10,6 +10,7 @@ const Layout = () => {
     <div className="pt-24 bg-white min-h-screen">
       <Popup />
       <ScrollToTop />
+      
       <Navbar />
       <Toaster />
       <main>

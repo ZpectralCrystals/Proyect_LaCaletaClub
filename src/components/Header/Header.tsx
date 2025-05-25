@@ -1,32 +1,32 @@
-import React from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCartShopping, faRightToBracket, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { Link } from "react-router-dom";
 
-const Header: React.FC = () => {
+export default function Header() {
   return (
-    <header className="bg-gray-900 text-white flex justify-between items-center p-4 shadow-lg px-[160px]">
-      <div className="text-xl font-bold">PONERLOGO</div>
-      <nav className="flex space-x-4">
-        <Link to="/" className="text-white hover:text-blue-400 transition-colors">
-          Inicio
-        </Link>
-        <Link to="/menu" className="text-white hover:text-blue-400 transition-colors">
-          Menu
-        </Link>
-        <Link to="/blog" className="text-white hover:text-blue-400 transition-colors">
-          Blog
-        </Link>
-        <Link to="/recomendaciones" className="text-white hover:text-blue-400 transition-colors">
-          Recomendaciones
-        </Link>
-        <Link to="/contacto" className="text-white hover:text-blue-400 transition-colors">
-          Contacto
-        </Link>
-        <Link to="/carrito" className="text-white hover:text-blue-400 transition-colors">
-          Carrito
-        </Link>
-      </nav>
+    <header className="bg-[#101828] text-white flex justify-between items-center p-1 shadow-lg px-[160px]">
+      <div className="flex gap-2 items-center">
+        <FontAwesomeIcon icon={faPhone} /> Call: 888-654-3210
+      </div>
+      <div className="flex flex-row">
+        <div className="flex flex-row gap-2">
+          <Link to="/iniciasesion">
+            <FontAwesomeIcon icon={faRightToBracket} /> Inicia Sesión
+          </Link>
+          <p>(or)</p>
+          <Link to="/registro">
+            <FontAwesomeIcon icon={faRightToBracket} className="rotate-180" /> Regístrate
+          </Link>
+        </div>
+        <div className="border-r border-[#101828] mx-3 my-[-15px]" />
+        <div className="flex flex-row">
+          <p>
+            <FontAwesomeIcon icon={faCartShopping} /> (0) items in cart
+          </p>
+          <div className="border-r border-[#ffffff] mx-3" />
+          <p>($0.00)</p>
+        </div>
+      </div>
     </header>
   );
-};
-
-export default Header;
+}

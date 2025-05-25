@@ -70,6 +70,22 @@ const RegistrarUsuario = () =>{
                 name="password"
                 type="password"
               />
+              <ul className="text-xs text-gray-500 mt-1 list-disc pl-5">
+                <li>Al menos 8 carácteres</li>
+                <li>Al menos un número (0-9) o símbolo especial</li>
+              </ul>
+            </div>
+            {/* Checkbox Términos */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="terminos"
+                className="accent-blue-600"
+                required
+              />
+              <label htmlFor="terminos" className="text-sm text-gray-700">
+                Acepto los <a href="#" className="text-blue-600 underline">Términos y Condiciones</a>
+              </label>
             </div>
             <div className="flex justify-center items-center">
               <Button  className="bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-full shadow-lg center" type="submit">

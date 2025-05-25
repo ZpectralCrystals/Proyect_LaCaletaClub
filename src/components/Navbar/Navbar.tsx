@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import Header from "../Header/Header";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -9,7 +10,12 @@ const Navbar = () => {
   const closeMenu = () => setMenuOpen(false);
 
   return (
+    <>
+    
     <header className="bg-gray-900 text-white shadow-lg fixed w-full top-0 z-50">
+      <div className="hidden lg:block">
+  <Header />
+</div>
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <div className="text-2xl font-bold text-blue-300">
@@ -45,9 +51,12 @@ const Navbar = () => {
           <Link to="/recomendaciones" onClick={closeMenu} className="block hover:text-blue-400">Recomendaciones</Link>
           <Link to="/contacto" onClick={closeMenu} className="block hover:text-blue-400">Contacto</Link>
           <Link to="/carrito" onClick={closeMenu} className="block hover:text-blue-400">Carrito</Link>
+          <Link to="/iniciasesion" onClick={closeMenu} className="block hover:text-blue-400">Inicia Sesion</Link>
+          <Link to="/registro" onClick={closeMenu} className="block hover:text-blue-400">Registro</Link>
         </nav>
       )}
     </header>
+    </>
   );
 };
 
