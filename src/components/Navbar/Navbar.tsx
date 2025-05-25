@@ -20,7 +20,7 @@ const Navbar = () => {
         {/* Logo */}
         <div className="text-2xl font-bold text-blue-300">
         <Link to="/" className="text-xl font-bold text-yellow-400">
-          <img src="/logo/la_caleta_texto_claro_transparente.png" alt="La Caleta Logo" className="w-80 h-30" />
+          <img src="/logo/LaCaleta_logo_light.png" alt="La Caleta Logo" className="w-72 h-auto" />
         </Link>
         </div>
 

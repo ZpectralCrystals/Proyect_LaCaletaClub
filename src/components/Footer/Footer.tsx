@@ -6,7 +6,7 @@ const Footer = () => {
         {/* Logo + descripción */}
         <div>
         
-          <img src="/logo/la_caleta_texto_claro_transparente.png" alt="La Caleta Logo" className="w-80 h-30" />
+          <img src="/logo/LaCaleta_logo_light.png" alt="La Caleta Logo" className="w-72 h-auto" />
         
           <p className="text-sm text-blue-100 leading-relaxed">
             Disfruta del mejor ceviche, acumula puntos por cada visita y canjea promociones únicas en tu cevichería favorita.
@@ -30,7 +30,13 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-2 text-blue-100">Contáctanos</h3>
           <p className="text-sm text-blue-300">📍 Umacollo - Arequipa</p>
           <p className="text-sm text-blue-300">📞 913 204 134</p>
-          <p className="text-sm text-blue-300">✉️ contacto@cevicheclub.pe</p>
+
+          <p className="text-sm text-blue-300">📍 Lambramani - Arequipa</p>
+          <p className="text-sm text-blue-300">📞 913 204 168</p>
+
+          <p className="text-sm text-blue-300">📍 Cerro Colorado - Arequipa</p>
+          <p className="text-sm text-blue-300">📞 977 928 716</p>
+          {/* <p className="text-sm text-blue-300">✉️ contacto@cevicheclub.pe</p> */}
         </div>
       </div>
 
