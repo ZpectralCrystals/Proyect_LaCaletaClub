@@ -7,7 +7,6 @@ import Blog from "../pages/Blog/Blog";
 import Contacto from "../pages/Contacto/Contacto";
 import Recomendaciones from "../pages/Recomendaciones/Recomendaciones";
 import Carrito from "../pages/Carrito/Carrito";
-import Paginas from "../pages/Paginas/Paginas";
 
 // Páginas administrativas
 import Category from "../pagesAdmin/Category/Category";
@@ -30,7 +29,7 @@ export function Router() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/carrito" element={<Carrito />} />
-          <Route path="/paginas" element={<Paginas />} />
+          
         </Route>
 
         {/* Admin sin layout (o puedes crear otro layout de admin) */}
