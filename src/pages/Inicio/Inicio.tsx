@@ -95,7 +95,7 @@ const Inicio = () => {
                     alt={p.nombre}
                     className="w-full h-52 object-cover"
                   />
-                  <div className="p-4 text-center">
+                  <div className="p-5 text-center">
                     <h3 className="text-lg font-semibold text-sky-800 mb-2">
                       {p.nombre}
                     </h3>
