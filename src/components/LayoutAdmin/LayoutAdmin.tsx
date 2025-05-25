@@ -5,9 +5,10 @@ const LayoutAdmin = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header/Sidebar */}
-      <div className="fixed top-0 left-0 right-0 z-10">
-        <AppSidebar />
-      </div>
+      <div className="lg:w-64 lg:fixed lg:top-0 lg:left-0 lg:h-screen z-10">
+  <AppSidebar />
+</div>
+
 
       {/* Main Content */}
       <main className="flex-1 pt-16 lg:pt-0 lg:pl-64"> {/* Ajuste para el sidebar */}
