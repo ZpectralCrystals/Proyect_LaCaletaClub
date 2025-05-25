@@ -16,6 +16,7 @@ import Products from "../pagesAdmin/Products/Products";
 import Profile from "../pagesAdmin/Profile/Profile";
 import InicioAdmin from "@/pagesAdmin/Inicio/Inicio";
 import UsuariosAdmin from "@/pagesAdmin/Users/User";
+import CommentsAdmin from "@/pagesAdmin/Comments/Comments";
 
 // Layout general
 import Layout from "@/components/Layout/Layout";
@@ -49,6 +50,8 @@ export function Router() {
           <Route path="/admin/promociones" element={<Discounts />} />
           <Route path="/admin/profile" element={<Profile />} />
           <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
+          <Route path="/admin/comentarios" element={<CommentsAdmin />} />
+          
 
         </Route>
       </Routes>
