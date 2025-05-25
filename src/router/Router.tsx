@@ -14,10 +14,13 @@ import Category from "../pagesAdmin/Category/Category";
 import Discounts from "../pagesAdmin/Discounts/Discounts";
 import Products from "../pagesAdmin/Products/Products";
 import Profile from "../pagesAdmin/Profile/Profile";
+import InicioAdmin from "@/pagesAdmin/Inicio/Inicio";
+import UsuariosAdmin from "@/pagesAdmin/Users/User";
 
 // Layout general
 import Layout from "@/components/Layout/Layout";
 import LayoutAdmin from "@/components/LayoutAdmin/LayoutAdmin";
+
 
 export function Router() {
   return (
@@ -40,10 +43,13 @@ export function Router() {
 
         {/* Admin sin layout (o puedes crear otro layout de admin) */}
         <Route element={<LayoutAdmin />}>
+          <Route path="/admin/" element={<InicioAdmin />} />
           <Route path="/admin/categorias" element={<Category />} />
           <Route path="/admin/productos" element={<Products />} />
           <Route path="/admin/promociones" element={<Discounts />} />
           <Route path="/admin/profile" element={<Profile />} />
+          <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
+
         </Route>
       </Routes>
     </BrowserRouter>

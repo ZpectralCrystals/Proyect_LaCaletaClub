@@ -16,7 +16,7 @@ import {
 } from "../../components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Package, User, LogOut, Menu, Tags, List } from "lucide-react";
+import { Package, User, LogOut, Menu, Tags, List, User2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -47,6 +47,16 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
           <SidebarGroupContent className="space-y-1">
             <SidebarMenuButton asChild>
               <Link
+                to="/admin/"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <Package className="w-4 h-4" />
+                <span>Inicio</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
                 to="/admin/productos"
                 onClick={onItemClick}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
@@ -75,6 +85,17 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
               >
                 <Tags className="w-4 h-4" />
                 <span>Promociones</span>
+              </Link>
+            </SidebarMenuButton>
+
+            <SidebarMenuButton asChild>
+              <Link
+                to="/admin/usuarios"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <User2 className="w-4 h-4" />
+                <span>Usuarios</span>
               </Link>
             </SidebarMenuButton>
           </SidebarGroupContent>
