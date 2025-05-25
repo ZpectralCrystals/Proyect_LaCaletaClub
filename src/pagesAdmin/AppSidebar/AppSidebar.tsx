@@ -74,7 +74,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
               >
                 <Tags className="w-4 h-4" />
-                <span>Descuentos</span>
+                <span>Promociones</span>
               </Link>
             </SidebarMenuButton>
           </SidebarGroupContent>
