@@ -12,6 +12,7 @@ import Carrito from "../pages/Carrito/Carrito";
 import Category from "../pagesAdmin/Category/Category";
 import Discounts from "../pagesAdmin/Discounts/Discounts";
 import Products from "../pagesAdmin/Products/Products";
+import Profile from "../pagesAdmin/Profile/Profile";
 
 // Layout general
 import Layout from "@/components/Layout/Layout";
@@ -37,6 +38,7 @@ export function Router() {
           <Route path="/admin/categorias" element={<Category />} />
           <Route path="/admin/productos" element={<Products />} />
           <Route path="/admin/promociones" element={<Discounts />} />
+          <Route path="/admin/profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

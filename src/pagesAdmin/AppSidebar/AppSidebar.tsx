@@ -87,7 +87,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
           <SidebarGroupContent className="space-y-1">
             <SidebarMenuButton asChild>
               <Link
-                to="/profile"
+                to="admin/profile"
                 onClick={onItemClick}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
               >
