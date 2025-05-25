@@ -35,12 +35,13 @@ export function Router() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/carrito" element={<Carrito />} />
-          
-          
-        </Route>
-
-        <Route path="/iniciasesion" element={<IniciarSesion />} />
+          <Route path="/iniciasesion" element={<IniciarSesion />} />
         <Route path="/registro" element={<RegistrarUsuario />} />
+        </Route>
+          
+      
+
+        
 
         {/* Admin sin layout (o puedes crear otro layout de admin) */}
         <Route element={<LayoutAdmin />}>
