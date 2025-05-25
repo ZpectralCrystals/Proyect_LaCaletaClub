@@ -22,9 +22,9 @@ import {
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, AlertTitle, AlertDescription } from '../../components/ui/alert';
+import { Toaster, toast } from 'sonner';
 
 interface Descuento {
     id: number;
@@ -35,6 +35,7 @@ interface Descuento {
     id_category: number | null;
     imagen: string;
     type: number;
+    isActive: boolean;
 }
 
 interface Type {
@@ -72,6 +73,7 @@ export default function DescuentosAdmin() {
         id_dia: '',
         id_producto: '',
         id_category: '',
+        isActive: 'true',
     });
 
     const [editingDescuento, setEditingDescuento] = useState<Descuento | null>(null);
@@ -79,23 +81,11 @@ export default function DescuentosAdmin() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
 
-    const [alertMessage, setAlertMessage] = useState<string | null>(null);
-    const [alertType, setAlertType] = useState<'error' | 'success' | null>(null);
-
     const showAlert = (type: 'error' | 'success', message: string) => {
-        setAlertType(type);
-        setAlertMessage(message);
-    };
+    if (type === 'error') toast.error(message);
+    else toast.success(message);
+};
 
-    useEffect(() => {
-        if (alertMessage) {
-            const timer = setTimeout(() => {
-                setAlertMessage(null);
-                setAlertType(null);
-            }, 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [alertMessage]);
 
     // Fetch all data needed
     const fetchData = async () => {
@@ -145,7 +135,6 @@ export default function DescuentosAdmin() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // Para Select con shadcn/ui
     const handleSelectChange = (name: string, value: string) => {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
@@ -172,13 +161,11 @@ export default function DescuentosAdmin() {
         const typeNum = Number(form.type);
 
         if (typeNum === 1) {
-            
             if (!form.id_dia) {
                 showAlert('error', 'Debe seleccionar un día');
                 return;
             }
         } else if (typeNum === 2) {
-            
             if ((!form.id_producto || form.id_producto === '') && (!form.id_category || form.id_category === '')) {
                 showAlert('error', 'Debe seleccionar un producto o una categoría');
                 return;
@@ -192,8 +179,7 @@ export default function DescuentosAdmin() {
             return;
         }
 
-        
-        const payload: Partial<Descuento> = {
+        const payload = {
             name: form.name.trim(),
             descuento: Number(form.descuento),
             imagen: form.imagen.trim(),
@@ -201,39 +187,41 @@ export default function DescuentosAdmin() {
             id_dia: typeNum === 1 ? Number(form.id_dia) : null,
             id_producto: typeNum === 2 && form.id_producto !== '' ? Number(form.id_producto) : null,
             id_category: typeNum === 2 && form.id_category !== '' ? Number(form.id_category) : null,
+            isActive: form.isActive === 'true',
         };
 
-        if (editingDescuento) {
-            const { error } = await supabase
-                .from('descuentostab')
-                .update(payload)
-                .eq('id', editingDescuento.id);
-            if (error) {
-                showAlert('error', 'Error actualizando descuento');
-                return;
-            }
-            showAlert('success', 'Descuento actualizado');
-        } else {
-            const { error } = await supabase.from('descuentostab').insert([payload]);
-            if (error) {
-                showAlert('error', 'Error agregando descuento');
-                return;
-            }
-            showAlert('success', 'Descuento agregado');
-        }
+        try {
+            if (editingDescuento) {
+                const { error } = await supabase
+                    .from('descuentostab')
+                    .update(payload)
+                    .eq('id', editingDescuento.id);
 
-        setOpen(false);
-        setForm({
-            name: '',
-            descuento: '',
-            imagen: '',
-            type: '',
-            id_dia: '',
-            id_producto: '',
-            id_category: '',
-        });
-        setEditingDescuento(null);
-        fetchData();
+                if (error) throw error;
+                showAlert('success', 'Descuento actualizado');
+            } else {
+                const { error } = await supabase.from('descuentostab').insert([payload]);
+                if (error) throw error;
+                showAlert('success', 'Descuento agregado');
+            }
+
+            setOpen(false);
+            setForm({
+                name: '',
+                descuento: '',
+                imagen: '',
+                type: '',
+                id_dia: '',
+                id_producto: '',
+                id_category: '',
+                isActive: 'true',
+            });
+            setEditingDescuento(null);
+            fetchData();
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('error', editingDescuento ? 'Error actualizando descuento' : 'Error agregando descuento');
+        }
     };
 
     const handleEdit = (desc: Descuento) => {
@@ -246,6 +234,7 @@ export default function DescuentosAdmin() {
             id_dia: desc.id_dia ? desc.id_dia.toString() : '',
             id_producto: desc.id_producto ? desc.id_producto.toString() : '',
             id_category: desc.id_category ? desc.id_category.toString() : '',
+            isActive: desc.isActive.toString(),
         });
         setOpen(true);
     };
@@ -255,28 +244,39 @@ export default function DescuentosAdmin() {
         setDeleteDialogOpen(true);
     };
 
+    const toggleActive = async (id: number, currentState: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('descuentostab')
+                .update({ isActive: !currentState })
+                .eq('id', id);
+            
+            if (error) throw error;
+            showAlert('success', `Descuento ${!currentState ? 'activado' : 'desactivado'}`);
+            fetchData();
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('error', 'Error cambiando estado');
+        }
+    };
+
     const confirmDelete = async () => {
         if (!selectedDeleteId) return;
-        const { error } = await supabase.from('descuentostab').delete().eq('id', selectedDeleteId);
-        if (error) {
+        try {
+            const { error } = await supabase.from('descuentostab').delete().eq('id', selectedDeleteId);
+            if (error) throw error;
+            showAlert('success', 'Descuento eliminado');
+            setSelectedDeleteId(null);
+            setDeleteDialogOpen(false);
+            fetchData();
+        } catch (error) {
             showAlert('error', 'Error eliminando descuento');
-            return;
         }
-        showAlert('success', 'Descuento eliminado');
-        setSelectedDeleteId(null);
-        setDeleteDialogOpen(false);
-        fetchData();
     };
 
     return (
         <div className="p-6">
-            {alertMessage && (
-                <Alert variant={alertType === 'error' ? 'destructive' : 'default'} className="shadow-lg">
-                    <AlertTitle>{alertType === 'error' ? 'Error' : 'Éxito'}</AlertTitle>
-                    <AlertDescription>{alertMessage}</AlertDescription>
-                </Alert>
-            )}
-
+            <Toaster position="top-right" />
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-xl font-bold">Descuentos</h1>
                 <Dialog open={open} onOpenChange={setOpen}>
@@ -292,6 +292,7 @@ export default function DescuentosAdmin() {
                                     id_dia: '',
                                     id_producto: '',
                                     id_category: '',
+                                    isActive: 'true',
                                 });
                             }}
                         >
@@ -323,7 +324,23 @@ export default function DescuentosAdmin() {
                                 onChange={handleChange}
                             />
 
-                            {/* Select Type */}
+                            <Select
+                                name="isActive"
+                                onValueChange={(value) => handleSelectChange('isActive', value)}
+                                value={form.isActive}
+                            >
+                                <SelectTrigger className="w-[200px]">
+                                    <SelectValue placeholder="Estado" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Estado</SelectLabel>
+                                        <SelectItem value="true">Activo</SelectItem>
+                                        <SelectItem value="false">Inactivo</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+
                             <Select
                                 name="type"
                                 onValueChange={(value) => handleSelectChange('type', value)}
@@ -344,7 +361,6 @@ export default function DescuentosAdmin() {
                                 </SelectContent>
                             </Select>
 
-                            {/* Según tipo: */}
                             {form.type === '1' && (
                                 <Select
                                     name="id_dia"
@@ -373,7 +389,6 @@ export default function DescuentosAdmin() {
                                         name="id_producto"
                                         onValueChange={(value) => {
                                             handleSelectChange('id_producto', value);
-                                           
                                             setForm((prev) => ({ ...prev, id_category: '' }));
                                         }}
                                         value={form.id_producto}
@@ -397,7 +412,6 @@ export default function DescuentosAdmin() {
                                         name="id_category"
                                         onValueChange={(value) => {
                                             handleSelectChange('id_category', value);
-                                            // Vaciar producto si se selecciona categoría
                                             setForm((prev) => ({ ...prev, id_producto: '' }));
                                         }}
                                         value={form.id_category}
@@ -418,75 +432,95 @@ export default function DescuentosAdmin() {
                                     </Select>
                                 </>
                             )}
-
-                            <Button onClick={handleSubmit} className="mt-4">
-                                {editingDescuento ? 'Actualizar' : 'Agregar'}
-                            </Button>
+                            <div className="flex justify-end">
+                                <Button onClick={handleSubmit}>
+                                    {editingDescuento ? 'Actualizar' : 'Guardar'}
+                                </Button>
+                            </div>
                         </div>
                     </DialogContent>
                 </Dialog>
             </div>
 
             <div className="overflow-x-auto">
-                <table className="min-w-full border text-sm">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="border px-4 py-2">ID</th>
-                            <th className="border px-4 py-2">Nombre</th>
-                            <th className="border px-4 py-2">Descuento</th>
-                            <th className="border px-4 py-2">Imagen</th>
-                            <th className="border px-4 py-2">Tipo</th>
-                            <th className="border px-4 py-2">Día</th>
-                            <th className="border px-4 py-2">Producto</th>
-                            <th className="border px-4 py-2">Categoría</th>
-                            <th className="border px-4 py-2">Acciones</th>
+                <table className="w-full border border-gray-300 rounded">
+                    <thead>
+                        <tr className="bg-gray-100 text-left">
+                            <th className="p-2 border-b">Nombre</th>
+                            <th className="p-2 border-b">Descuento</th>
+                            <th className="p-2 border-b">Imagen</th>
+                            <th className="p-2 border-b">Estado</th>
+                            <th className="p-2 border-b">Tipo</th>
+                            <th className="p-2 border-b">Producto/Categoría</th>
+                            <th className="p-2 border-b">Día</th>
+                            <th className="p-2 border-b text-center">Acciones</th>
                         </tr>
-
                     </thead>
-                    <tbody> {descuentos.map((desc) => (
-                        <tr key={desc.id} className="odd:bg-white even:bg-gray-50">
-                            <td className="border px-4 py-2">{desc.id}
-                            </td>
-                            <td className="border px-4 py-2">{desc.name}
-                            </td>
-                            <td className="border px-4 py-2">{desc.descuento}%
-                            </td>
-                            <td className="border px-4 py-2"> {desc.imagen ? (<img src={desc.imagen} alt={desc.name} className="h-10 w-10 object-cover" />) : ('N/A')}
-                            </td>
-                            <td className="border px-4 py-2"> {types.find((t) => t.id === desc.type)?.descripcion || 'N/A'}
-                            </td>
-                            <td className="border px-4 py-2"> {desc.id_dia ? dias.find((d) => d.id === desc.id_dia)?.dia : 'N/A'}
-                            </td>
-                            <td className="border px-4 py-2"> {desc.id_producto ? productos.find((p) => p.id === desc.id_producto)?.name : 'N/A'}
-                            </td>
-                            <td className="border px-4 py-2"> {desc.id_category ? categorias.find((c) => c.id === desc.id_category)?.descripcion : 'N/A'}
-                            </td>
-                            <td className="border px-4 py-2 flex gap-2 justify-center">
-                                <Button variant="outline" size="sm" onClick={() => handleEdit(desc)} title="Editar" > <FontAwesomeIcon icon={faPen} /> </Button>
-                                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                                    <AlertDialogTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => openDeleteDialog(desc.id)}
-                                            title="Eliminar"
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
+                    <tbody>
+                        {descuentos.map((d) => {
+                            const tipo = types.find((t) => t.id === d.type)?.descripcion || '';
+                            const producto = productos.find((p) => p.id === d.id_producto)?.name;
+                            const categoria = categorias.find((c) => c.id === d.id_category)?.descripcion;
+                            const dia = dias.find((dd) => dd.id === d.id_dia)?.dia;
+
+                            return (
+                                <tr key={d.id} className="border-t">
+                                    <td className="p-2">{d.name}</td>
+                                    <td className="p-2">{d.descuento}%</td>
+                                    <td className="p-2">
+                                        <img src={d.imagen} alt="Imagen" className="w-16 h-16 object-cover" />
+                                    </td>
+                                    <td className="p-2">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                            d.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}>
+                                            {d.isActive ? 'Activo' : 'Inactivo'}
+                                        </span>
+                                    </td>
+                                    <td className="p-2">{tipo}</td>
+                                    <td className="p-2">
+                                        {producto || categoria || '—'}
+                                    </td>
+                                    <td className="p-2">{dia || '—'}</td>
+                                    <td className="p-2 flex justify-center gap-2">
+                                        <Button variant="outline" size="icon" onClick={() => handleEdit(d)}>
+                                            <FontAwesomeIcon icon={faPen} />
                                         </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                            <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </td>
-                        </tr>
-                    ))}
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            onClick={() => toggleActive(d.id, d.isActive)}
+                                        >
+                                            <FontAwesomeIcon icon={d.isActive ? faEyeSlash : faEye} />
+                                        </Button>
+                                        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                                            <AlertDialogTrigger asChild>
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    onClick={() => openDeleteDialog(d.id)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>
+                                                        ¿Estás seguro de eliminar este descuento?
+                                                    </AlertDialogTitle>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={confirmDelete}>
+                                                        Eliminar
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

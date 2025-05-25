@@ -1,61 +1,117 @@
-import React, { useState, useEffect } from "react";
+"use client";
 
-interface Anuncio {
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+interface Descuento {
   id: number;
-  titulo: string;
-  mensaje: string;
-  imagen: string;
-  activo: boolean;
+  id_producto?: number;
+  id_category?: number;
+  id_dia: number | null;
+  descuento: number;
+  type: number;
+  imagen?: string;
+  name: string;
+  isActive: boolean;
 }
 
-const Popup: React.FC = () => {
-  const [anuncio, setAnuncio] = useState<Anuncio | null>(null);
-
-  useEffect(() => {
-    
-    fetch("/anuncios.json")
-      .then((response) => response.json())
-      .then((data) => {
-        
-        const activeAnuncio = data.find((item: Anuncio) => item.activo === true);
-        setAnuncio(activeAnuncio || null); 
-      })
-      .catch((error) => console.error("Error al cargar el JSON:", error));
-  }, []);
-
-  const closePopup = () => {
-    setAnuncio(null); 
-  };
-
-  if (!anuncio) {
-    return null; 
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-80 relative text-center shadow-lg">
-        <button
-          onClick={closePopup}
-          className="absolute top-2 right-2 text-gray-500 text-xl hover:text-gray-700"
-        >
-          &times;
-        </button>
-        <img
-          src={anuncio.imagen}
-          alt={anuncio.titulo}
-          className="w-full h-auto rounded mb-4"
-        />
-        <h2 className="text-xl font-bold mb-2">{anuncio.titulo}</h2>
-        <p className="text-sm mb-4">{anuncio.mensaje}</p>
-        <button
-          onClick={closePopup}
-          className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-        >
-          Más Información
-        </button>
-      </div>
-    </div>
-  );
+const diasMap: Record<number, string> = {
+  1: "Lunes",
+  2: "Martes",
+  3: "Miércoles",
+  4: "Jueves",
+  5: "Viernes",
+  6: "Sábado",
+  7: "Domingo",
 };
 
-export default Popup;
+function getTodayId(): number {
+  const day = new Date().getDay();
+  return day === 0 ? 7 : day;
+}
+
+export default function DescuentosDelDia() {
+  const [descuentos, setDescuentos] = useState<Descuento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchDescuentos = async () => {
+      setLoading(true);
+      const todayId = getTodayId();
+
+      const { data, error } = await supabase
+        .from("descuentostab")
+        .select("*")
+        .eq("isActive", true)
+        .or(`id_dia.eq.${todayId},id_dia.is.null`);
+
+      if (error) {
+        console.error("Error al obtener descuentos:", error.message);
+      } else {
+        setDescuentos(data || []);
+        // Mostrar automáticamente si hay descuentos
+        if (data && data.length > 0) {
+          setIsOpen(true);
+          // Ocultar después de 5 segundos
+          setTimeout(() => setIsOpen(false), 5000);
+        }
+      }
+
+      setLoading(false);
+    };
+
+    fetchDescuentos();
+  }, []);
+
+  const descuentosActivos = descuentos.filter(d => d.isActive);
+  const todayName = diasMap[getTodayId()];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="max-h-[80vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
+        <DialogHeader>
+          <DialogTitle>🔥 Descuentos de hoy ({todayName}) 🔥</DialogTitle>
+        </DialogHeader>
+        
+        {loading ? (
+          <p>Cargando descuentos...</p>
+        ) : descuentosActivos.length === 0 ? (
+          <p>No hay descuentos activos para hoy.</p>
+        ) : (
+          <div className="space-y-4 mt-4">
+            {descuentosActivos.map((item) => (
+              <div key={item.id} className="p-4 border rounded-lg bg-background">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold text-lg">{item.name}</h3>
+                    <p className="text-primary font-bold text-xl">-{item.descuento}%</p>
+                  </div>
+                  {item.type === 2 && item.imagen && (
+                    <img
+                      src={item.imagen}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  )}
+                </div>
+                
+                {item.id_dia === null && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    ⏳ Disponible todos los días
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
