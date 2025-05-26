@@ -1,3 +1,4 @@
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 import React, { useState } from "react";
 
 interface Product {
@@ -52,15 +53,15 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
           <h3 className="text-sky-800 text-lg font-semibold mt-2">{product.name}</h3>
 
           {/* Contador */}
-          <div className="flex justify-center items-center mt-3 gap-2">
+          <div className="flex justify-center items-center mt-2 gap-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 decrement();
               }}
-              className="bg-red-500 text-white w-6 h-6 rounded-full"
+              className="bg-white text-[#0069a8] w-6 h-6 rounded-full border"
             >
-              –
+              <Minus />
             </button>
             <span className="text-sm font-bold">{quantity}</span>
             <button
@@ -68,13 +69,20 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
                 e.stopPropagation();
                 increment();
               }}
-              className="bg-green-500 text-white w-6 h-6 rounded-full"
+              className="bg-white text-[#0069a8] w-6 h-6 rounded-full border"
             >
-              +
+              <Plus />
             </button>
+            <button
+            
+            className=" bg-sky-700 hover:bg-sky-800 text-white px-4 py-1 rounded-full"
+          >
+            <ShoppingCart  className="w-6 h-6"/>
+          </button>
           </div>
 
           <p className="text-xs text-gray-400 mt-2 px-3">(Haz clic para ver más)</p>
+          
         </div>
 
         {/* Reverso */}

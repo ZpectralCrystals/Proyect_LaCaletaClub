@@ -85,7 +85,8 @@ export default function MenuList() {
     <div className="lg:mt-24 sm:mt-15 px-4">
       <h1 className="text-sky-800 text-lg font-semibold text-center">Agrega tus platos para tu carrito</h1>
 
-      {/* Buscador */}
+      <div>
+        {/* Buscador */}
       <div className="flex justify-center my-4">
         <input
           type="text"
@@ -113,6 +114,7 @@ export default function MenuList() {
             {name}
           </button>
         ))}
+      </div>
       </div>
 
       {/* Lista de productos */}
