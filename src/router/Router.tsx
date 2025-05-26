@@ -10,7 +10,8 @@ import Carrito from "../pages/Carrito/Carrito";
 import IniciarSesion from "@/pages/IniciarSesion/IniciarSesion";
 import RegistrarUsuario from "@/pages/RegistrarUsuario/RegistrarUsuario";
 // Páginas administrativas
-import Category from "../pagesAdmin/Category/Category";
+import Category from "../pagesAdmin/Category";
+
 import Discounts from "../pagesAdmin/Discounts/Discounts";
 import Products from "../pagesAdmin/Products/Products";
 import Profile from "../pagesAdmin/Profile/Profile";
