@@ -37,7 +37,7 @@ const Inicio = () => {
   return (
     <main className="bg-white min-h-screen">
       {/* HERO */}
-      <section className="relative bg-[url('/slider-bg2.jpg')] bg-cover bg-center min-h-[80vh] flex items-center justify-center text-white">
+      <section className="relative bg-[url('/portada.png')] bg-cover bg-center bg-no-repeat min-h-screen flex items-center justify-center text-white">
         <div className="absolute inset-0 bg-blue-900/60" />
         <div className="relative z-10 text-center px-6">
           <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">Sabor Marino Auténtico</h1>

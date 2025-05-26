@@ -7,17 +7,18 @@ import { Toaster } from "@/components/ui/toast/toaster";
 
 const Layout = () => {
   return (
-    <div className="pt-24 bg-white min-h-screen">
+    <>
       <Popup />
       <ScrollToTop />
-      
       <Navbar />
       <Toaster />
-      <main>
-        <Outlet /> {/* Aquí se renderiza cada página */}
-      </main>
-      <Footer />
-    </div>
+      <div className="pt-[130px] bg-white min-h-screen">
+        <main>
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </>
   );
 };
 
