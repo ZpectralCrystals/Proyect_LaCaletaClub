@@ -13,7 +13,7 @@ export default function Header() {
           <Link to="/iniciasesion">
             <FontAwesomeIcon icon={faRightToBracket} /> Inicia Sesión
           </Link>
-          <p>(or)</p>
+          <p></p>
           <Link to="/registro">
             <FontAwesomeIcon icon={faRightToBracket} className="rotate-180" /> Regístrate
           </Link>
