@@ -17,10 +17,14 @@ import Profile from "../pagesAdmin/Profile/Profile";
 import InicioAdmin from "@/pagesAdmin/Inicio/Inicio";
 import UsuariosAdmin from "@/pagesAdmin/Users/User";
 import CommentsAdmin from "@/pagesAdmin/Comments/Comments";
+import RecomendacionesAdmin from "@/pagesAdmin/Recomendaciones/Recomendaciones";
+import ReportesAdmin from "@/pagesAdmin/Reportes/Reportes";
 
 // Layout general
 import Layout from "@/components/Layout/Layout";
 import LayoutAdmin from "@/components/LayoutAdmin/LayoutAdmin";
+
+
 
 
 export function Router() {
@@ -52,6 +56,8 @@ export function Router() {
           <Route path="/admin/profile" element={<Profile />} />
           <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
           <Route path="/admin/comentarios" element={<CommentsAdmin />} />
+          <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
+          <Route path="/admin/reportes" element={<ReportesAdmin />} />
           
 
         </Route>

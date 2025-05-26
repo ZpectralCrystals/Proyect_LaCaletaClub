@@ -16,7 +16,7 @@ import {
 } from "../../components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Package, User, LogOut, Menu, Tags, List, User2, MessageCircle } from "lucide-react";
+import { Package, User, LogOut, Menu, Tags, List, User2, MessageCircle, Blinds, Library } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -107,6 +107,26 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Comentarios</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/admin/recomendaciones"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <Library className="w-4 h-4" />
+                <span>Recomendaciones</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/admin/reportes"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <Blinds className="w-4 h-4" />
+                <span>Reportes</span>
               </Link>
             </SidebarMenuButton>
           </SidebarGroupContent>
