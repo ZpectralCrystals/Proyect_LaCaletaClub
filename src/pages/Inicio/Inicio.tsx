@@ -1,88 +1,134 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const imagenes = [
+  "/portada1.png",
+  "/portada2.png",
+  "/portada3.png",
+];
+
 const productosDestacados = [
-  {
-    id: 1,
-    nombre: "Ceviche Clásico",
-    imagen: "/menu-img1.jpg",
-    precio: 32,
-  },
-  {
-    id: 2,
-    nombre: "Tiradito 4 Continentes",
-    imagen: "/menu-img2.jpg",
-    precio: 45,
-  },
-  {
-    id: 3,
-    nombre: "Piqueo Caliente",
-    imagen: "/menu-img3.jpg",
-    precio: 70,
-  },
-  {
-    id: 4,
-    nombre: "Jugo de Maracuyá",
-    imagen: "/menu-img4.jpg",
-    precio: 10,
-  },
-  {
-    id: 5,
-    nombre: "Cusqueña",
-    imagen: "/menu-img5.jpg",
-    precio: 12,
-  },
+  { id: 1, nombre: "Ceviche Clásico", imagen: "/menu-img1.jpg", precio: 32 },
+  { id: 2, nombre: "Tiradito 4 Continentes", imagen: "/menu-img2.jpg", precio: 45 },
+  { id: 3, nombre: "Piqueo Caliente", imagen: "/menu-img3.jpg", precio: 70 },
+  { id: 4, nombre: "Jugo de Maracuyá", imagen: "/menu-img4.jpg", precio: 10 },
+  { id: 5, nombre: "Cusqueña", imagen: "/menu-img5.jpg", precio: 12 },
 ];
 
 const Inicio = () => {
+  const [actual, setActual] = useState(0);
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      setActual((prev) => (prev + 1) % imagenes.length);
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, []);
+
+  const cambiarManual = (index: number) => {
+    setActual(index);
+  };
+
   return (
     <main className="bg-white min-h-screen">
-      {/* HERO */}
-      <section className="relative bg-[url('/portada.png')] bg-cover bg-center bg-no-repeat min-h-screen flex items-center justify-center text-white">
-        <div className="absolute inset-0 bg-blue-900/60" />
-        <div className="relative z-10 text-center px-6">
+      {/* HERO con slider y fade */}
+      <section className="relative min-h-screen flex items-center justify-center text-white overflow-hidden">
+        {imagenes.map((img, i) => (
+          <div
+            key={i}
+            className={`absolute inset-0 bg-center bg-cover transition-opacity duration-1000 ease-in-out ${
+              i === actual ? "opacity-100 z-0" : "opacity-0"
+            }`}
+            style={{ backgroundImage: `url(${img})` }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-blue-900/60 z-10" />
+
+        {/* Controles de navegación (solo en escritorio) */}
+        <div className="hidden md:block absolute left-4 top-1/2 transform -translate-y-1/2 z-30">
+          <button
+            onClick={() => setActual((actual - 1 + imagenes.length) % imagenes.length)}
+            className="bg-white/30 hover:bg-white/60 text-white font-bold rounded-full p-2 text-2xl"
+          >
+            ‹
+          </button>
+        </div>
+        <div className="hidden md:block absolute right-4 top-1/2 transform -translate-y-1/2 z-30">
+          <button
+            onClick={() => setActual((actual + 1) % imagenes.length)}
+            className="bg-white/30 hover:bg-white/60 text-white font-bold rounded-full p-2 text-2xl"
+          >
+            ›
+          </button>
+        </div>
+
+        {/* Contenido */}
+        <div className="relative z-20 text-center px-6">
           <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">Sabor Marino Auténtico</h1>
-          <p className="text-xl mb-6">Bienvenido a CevicheClub — donde el ceviche se convierte en experiencia</p>
+          <p className="text-xl mb-6">
+            Bienvenido a CevicheClub — donde el ceviche se convierte en experiencia
+          </p>
           <Link to="/menu">
             <button className="bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-full shadow-lg">
               Ver el Menú
             </button>
           </Link>
+
+          {/* Dots indicadores */}
+          <div className="mt-8 flex justify-center gap-3">
+            {imagenes.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => cambiarManual(i)}
+                className={`w-3 h-3 rounded-full ${
+                  i === actual ? "bg-white" : "bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* DESTACADOS */}
+      {/* SECCIÓN DESTACADOS */}
       <section className="bg-sky-50 py-16">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 text-center">
           <div>
             <span className="text-4xl text-sky-600">🐟</span>
             <h3 className="text-lg font-semibold mt-2 text-sky-800">Ceviches</h3>
-            <p className="text-sm text-gray-600 mt-1">Tradicionales, mixtos y con crema especial La Caleta</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Tradicionales, mixtos y con crema especial La Caleta
+            </p>
           </div>
           <div>
             <span className="text-4xl text-sky-600">🍽️</span>
             <h3 className="text-lg font-semibold mt-2 text-sky-800">Tiraditos</h3>
-            <p className="text-sm text-gray-600 mt-1">Desde ají mirasol hasta 4 continentes</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Desde ají mirasol hasta 4 continentes
+            </p>
           </div>
           <div>
             <span className="text-4xl text-sky-600">🦐</span>
             <h3 className="text-lg font-semibold mt-2 text-sky-800">Especiales</h3>
-            <p className="text-sm text-gray-600 mt-1">Piqueos y combinados para compartir</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Piqueos y combinados para compartir
+            </p>
           </div>
           <div>
             <span className="text-4xl text-sky-600">🍹</span>
             <h3 className="text-lg font-semibold mt-2 text-sky-800">Bebidas</h3>
-            <p className="text-sm text-gray-600 mt-1">Desde chicha morada hasta pisco sour</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Desde chicha morada hasta pisco sour
+            </p>
           </div>
         </div>
       </section>
 
-      {/* PRODUCTOS DESTACADOS HORIZONTALES */}
+      {/* PRODUCTOS DESTACADOS */}
       <section className="bg-sky-50 py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-semibold text-sky-800 mb-8 text-center">
             Productos Destacados
           </h2>
-
           <div className="overflow-x-auto no-scrollbar">
             <div className="flex gap-6 w-max">
               {productosDestacados.map((p) => (
@@ -113,11 +159,12 @@ const Inicio = () => {
         </div>
       </section>
 
-
       {/* CTA FINAL */}
       <section className="bg-sky-600 text-white text-center py-16 px-6">
         <h2 className="text-3xl font-bold mb-4">¡Únete a la experiencia CevicheClub!</h2>
-        <p className="mb-6">Disfruta del mejor sabor marino y acumula puntos por cada visita.</p>
+        <p className="mb-6">
+          Disfruta del mejor sabor marino y acumula puntos por cada visita.
+        </p>
         <Link to="/registro">
           <button className="bg-white text-sky-700 font-bold px-6 py-3 rounded-full hover:bg-blue-100 transition-all">
             Registrarme
@@ -129,4 +176,3 @@ const Inicio = () => {
 };
 
 export default Inicio;
-
