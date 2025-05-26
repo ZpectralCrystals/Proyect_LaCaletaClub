@@ -64,14 +64,19 @@ export default function CarritoList() {
   if (loading) return <p className="text-center">Cargando productos...</p>;
 
   return (
-    <div className="flex flex-wrap justify-center pt-20">
-      {products.map((product) => (
-        <CarritoItem
-          key={product.id}
-          product={product}
-          categoryMap={categoryMap}
-        />
-      ))}
+    <div className=" lg:mt-24 sm:mt-15">
+
+      <h1 className="text-sky-800 text-lg font-semibold flex flex-col justify-center px-15">Agrega tus platos para tu carrito</h1>
+      <div className="flex flex-wrap justify-center pt-2">
+
+        {products.map((product) => (
+          <CarritoItem
+            key={product.id}
+            product={product}
+            categoryMap={categoryMap}
+          />
+        ))}
+      </div>
     </div>
   );
 }

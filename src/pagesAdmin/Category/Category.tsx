@@ -24,16 +24,19 @@ import { Input } from '../../components/ui/input';
 import { faPen, faTrash, faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toast, Toaster } from 'sonner';
+import * as LucideIcons from 'lucide-react';
+import React from 'react';
 
 interface Categoria {
   id: number;
   descripcion: string;
   isActive: boolean;
+  icon: string;
 }
 
 export default function CategoriasAdmin() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [form, setForm] = useState({ descripcion: '' });
+  const [form, setForm] = useState({ descripcion: '', icon: '' });
   const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -74,7 +77,7 @@ export default function CategoriasAdmin() {
     if (editingCategoria) {
       const { error } = await supabase
         .from('categoriatab')
-        .update({ descripcion: form.descripcion })
+        .update({ descripcion: form.descripcion, icon: form.icon })
         .eq('id', editingCategoria.id);
 
       if (error) {
@@ -85,7 +88,7 @@ export default function CategoriasAdmin() {
       showAlert('success', 'Categoría actualizada');
     } else {
       const { error } = await supabase.from('categoriatab').insert([
-        { descripcion: form.descripcion, isActive: true },
+        { descripcion: form.descripcion, icon: form.icon, isActive: true },
       ]);
 
       if (error) {
@@ -97,14 +100,14 @@ export default function CategoriasAdmin() {
     }
 
     setOpen(false);
-    setForm({ descripcion: '' });
+    setForm({ descripcion: '', icon: '' });
     setEditingCategoria(null);
     fetchCategorias();
   };
 
   const handleEdit = (categoria: Categoria) => {
     setEditingCategoria(categoria);
-    setForm({ descripcion: categoria.descripcion });
+    setForm({ descripcion: categoria.descripcion, icon: categoria.icon || '' });
     setOpen(true);
   };
 
@@ -156,7 +159,7 @@ export default function CategoriasAdmin() {
             <Button
               onClick={() => {
                 setEditingCategoria(null);
-                setForm({ descripcion: '' });
+                setForm({ descripcion: '', icon: '' });
               }}
             >
               Agregar Categoría
@@ -173,6 +176,12 @@ export default function CategoriasAdmin() {
                 value={form.descripcion}
                 onChange={handleChange}
               />
+              <Input
+                name="icon"
+                placeholder="Nombre del ícono de Lucide (ej. 'Carrot')"
+                value={form.icon}
+                onChange={handleChange}
+              />
               <Button onClick={handleSubmit}>{editingCategoria ? 'Actualizar' : 'Agregar'}</Button>
             </div>
           </DialogContent>
@@ -185,50 +194,64 @@ export default function CategoriasAdmin() {
             <tr>
               <th className="border px-4 py-2">ID</th>
               <th className="border px-4 py-2">Descripción</th>
+              <th className="border px-4 py-2">Ícono</th>
               <th className="border px-4 py-2">Estado</th>
               <th className="border px-4 py-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {categorias.map((cat) => (
-              <tr key={cat.id}>
-                <td className="border px-4 py-2">{cat.id}</td>
-                <td className="border px-4 py-2">{cat.descripcion}</td>
-                <td className="border px-4 py-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleActive(cat)}
-                    title={cat.isActive ? 'Desactivar' : 'Activar'}
-                  >
-                    <FontAwesomeIcon icon={cat.isActive ? faToggleOn : faToggleOff} />
-                  </Button>
-                </td>
-                <td className="border px-4 py-2">
-                  <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)} className="mr-2">
-                    <FontAwesomeIcon icon={faPen} />
-                  </Button>
+            {categorias.map((cat) => {
+              
+              return (
+                <tr key={cat.id}>
+                  <td className="border px-4 py-2">{cat.id}</td>
+                  <td className="border px-4 py-2">{cat.descripcion}</td>
+                  <td className="border px-4 py-2 text-center">
+  {cat.icon && cat.icon in LucideIcons ? (
+    React.createElement(LucideIcons[cat.icon as keyof typeof LucideIcons] as React.ElementType, {
+      className: 'w-5 h-5 mx-auto',
+    })
+  ) : (
+    <span className="text-xs text-red-500">Icono inválido</span>
+  )}
+</td>
 
-                  <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(cat.id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                        <p>Esto eliminará la categoría permanentemente.</p>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </td>
-              </tr>
-            ))}
+                  <td className="border px-4 py-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleActive(cat)}
+                      title={cat.isActive ? 'Desactivar' : 'Activar'}
+                    >
+                      <FontAwesomeIcon icon={cat.isActive ? faToggleOn : faToggleOff} />
+                    </Button>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)} className="mr-2">
+                      <FontAwesomeIcon icon={faPen} />
+                    </Button>
+
+                    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(cat.id)}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                          <p>Esto eliminará la categoría permanentemente.</p>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

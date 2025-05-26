@@ -22,12 +22,12 @@ const CarritoItem: React.FC<Props> = ({ product, categoryMap }) => {
   return (
     <div className="w-52 border rounded-md shadow-sm bg-white text-center relative font-sans m-4">
   {/* Badge superior derecha con tipo */}
-  <div className="absolute top-0 right-0 rotate-45 bg-white text-red-700 text-xs font-bold px-2 shadow-sm z-10">
+  <div className="absolute top-6 right-0 rotate-45 bg-white text-red-700 text-xs font-bold px-2 shadow-sm z-10">
     {categoryMap[product.type] || "Sin categoría"}
   </div>
 
   {/* Imagen (puede ser reemplazada con emoji o ícono si lo deseas) */}
-  <div className="relative py-4">
+  <div className="relative">
     <img
       src={product.image}
       alt={product.name}
@@ -35,7 +35,7 @@ const CarritoItem: React.FC<Props> = ({ product, categoryMap }) => {
     />
 
     {/* Precio */}
-    <div className="absolute bottom-0 right-0 bg-sky-600 text-white px-2 py-1 text-sm font-semibold shadow-md rounded-bl-lg">
+    <div className="absolute bottom-0 right-0 bg-sky-600 text-white px-2 py-1 text-sm font-semibold shadow-md rounded-tl-lg">
       ${product.price.toFixed(2)}
     </div>
   </div>
@@ -58,7 +58,7 @@ const CarritoItem: React.FC<Props> = ({ product, categoryMap }) => {
   )}
 
   {/* Botón con tonos cálidos */}
-  <button className=" bg-sky-700 hover:bg-sky-800 text-white px-5 py-2 rounded-full font-semibold transition">
+  <button className=" bg-sky-700 hover:bg-sky-800 text-white px-5 py-2 mb-3 rounded-full font-semibold transition">
     Agregar al Carrito
   </button>
 </div>
