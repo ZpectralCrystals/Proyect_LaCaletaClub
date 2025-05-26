@@ -1,11 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const imagenes = [
-  "/portada1.png",
-  "/portada2.png",
-  "/portada3.png",
-];
+import HeroSlider from "@/components/HeroSlider/HeroSlider";
 
 const productosDestacados = [
   { id: 1, nombre: "Ceviche Clásico", imagen: "/menu-img1.jpg", precio: 32 },
@@ -16,80 +10,17 @@ const productosDestacados = [
 ];
 
 const Inicio = () => {
-  const [actual, setActual] = useState(0);
-
-  useEffect(() => {
-    const intervalo = setInterval(() => {
-      setActual((prev) => (prev + 1) % imagenes.length);
-    }, 5000);
-    return () => clearInterval(intervalo);
-  }, []);
-
-  const cambiarManual = (index: number) => {
-    setActual(index);
-  };
-
   return (
     <main className="bg-white min-h-screen">
-      {/* HERO con slider y fade */}
-      <section className="relative min-h-screen flex items-center justify-center text-white overflow-hidden">
-        {imagenes.map((img, i) => (
-          <div
-            key={i}
-            className={`absolute inset-0 bg-center bg-cover transition-opacity duration-1000 ease-in-out ${
-              i === actual ? "opacity-100 z-0" : "opacity-0"
-            }`}
-            style={{ backgroundImage: `url(${img})` }}
-          />
-        ))}
-        <div className="absolute inset-0 bg-blue-900/60 z-10" />
+      <HeroSlider
+        images={["/portada1.png", "/portada2.png", "/portada3.png"]}
+        title="Sabor Marino Auténtico"
+        subtitle="Bienvenido a CevicheClub — donde el ceviche se convierte en experiencia"
+        ctaText="Ver el Menú"
+        ctaLink="/menu"
+      />
 
-        {/* Controles de navegación (solo en escritorio) */}
-        <div className="hidden md:block absolute left-4 top-1/2 transform -translate-y-1/2 z-30">
-          <button
-            onClick={() => setActual((actual - 1 + imagenes.length) % imagenes.length)}
-            className="bg-white/30 hover:bg-white/60 text-white font-bold rounded-full p-2 text-2xl"
-          >
-            ‹
-          </button>
-        </div>
-        <div className="hidden md:block absolute right-4 top-1/2 transform -translate-y-1/2 z-30">
-          <button
-            onClick={() => setActual((actual + 1) % imagenes.length)}
-            className="bg-white/30 hover:bg-white/60 text-white font-bold rounded-full p-2 text-2xl"
-          >
-            ›
-          </button>
-        </div>
-
-        {/* Contenido */}
-        <div className="relative z-20 text-center px-6">
-          <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">Sabor Marino Auténtico</h1>
-          <p className="text-xl mb-6">
-            Bienvenido a CevicheClub — donde el ceviche se convierte en experiencia
-          </p>
-          <Link to="/menu">
-            <button className="bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-full shadow-lg">
-              Ver el Menú
-            </button>
-          </Link>
-
-          {/* Dots indicadores */}
-          <div className="mt-8 flex justify-center gap-3">
-            {imagenes.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => cambiarManual(i)}
-                className={`w-3 h-3 rounded-full ${
-                  i === actual ? "bg-white" : "bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECCIÓN DESTACADOS */}
+      {/* DESTACADOS */}
       <section className="bg-sky-50 py-16">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 text-center">
           <div>

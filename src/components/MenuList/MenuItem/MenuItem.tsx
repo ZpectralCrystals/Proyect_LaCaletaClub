@@ -29,7 +29,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
 
   return (
     <div
-      className="w-52 h-[340px] [perspective:1000px] m-4"
+      className="relative w-full h-[380px] [perspective:1000px] cursor-pointer"
       onClick={handleFlip}
     >
       <div
@@ -38,56 +38,56 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-full h-[80%] bg-blue-50 border-l-4 border-sky-700 rounded-xl shadow-sm text-center font-sans [backface-visibility:hidden]">
-          <div className="relative">
+        <div className="absolute w-full h-full bg-white border border-gray-200 rounded-md p-4 flex flex-col items-center hover:shadow-lg transition-shadow duration-300 [backface-visibility:hidden]">
+          <div className="w-full flex justify-center -mb-16 z-10 relative">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-32 object-cover rounded-t-md"
+              className="w-36 h-36 object-contain mb-12"
             />
-            <div className="absolute bottom-0 right-0 bg-sky-600 text-white px-2 py-1 text-sm font-semibold shadow-md rounded-tl-lg">
-              S/ {product.price.toFixed(2)}
-            </div>
           </div>
 
-          <h3 className="text-sky-800 text-lg font-semibold mt-2">{product.name}</h3>
+          <h3 className="text-center text-lg font-semibold text-sky-800 mt-6">
+            {product.name}
+          </h3>
 
-          {/* Contador */}
-          <div className="flex justify-center items-center mt-2 gap-2">
+          <p className="text-sky-600 text-sm font-medium mb-2">
+            S/ {product.price.toFixed(2)}
+          </p>
+
+          <div
+            className="flex justify-center items-center gap-2 my-2"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                decrement();
-              }}
-              className="bg-white text-[#0069a8] w-6 h-6 rounded-full border"
+              onClick={decrement}
+              className="bg-white text-sky-600 w-6 h-6 rounded-full border"
             >
-              <Minus />
+              <Minus className="w-4 h-4 mx-auto" />
             </button>
             <span className="text-sm font-bold">{quantity}</span>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                increment();
-              }}
-              className="bg-white text-[#0069a8] w-6 h-6 rounded-full border"
+              onClick={increment}
+              className="bg-white text-sky-600 w-6 h-6 rounded-full border"
             >
-              <Plus />
+              <Plus className="w-4 h-4 mx-auto" />
             </button>
-            <button
-            
-            className=" bg-sky-700 hover:bg-sky-800 text-white px-4 py-1 rounded-full"
-          >
-            <ShoppingCart  className="w-6 h-6"/>
-          </button>
           </div>
 
-          <p className="text-xs text-gray-400 mt-2 px-3">(Haz clic para ver más)</p>
-          
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="mt-2 bg-sky-700 hover:bg-sky-800 text-white px-4 py-1 rounded-full flex items-center gap-2 text-sm"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Agregar
+          </button>
+
+          <p className="text-xs text-gray-400 mt-2">(Haz clic para ver más)</p>
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-full h-[80%] bg-white border rounded-md shadow-sm text-center font-sans p-3 overflow-y-auto [backface-visibility:hidden] rotate-y-180">
-          <h3 className="text-sky-800 text-base font-semibold mb-1">{product.name}</h3>
+        <div className="absolute w-full h-full bg-white border border-gray-200 rounded-md p-4 overflow-y-auto [backface-visibility:hidden] rotate-y-180">
+          <h3 className="text-sky-800 text-base font-semibold mb-2">{product.name}</h3>
           <p className="text-gray-600 text-sm mb-2">{product.description}</p>
 
           {product.varietyOptions.length > 0 && (
@@ -100,7 +100,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
             <strong>Categoría:</strong> {categoryMap[product.type] || "Sin categoría"}
           </div>
 
-          <p className="text-xs text-gray-400 mt-3">(Haz clic para volver)</p>
+          <p className="text-xs text-gray-400 mt-4">(Haz clic para volver)</p>
         </div>
       </div>
     </div>

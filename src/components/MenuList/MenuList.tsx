@@ -87,49 +87,50 @@ export default function MenuList() {
 
       <div>
         {/* Buscador */}
-      <div className="flex justify-center my-4">
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border px-4 py-2 rounded-md w-full max-w-md"
-        />
-      </div>
+        <div className="flex justify-center my-4">
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border px-4 py-2 rounded-md w-full max-w-md"
+          />
+        </div>
 
-      {/* Filtros por categoría */}
-      <div className="flex flex-wrap justify-center gap-2 mb-4">
-        <button
-          className={`px-3 py-1 rounded-md border ${selectedCategory === null ? "bg-blue-500 text-white" : "bg-white text-blue-500"}`}
-          onClick={() => setSelectedCategory(null)}
-        >
-          Todos
-        </button>
-        {Object.entries(categoryMap).map(([id, name]) => (
+        {/* Filtros por categoría */}
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           <button
-            key={id}
-            onClick={() => setSelectedCategory(Number(id))}
-            className={`px-3 py-1 rounded-md border ${selectedCategory === Number(id) ? "bg-blue-500 text-white" : "bg-white text-blue-500"}`}
+            className={`px-3 py-1 rounded-md border ${selectedCategory === null ? "bg-blue-500 text-white" : "bg-white text-blue-500"}`}
+            onClick={() => setSelectedCategory(null)}
           >
-            {name}
+            Todos
           </button>
-        ))}
+          {Object.entries(categoryMap).map(([id, name]) => (
+            <button
+              key={id}
+              onClick={() => setSelectedCategory(Number(id))}
+              className={`px-3 py-1 rounded-md border ${selectedCategory === Number(id) ? "bg-blue-500 text-white" : "bg-white text-blue-500"}`}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
       </div>
-      </div>
-
       {/* Lista de productos */}
-      <div className="flex flex-wrap justify-center gap-4">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <MenuItem
-              key={product.id}
-              product={product}
-              categoryMap={categoryMap}
-            />
-          ))
-        ) : (
-          <p className="text-gray-500 text-center">No se encontraron productos.</p>
-        )}
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <MenuItem
+                key={product.id}
+                product={product}
+                categoryMap={categoryMap}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500 text-center col-span-full">No se encontraron productos.</p>
+          )}
+        </div>
       </div>
     </div>
   );
