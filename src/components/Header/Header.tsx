@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <header className="bg-[#101828] text-white flex justify-between items-center p-1 shadow-lg px-[160px]">
       <div className="flex gap-2 items-center">
-        <FontAwesomeIcon icon={faPhone} /> Call: 888-654-3210
+        
       </div>
       <div className="flex flex-row">
         <div className="flex flex-row gap-2">
