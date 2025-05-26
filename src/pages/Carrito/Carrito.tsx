@@ -1,9 +1,9 @@
 import React from 'react';
-import CarritoList from '../../components/CarritoList/CarritoList';
+import MenuList from '../../components/MenuList/MenuList';
 
 const Carrito: React.FC = () => {
   return (
-    <CarritoList/>
+    <MenuList/>
   );
 };
 
