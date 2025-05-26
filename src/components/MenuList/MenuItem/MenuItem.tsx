@@ -37,7 +37,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
         }`}
       >
         {/* Frente */}
-        <div className="absolute w-full h-full bg-white border rounded-md shadow-sm text-center font-sans [backface-visibility:hidden]">
+        <div className="absolute w-full h-[80%] bg-blue-50 border-l-4 border-sky-700 rounded-xl shadow-sm text-center font-sans [backface-visibility:hidden]">
           <div className="relative">
             <img
               src={product.image}
@@ -45,7 +45,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
               className="w-full h-32 object-cover rounded-t-md"
             />
             <div className="absolute bottom-0 right-0 bg-sky-600 text-white px-2 py-1 text-sm font-semibold shadow-md rounded-tl-lg">
-              ${product.price.toFixed(2)}
+              S/ {product.price.toFixed(2)}
             </div>
           </div>
 
@@ -78,7 +78,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
         </div>
 
         {/* Reverso */}
-        <div className="absolute w-full h-full bg-white border rounded-md shadow-sm text-center font-sans p-3 overflow-y-auto [backface-visibility:hidden] rotate-y-180">
+        <div className="absolute w-full h-[80%] bg-white border rounded-md shadow-sm text-center font-sans p-3 overflow-y-auto [backface-visibility:hidden] rotate-y-180">
           <h3 className="text-sky-800 text-base font-semibold mb-1">{product.name}</h3>
           <p className="text-gray-600 text-sm mb-2">{product.description}</p>
 

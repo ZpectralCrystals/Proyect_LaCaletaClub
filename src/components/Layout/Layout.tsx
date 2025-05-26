@@ -12,7 +12,7 @@ const Layout = () => {
       <ScrollToTop />
       <Navbar />
       <Toaster />
-      <div className="pt-[130px] bg-white min-h-screen">
+      <div className="pt-[100px] bg-white min-h-screen">
         <main>
           <Outlet />
         </main>
