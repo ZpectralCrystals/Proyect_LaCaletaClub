@@ -2,14 +2,54 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router";
+import { useState } from "react";
+import { signUpWithEmail } from "@/redux/authSlice";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
+import { useAppDispatch } from "@/hooks/tipadoDispatch";
 
 const RegistrarUsuario = () =>{
+  const dispatch = useAppDispatch(); // ¡ya no es any!
+  const navigate = useNavigate();
+
+  const [values, setValues] = useState({
+    lastname: "",
+    email: "",
+    password: "",
+    document: "",
+  });
+
+  const handleInputChange = (event:any) => {
+    const { name, value } = event.target;
+      setValues({ ...values, [name]: value });
+    
+  };
+
+  const handleSubmit = async (event:any) => {
+    event.preventDefault();
+    const { email, password, lastname, document } = values;
+
+    const response = await dispatch(
+      signUpWithEmail(email, password, {
+        lastname,
+        document,
+      })
+    );
+
+    if (!response.success) {
+      toast.error(String(response.error));
+      return;
+    }
+
+    toast.success("La cuenta fue creada, ahora inicie sesión.");
+    navigate("/iniciasesion");
+  };
 
     return(
         <section className="h-screen flex justify-center items-center bg-gray-50">
       <Card className="w-full max-w-md p-6 shadow-lg rounded-2xl">
         <CardContent>
-          <form className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
               <h1 className="text-4xl font-bold text-sky-800 mb-12 text-center">Regístrate</h1>
               <p  className="text-gray-700 mt-2 text-sm">
@@ -18,30 +58,31 @@ const RegistrarUsuario = () =>{
             </div>
             <div className="space-y-1">
               <label
-                htmlFor="nombre"
+                htmlFor="lastname"
                 className="block text-sm font-medium text-gray-700"
               >
                 Nombre Completo
               </label>
               <Input
-                id="nombre"
-                type="nombre"
-                name="nombre"              
-               
+                id="lastname"
+                type="lastname"
+                name="lastname"              
+                onChange={handleInputChange}
+
               />
             </div>
              <div className="space-y-1">
               <label
-                htmlFor="nombre"
+                htmlFor="document"
                 className="block text-sm font-medium text-gray-700"
               >
                 Documento de Identificación
               </label>
               <Input
-                id="nombre"
+                id="document"
                 type="number"
-                name="nombre"              
-               
+                name="document"              
+               onChange={handleInputChange}
               />
             </div>
               <div className="space-y-1">
@@ -56,6 +97,7 @@ const RegistrarUsuario = () =>{
                 type="email"
                 name="email"              
                 placeholder="example@gmail.com"
+                onChange={handleInputChange}
               />
             </div>
             <div className="space-y-1">
@@ -69,6 +111,7 @@ const RegistrarUsuario = () =>{
                 id="password"
                 name="password"
                 type="password"
+                onChange={handleInputChange}
               />
               <ul className="text-xs text-gray-500 mt-1 list-disc pl-5">
                 <li>Al menos 8 carácteres</li>
