@@ -26,7 +26,7 @@ import LayoutAdmin from "../components/LayoutAdmin/LayoutAdmin";
 
 // Rutas protegidas
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
-import LoginRegister from "@/components/LoginRegister/LoginRegister";
+
 import Login from "@/pages/pagesUser/Login/Login";
 import Register from "@/pages/pagesUser/Register/Register";
 

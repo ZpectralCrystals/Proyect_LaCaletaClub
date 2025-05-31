@@ -147,6 +147,16 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Mi Perfil</span>
               </Link>
             </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <User className="w-4 h-4" />
+                <span>Ver Pagina Web</span>
+              </Link>
+            </SidebarMenuButton>
 
             <SidebarMenuButton asChild>
               <button
