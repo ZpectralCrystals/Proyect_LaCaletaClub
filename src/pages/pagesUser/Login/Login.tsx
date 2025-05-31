@@ -48,13 +48,13 @@ dispatch(setUser(userData));
       setMessage(`Bienvenido ${data.user!.email}`);
 
       // Redirigir según rol
-      if (userData.role === 1) {
-        navigate('/');
-      } else if (userData.role === 2) {
-        navigate('/admin/');
-      } else {
-        navigate('/unauthorized');
-      }
+      if ([2, 3, 4].includes(userData.role)) {
+  navigate('/admin/');
+} else if (userData.role === 1) {
+  navigate('/');
+} else {
+  navigate('/unauthorized');
+}
     } catch (error: any) {
       dispatch(setError(error.message || 'Error al iniciar sesión'));
       setMessage(error.message || 'Error al iniciar sesión');

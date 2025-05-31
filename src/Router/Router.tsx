@@ -8,7 +8,6 @@ import Contacto from "../pages/pagesUser/Contacto/Contacto";
 import Recomendaciones from "../pages/pagesUser/Recomendaciones/Recomendaciones";
 import Carrito from "../pages/pagesUser/Carrito/Carrito";
 
-
 // Páginas administrativas
 import Category from "../pages/pagesAdmin/Category";
 import Discounts from "../pages/pagesAdmin/Discounts/Discounts";
@@ -27,9 +26,10 @@ import LayoutAdmin from "../components/LayoutAdmin/LayoutAdmin";
 // Rutas protegidas
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
+// Login y registro
 import Login from "@/pages/pagesUser/Login/Login";
 import Register from "@/pages/pagesUser/Register/Register";
-
+import AuthRoute from "@/components/ProtectedRoute/AuthRoute";
 
 export function Router() {
   return (
@@ -42,20 +42,23 @@ export function Router() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
-          
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Ruta protegida para usuarios logueados (sin importar el rol) */}
+          <Route element={<AuthRoute />}>
+            <Route path="/carrito" element={<Carrito />} />
+          </Route>
         </Route>
 
-        {/* Admin con layout y protección por rol */}
+        {/* Rutas de administrador protegidas por roles 3 y 4 */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={[2]}>
+            <ProtectedRoute allowedRoles={[2, 3, 4]}>
               <LayoutAdmin />
             </ProtectedRoute>
           }
         >
-          <Route path="/carrito" element={<Carrito />} />
           <Route path="/admin/" element={<InicioAdmin />} />
           <Route path="/admin/categorias" element={<Category />} />
           <Route path="/admin/productos" element={<Products />} />

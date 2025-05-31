@@ -19,20 +19,29 @@ import { Link, useNavigate } from "react-router-dom";
 import { Package, User, LogOut, Menu, Tags, List, User2, MessageCircle, Blinds, Library } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient"; // Ajusta la ruta si tu cliente está en otro lugar
 
 interface SidebarContentBodyProps {
   onItemClick?: () => void;
 }
 
 function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
-  const navigate = useNavigate();
+ 
 
-  const handleLogout = () => {
-    
-    toast.success("Sesión cerrada correctamente");
-    navigate("/login");
-    onItemClick?.();
-  };
+  const handleLogout = async () => {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    toast.error("Error al cerrar sesión");
+    return;
+  }
+
+  toast.success("Sesión cerrada correctamente");
+
+  // Redirige y fuerza recarga rápida de la página
+  window.location.href = "/";
+};
+
 
   return (
     <>

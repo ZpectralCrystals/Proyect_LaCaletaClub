@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartShopping, faRightToBracket, faRightFromBracket, faUserShield } from '@fortawesome/free-solid-svg-icons';
+import { faRightToBracket, faRightFromBracket, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../store';
@@ -25,7 +25,7 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     dispatch(setUser(null));
-    navigate('/login');
+    navigate('/');
   };
 
   const totalQuantity = products.reduce((acc, prod) => acc + prod.quantity, 0);

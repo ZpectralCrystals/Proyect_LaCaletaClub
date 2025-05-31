@@ -194,7 +194,15 @@ export default function UserAdminPage() {
                 <td className="border border-gray-300 p-2">{user.last_name}</td>
                 <td className="border border-gray-300 p-2">{user.dni}</td>
                 <td className="border border-gray-300 p-2">
-                  {user.role === 1 ? 'Usuario' : user.role === 2 ? 'Admin' : 'Desconocido'}
+                  {
+  user.role === 1 ? 'Usuario' :
+  user.role === 2 ? 'Administrador' :
+  user.role === 3 ? 'Cajero' :
+  user.role === 4 ? 'Chef' :
+  user.role === 5 ? 'Mesero' :
+  'Desconocido'
+}
+
                 </td>
                 <td className="border border-gray-300 p-2 flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
@@ -269,6 +277,9 @@ export default function UserAdminPage() {
                   <SelectLabel>Roles</SelectLabel>
                   <SelectItem value="1">Usuario</SelectItem>
                   <SelectItem value="2">Admin</SelectItem>
+                  <SelectItem value="3">Cajero</SelectItem>
+                  <SelectItem value="4">Chef</SelectItem>
+                  <SelectItem value="5">Mesero</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
