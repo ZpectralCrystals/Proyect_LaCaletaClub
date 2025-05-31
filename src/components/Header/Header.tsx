@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartShopping, faRightToBracket, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCartShopping, faRightToBracket, faRightFromBracket, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../store';
@@ -39,27 +39,38 @@ export default function Header() {
         </div>
         <div className="flex flex-row items-center gap-4">
           {!user ? (
-            <>
-              <Link to="/login" className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faRightToBracket} /> Inicia Sesión
-              </Link>
-              <Link to="/register" className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faRightToBracket} className="rotate-180" /> Regístrate
-              </Link>
-            </>
-          ) : (
-            <>
-              <p>
-                Hola, {user.first_name} {user.last_name}
-              </p>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1 text-red-400 hover:text-red-600"
+          <>
+            <Link to="/login" className="flex items-center gap-1">
+              <FontAwesomeIcon icon={faRightToBracket} /> Inicia Sesión
+            </Link>
+            <Link to="/register" className="flex items-center gap-1">
+              <FontAwesomeIcon icon={faRightToBracket} className="rotate-180" /> Regístrate
+            </Link>
+          </>
+        ) : (
+          <>
+            <p>
+              Hola, {user.first_name} {user.last_name}
+            </p>
+
+            {/* Botón para admin */}
+            {user.role === 2 && (
+              <Link
+                to="/admin/"
+                className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
               >
-                <FontAwesomeIcon icon={faRightFromBracket} /> Cerrar sesión
-              </button>
-            </>
-          )}
+                <FontAwesomeIcon icon={faUserShield} /> Admin Panel
+              </Link>
+            )}
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 text-red-400 hover:text-red-600"
+            >
+              <FontAwesomeIcon icon={faRightFromBracket} /> Cerrar sesión
+            </button>
+          </>
+        )}
           <div className="border-r border-[#ffffff] mx-3 h-6" />
           <div
             className="flex flex-row items-center gap-2 cursor-pointer"
