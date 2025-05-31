@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Package, User, LogOut, Menu, Tags, List, User2, MessageCircle, Blinds, Library } from "lucide-react";
+import { Package, User, LogOut, Menu, Tags, List, User2, MessageCircle, Blinds, Library, BellElectric, ClipboardPen, HardDriveUpload, BadgeCheck, SquareMenu, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient"; // Ajusta la ruta si tu cliente está en otro lugar
@@ -60,7 +60,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 onClick={onItemClick}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
               >
-                <Package className="w-4 h-4" />
+                <SquareMenu className="w-4 h-4"/> 
                 <span>Inicio</span>
               </Link>
             </SidebarMenuButton>
@@ -130,6 +130,46 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
             </SidebarMenuButton>
             <SidebarMenuButton asChild>
               <Link
+                to="/admin/carga-image"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <HardDriveUpload className="w-4 h-4"/>
+                <span>Carga de Imagenes</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/admin/cobranza"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <BadgeCheck className="w-4 h-4" />
+                <span>Caja</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/admin/pedidos"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <ClipboardPen className="w-4 h-4" />
+                <span>Pedidos</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
+                to="/admin/ver-pedido"
+                onClick={onItemClick}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+              >
+                <BellElectric className="w-4 h-4" />
+                <span>Ver Pedido</span>
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton asChild>
+              <Link
                 to="/admin/reportes"
                 onClick={onItemClick}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
@@ -162,7 +202,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 onClick={onItemClick}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
               >
-                <User className="w-4 h-4" />
+                <Eye className="w-4 h-4"/>
                 <span>Ver Pagina Web</span>
               </Link>
             </SidebarMenuButton>

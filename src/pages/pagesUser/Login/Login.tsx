@@ -48,7 +48,7 @@ dispatch(setUser(userData));
       setMessage(`Bienvenido ${data.user!.email}`);
 
       // Redirigir según rol
-      if ([2, 3, 4].includes(userData.role)) {
+      if ([2, 3, 4, 5].includes(userData.role)) {
   navigate('/admin/');
 } else if (userData.role === 1) {
   navigate('/');

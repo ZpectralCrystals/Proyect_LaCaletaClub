@@ -30,6 +30,11 @@ import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import Login from "@/pages/pagesUser/Login/Login";
 import Register from "@/pages/pagesUser/Register/Register";
 import AuthRoute from "@/components/ProtectedRoute/AuthRoute";
+import ImagesCharge from "@/pages/pagesAdmin/ImagesCharge/ImagesCharge";
+import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
+import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
+import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
+
 
 export function Router() {
   return (
@@ -54,7 +59,7 @@ export function Router() {
         {/* Rutas de administrador protegidas por roles 2,3,4,5 */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={[2, 3, 4, 5]}>
+            <ProtectedRoute allowedRoles={[2]}>
               <LayoutAdmin />
             </ProtectedRoute>
           }
@@ -68,6 +73,30 @@ export function Router() {
           <Route path="/admin/comentarios" element={<CommentsAdmin />} />
           <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
           <Route path="/admin/reportes" element={<ReportesAdmin />} />
+          <Route path="/admin/carga-image" element={<ImagesCharge />} />
+          <Route path="/admin/cobranza" element={<CajaAdmin />} />
+          <Route path="/admin/pedidos" element={<Pedido />} />
+          <Route path="/admin/ver-pedido" element={<PedidoView />} />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={[3, 4, 5]}>
+              <LayoutAdmin />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/admin/" element={<InicioAdmin />} />
+          <Route path="/admin/cobranza" element={<CajaAdmin />} />
+          <Route path="/admin/categorias" element={<Category />} />
+          <Route path="/admin/productos" element={<Products />} />
+          <Route path="/admin/promociones" element={<Discounts />} />
+          <Route path="/admin/profile" element={<Profile />} />
+          <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
+          <Route path="/admin/comentarios" element={<CommentsAdmin />} />
+          <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
+          <Route path="/admin/reportes" element={<ReportesAdmin />} />
+          <Route path="/admin/carga-image" element={<ImagesCharge />} />
         </Route>
       </Routes>
     </BrowserRouter>
