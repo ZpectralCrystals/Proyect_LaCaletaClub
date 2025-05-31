@@ -42,7 +42,7 @@ export function Router() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
-          <Route path="/carrito" element={<Carrito />} />
+          
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
@@ -55,6 +55,7 @@ export function Router() {
             </ProtectedRoute>
           }
         >
+          <Route path="/carrito" element={<Carrito />} />
           <Route path="/admin/" element={<InicioAdmin />} />
           <Route path="/admin/categorias" element={<Category />} />
           <Route path="/admin/productos" element={<Products />} />
