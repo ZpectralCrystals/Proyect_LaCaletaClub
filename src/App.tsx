@@ -1,14 +1,8 @@
-import './App.css'
+import React from 'react';
+import Router from './Router/Router'; // Asegúrate que la ruta sea correcta
 
-function App() {
-  return (
-    <>
-      <div>
-       <h1>Hola </h1>
-      </div>
+const App: React.FC = () => {
+  return <Router />;
+};
 
-    </>
-  )
-}
-
-export default App
+export default App;
