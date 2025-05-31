@@ -57,12 +57,12 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
         <Button
           variant="outline"
           size="sm"
-          className="relative border-gray-200 hover:bg-gray-100 hover:text-gray-900"
+          className="relative hover:bg-gray-100 hover:text-gray-900"
         >
           <ShoppingCart className="h-5 w-5" />
           <Badge
             variant="destructive"
-            className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-white"
+            className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-white hover:text-gray-900"
           >
             {products.length}
           </Badge>
@@ -81,7 +81,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
         <div className="flex-1 overflow-hidden mt-6">
           {products.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-4">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mb-4">
                 <ShoppingCart className="h-8 w-8 text-gray-400" />
               </div>
               <h3 className="font-medium text-gray-900 mb-1">Tu carrito está vacío</h3>

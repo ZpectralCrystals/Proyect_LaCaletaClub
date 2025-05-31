@@ -66,7 +66,7 @@ export default function Header() {
             onClick={() => setIsCartOpen(true)}
           >
             <p>
-              <FontAwesomeIcon icon={faCartShopping} /> ({totalQuantity}) items in cart
+              <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} /> 
             </p>
             <p>(${totalPrice.toFixed(2)})</p>
           </div>
@@ -74,7 +74,7 @@ export default function Header() {
       </header>
 
       {/* Componente carrito */}
-      <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
+      
     </>
   );
 }
