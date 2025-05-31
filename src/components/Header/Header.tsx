@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartShopping, faRightToBracket, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCartShopping, faRightToBracket, faRightFromBracket, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../store';
@@ -41,6 +41,17 @@ export default function Header() {
             <p>
               Hola, {user.first_name} {user.last_name}
             </p>
+
+            {/* Botón para admin */}
+            {user.role === 2 && (
+              <Link
+                to="/admin/"
+                className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
+              >
+                <FontAwesomeIcon icon={faUserShield} /> Admin Panel
+              </Link>
+            )}
+
             <button
               onClick={handleLogout}
               className="flex items-center gap-1 text-red-400 hover:text-red-600"
