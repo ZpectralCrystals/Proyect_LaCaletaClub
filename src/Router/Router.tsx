@@ -51,10 +51,10 @@ export function Router() {
           </Route>
         </Route>
 
-        {/* Rutas de administrador protegidas por roles 3 y 4 */}
+        {/* Rutas de administrador protegidas por roles 2,3,4,5 */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={[2, 3, 4]}>
+            <ProtectedRoute allowedRoles={[2, 3, 4, 5]}>
               <LayoutAdmin />
             </ProtectedRoute>
           }
