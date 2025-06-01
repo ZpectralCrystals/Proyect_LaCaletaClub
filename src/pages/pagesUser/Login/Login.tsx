@@ -46,7 +46,6 @@ const Login: React.FC = () => {
 dispatch(setUser(userData));
 
       setMessage(`Bienvenido ${data.user!.email}`);
-
       // Redirigir según rol
       if ([2, 3, 4, 5].includes(userData.role)) {
   navigate('/admin/');
@@ -55,6 +54,7 @@ dispatch(setUser(userData));
 } else {
   navigate('/unauthorized');
 }
+
     } catch (error: any) {
       dispatch(setError(error.message || 'Error al iniciar sesión'));
       setMessage(error.message || 'Error al iniciar sesión');

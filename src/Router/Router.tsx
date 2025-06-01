@@ -59,7 +59,7 @@ export function Router() {
         {/* Rutas de administrador protegidas por roles 2,3,4,5 */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={[2]}>
+            <ProtectedRoute allowedRoles={[2,3,4,5]}>
               <LayoutAdmin />
             </ProtectedRoute>
           }
@@ -79,25 +79,7 @@ export function Router() {
           <Route path="/admin/ver-pedido" element={<PedidoView />} />
         </Route>
 
-        <Route
-          element={
-            <ProtectedRoute allowedRoles={[3, 4, 5]}>
-              <LayoutAdmin />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/admin/" element={<InicioAdmin />} />
-          <Route path="/admin/cobranza" element={<CajaAdmin />} />
-          <Route path="/admin/categorias" element={<Category />} />
-          <Route path="/admin/productos" element={<Products />} />
-          <Route path="/admin/promociones" element={<Discounts />} />
-          <Route path="/admin/profile" element={<Profile />} />
-          <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
-          <Route path="/admin/comentarios" element={<CommentsAdmin />} />
-          <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
-          <Route path="/admin/reportes" element={<ReportesAdmin />} />
-          <Route path="/admin/carga-image" element={<ImagesCharge />} />
-        </Route>
+        
       </Routes>
     </BrowserRouter>
   );
