@@ -20,13 +20,22 @@ import { Package, User, LogOut, Menu, Tags, List, User2, MessageCircle, Blinds, 
 import { toast } from "sonner";
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient"; // Ajusta la ruta si tu cliente está en otro lugar
+<<<<<<< HEAD
+=======
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
+>>>>>>> timothy-coder
 
 interface SidebarContentBodyProps {
   onItemClick?: () => void;
 }
 
 function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
+<<<<<<< HEAD
  
+=======
+ const user = useSelector((state: RootState) => state.auth.user);
+>>>>>>> timothy-coder
 
   const handleLogout = async () => {
   const { error } = await supabase.auth.signOut();
@@ -96,6 +105,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Promociones</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
 
             <SidebarMenuButton asChild>
               <Link
@@ -107,6 +117,21 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Usuarios</span>
               </Link>
             </SidebarMenuButton>
+=======
+            {[2].includes(user.role) && (
+              <SidebarMenuButton asChild>
+                <Link
+                  to="/admin/usuarios"
+                  onClick={onItemClick}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors"
+                >
+                  <User2 className="w-4 h-4" />
+                  <span>Usuarios</span>
+                </Link>
+              </SidebarMenuButton>
+            )}
+            
+>>>>>>> timothy-coder
 
              <SidebarMenuButton asChild>
               <Link
@@ -118,6 +143,10 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Comentarios</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
+=======
+            {[2].includes(user.role) && (
+>>>>>>> timothy-coder
             <SidebarMenuButton asChild>
               <Link
                 to="/admin/recomendaciones"
@@ -128,6 +157,11 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Recomendaciones</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
+=======
+            )}
+            {[2].includes(user.role) && (
+>>>>>>> timothy-coder
             <SidebarMenuButton asChild>
               <Link
                 to="/admin/carga-image"
@@ -138,6 +172,11 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Carga de Imagenes</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
+=======
+            )}
+            {[2,3].includes(user.role) && (
+>>>>>>> timothy-coder
             <SidebarMenuButton asChild>
               <Link
                 to="/admin/cobranza"
@@ -148,6 +187,11 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Caja</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
+=======
+            )}
+            {[2,4].includes(user.role) && (
+>>>>>>> timothy-coder
             <SidebarMenuButton asChild>
               <Link
                 to="/admin/pedidos"
@@ -158,6 +202,11 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Pedidos</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
+=======
+            )}
+            {[2,5].includes(user.role) && (
+>>>>>>> timothy-coder
             <SidebarMenuButton asChild>
               <Link
                 to="/admin/ver-pedido"
@@ -168,6 +217,10 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
                 <span>Ver Pedido</span>
               </Link>
             </SidebarMenuButton>
+<<<<<<< HEAD
+=======
+            )}
+>>>>>>> timothy-coder
             <SidebarMenuButton asChild>
               <Link
                 to="/admin/reportes"

@@ -46,7 +46,10 @@ const Login: React.FC = () => {
 dispatch(setUser(userData));
 
       setMessage(`Bienvenido ${data.user!.email}`);
+<<<<<<< HEAD
 
+=======
+>>>>>>> timothy-coder
       // Redirigir según rol
       if ([2, 3, 4, 5].includes(userData.role)) {
   navigate('/admin/');
@@ -55,9 +58,16 @@ dispatch(setUser(userData));
 } else {
   navigate('/unauthorized');
 }
+<<<<<<< HEAD
     } catch (error: any) {
       dispatch(setError(error.message || 'Error al iniciar sesión'));
       setMessage(error.message || 'Error al iniciar sesión');
+=======
+
+    } catch (error: any) {
+      dispatch(setError(error.message || 'Error al iniciar sesión'));
+      setMessage( 'Su usuario aun no ha sido registrado');
+>>>>>>> timothy-coder
     } finally {
       dispatch(setLoading(false));
     }

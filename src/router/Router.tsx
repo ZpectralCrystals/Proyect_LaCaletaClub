@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Páginas públicas
-import Inicio from "../pages/pagesUser/Inicio/Inicio";
-import Menu from "../pages/pagesUser/Menu/Menu";
-import Blog from "../pages/pagesUser/Blog/Blog";
-import Contacto from "../pages/pagesUser/Contacto/Contacto";
-import Recomendaciones from "../pages/pagesUser/Recomendaciones/Recomendaciones";
+// // Páginas públicas
+// import Inicio from "../pages/pagesPublic/Inicio/Inicio";
+// import Menu from "../pages/pagesPublic/Menu/Menu";
+// import Blog from "../pages/pagesPublic/Blog/Blog";
+// import Contacto from "../pages/pagesPublic/Contacto/Contacto";
+// import Recomendaciones from "../pages/pagesPublic/Recomendaciones/Recomendaciones";
+import { Inicio, Blog, Contacto, Recomendaciones, Menu } from "@/pages/pagesPublic";
 import Carrito from "../pages/pagesUser/Carrito/Carrito";
 
 // Páginas administrativas
@@ -34,6 +35,7 @@ import ImagesCharge from "@/pages/pagesAdmin/ImagesCharge/ImagesCharge";
 import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
 import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
 import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
+import NoAutorizacion from "@/pages/pagesUser/NoAutorizacion/NoAutorizacion";
 
 
 export function Router() {
@@ -49,6 +51,7 @@ export function Router() {
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/unauthorized" element={<NoAutorizacion />} />
 
           {/* Ruta protegida para usuarios logueados (sin importar el rol) */}
           <Route element={<AuthRoute />}>
@@ -59,7 +62,7 @@ export function Router() {
         {/* Rutas de administrador protegidas por roles 2,3,4,5 */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={[2]}>
+            <ProtectedRoute allowedRoles={[2,3,4,5]}>
               <LayoutAdmin />
             </ProtectedRoute>
           }
@@ -79,25 +82,7 @@ export function Router() {
           <Route path="/admin/ver-pedido" element={<PedidoView />} />
         </Route>
 
-        <Route
-          element={
-            <ProtectedRoute allowedRoles={[3, 4, 5]}>
-              <LayoutAdmin />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/admin/" element={<InicioAdmin />} />
-          <Route path="/admin/cobranza" element={<CajaAdmin />} />
-          <Route path="/admin/categorias" element={<Category />} />
-          <Route path="/admin/productos" element={<Products />} />
-          <Route path="/admin/promociones" element={<Discounts />} />
-          <Route path="/admin/profile" element={<Profile />} />
-          <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
-          <Route path="/admin/comentarios" element={<CommentsAdmin />} />
-          <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
-          <Route path="/admin/reportes" element={<ReportesAdmin />} />
-          <Route path="/admin/carga-image" element={<ImagesCharge />} />
-        </Route>
+        
       </Routes>
     </BrowserRouter>
   );
