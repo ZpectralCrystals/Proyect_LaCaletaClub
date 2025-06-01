@@ -53,15 +53,18 @@ export default function Header() {
               Hola, {user.first_name} {user.last_name}
             </p>
 
-            {/* Botón para admin */}
-            {user.role === 2 && (
-              <Link
-                to="/admin/"
-                className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
-              >
-                <FontAwesomeIcon icon={faUserShield} /> Admin Panel
-              </Link>
-            )}
+            {[2, 3, 4, 5].includes(user.role) && (
+  <Link
+    to="/admin/"
+    className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
+  >
+    <FontAwesomeIcon icon={faUserShield} />
+    {user.role === 2 && "Admin Panel"}
+    {user.role === 3 && "Cajero Panel"}
+    {user.role === 4 && "Repartidor Panel"}
+    {user.role === 5 && "Supervisor Panel"}
+  </Link>
+)}
 
             <button
               onClick={handleLogout}
