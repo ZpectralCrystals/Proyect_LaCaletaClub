@@ -1,31 +1,39 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Páginas públicas
-import Inicio from "../pages/Inicio/Inicio";
-import Menu from "../pages/Menu/Menu";
-import Blog from "../pages/Blog/Blog";
-import Contacto from "../pages/Contacto/Contacto";
-import Recomendaciones from "../pages/Recomendaciones/Recomendaciones";
-import Carrito from "../pages/Carrito/Carrito";
-import IniciarSesion from "@/pages/IniciarSesion/IniciarSesion";
-import RegistrarUsuario from "@/pages/RegistrarUsuario/RegistrarUsuario";
-// Páginas administrativas
-import Category from "../pagesAdmin/Category";
+import Inicio from "../pages/pagesUser/Inicio/Inicio";
+import Menu from "../pages/pagesUser/Menu/Menu";
+import Blog from "../pages/pagesUser/Blog/Blog";
+import Contacto from "../pages/pagesUser/Contacto/Contacto";
+import Recomendaciones from "../pages/pagesUser/Recomendaciones/Recomendaciones";
+import Carrito from "../pages/pagesUser/Carrito/Carrito";
 
-import Discounts from "../pagesAdmin/Discounts/Discounts";
-import Products from "../pagesAdmin/Products/Products";
-import Profile from "../pagesAdmin/Profile/Profile";
-import InicioAdmin from "@/pagesAdmin/Inicio/Inicio";
-import UsuariosAdmin from "@/pagesAdmin/Users/User";
-import CommentsAdmin from "@/pagesAdmin/Comments/Comments";
-import RecomendacionesAdmin from "@/pagesAdmin/Recomendaciones/Recomendaciones";
-import ReportesAdmin from "@/pagesAdmin/Reportes/Reportes";
+// Páginas administrativas
+import Category from "../pages/pagesAdmin/Category";
+import Discounts from "../pages/pagesAdmin/Discounts/Discounts";
+import Products from "../pages/pagesAdmin/Products/Products";
+import Profile from "../pages/pagesAdmin/Profile/Profile";
+import InicioAdmin from "../pages/pagesAdmin/Inicio/Inicio";
+import UsuariosAdmin from "../pages/pagesAdmin/Users/User";
+import CommentsAdmin from "../pages/pagesAdmin/Comments/Comments";
+import RecomendacionesAdmin from "../pages/pagesAdmin/Recomendaciones/Recomendaciones";
+import ReportesAdmin from "../pages/pagesAdmin/Reportes/Reportes";
 
 // Layout general
-import Layout from "@/components/Layout/Layout";
-import LayoutAdmin from "@/components/LayoutAdmin/LayoutAdmin";
+import Layout from "../components/Layout/Layout";
+import LayoutAdmin from "../components/LayoutAdmin/LayoutAdmin";
 
+// Rutas protegidas
+import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
+// Login y registro
+import Login from "@/pages/pagesUser/Login/Login";
+import Register from "@/pages/pagesUser/Register/Register";
+import AuthRoute from "@/components/ProtectedRoute/AuthRoute";
+import ImagesCharge from "@/pages/pagesAdmin/ImagesCharge/ImagesCharge";
+import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
+import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
+import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
 
 
 export function Router() {
@@ -39,17 +47,23 @@ export function Router() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
-          <Route path="/carrito" element={<Carrito />} />
-          <Route path="/iniciasesion" element={<IniciarSesion />} />
-        <Route path="/registro" element={<RegistrarUsuario />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Ruta protegida para usuarios logueados (sin importar el rol) */}
+          <Route element={<AuthRoute />}>
+            <Route path="/carrito" element={<Carrito />} />
+          </Route>
         </Route>
-          
-      
 
-        
-
-        {/* Admin sin layout (o puedes crear otro layout de admin) */}
-        <Route element={<LayoutAdmin />}>
+        {/* Rutas de administrador protegidas por roles 2,3,4,5 */}
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={[2]}>
+              <LayoutAdmin />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/admin/" element={<InicioAdmin />} />
           <Route path="/admin/categorias" element={<Category />} />
           <Route path="/admin/productos" element={<Products />} />
@@ -59,8 +73,30 @@ export function Router() {
           <Route path="/admin/comentarios" element={<CommentsAdmin />} />
           <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
           <Route path="/admin/reportes" element={<ReportesAdmin />} />
-          
+          <Route path="/admin/carga-image" element={<ImagesCharge />} />
+          <Route path="/admin/cobranza" element={<CajaAdmin />} />
+          <Route path="/admin/pedidos" element={<Pedido />} />
+          <Route path="/admin/ver-pedido" element={<PedidoView />} />
+        </Route>
 
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={[3, 4, 5]}>
+              <LayoutAdmin />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/admin/" element={<InicioAdmin />} />
+          <Route path="/admin/cobranza" element={<CajaAdmin />} />
+          <Route path="/admin/categorias" element={<Category />} />
+          <Route path="/admin/productos" element={<Products />} />
+          <Route path="/admin/promociones" element={<Discounts />} />
+          <Route path="/admin/profile" element={<Profile />} />
+          <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
+          <Route path="/admin/comentarios" element={<CommentsAdmin />} />
+          <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
+          <Route path="/admin/reportes" element={<ReportesAdmin />} />
+          <Route path="/admin/carga-image" element={<ImagesCharge />} />
         </Route>
       </Routes>
     </BrowserRouter>

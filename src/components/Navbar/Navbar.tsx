@@ -33,11 +33,10 @@ const Navbar = () => {
         <nav className="hidden lg:flex space-x-6 text-white">
           <Link to="/" className="hover:text-blue-400">Inicio</Link>
           <Link to="/menu" className="hover:text-blue-400">Menú</Link>
-          
           <Link to="/blog" className="hover:text-blue-400">Blog</Link>
           <Link to="/recomendaciones" className="hover:text-blue-400">Recomendaciones</Link>
           <Link to="/contacto" className="hover:text-blue-400">Contacto</Link>
-          <Link to="/carrito" className="hover:text-blue-400">Carrito</Link>
+         
         </nav>
       </div>
 
@@ -50,7 +49,7 @@ const Navbar = () => {
           <Link to="/blog" onClick={closeMenu} className="block hover:text-blue-400">Blog</Link>
           <Link to="/recomendaciones" onClick={closeMenu} className="block hover:text-blue-400">Recomendaciones</Link>
           <Link to="/contacto" onClick={closeMenu} className="block hover:text-blue-400">Contacto</Link>
-          <Link to="/carrito" onClick={closeMenu} className="block hover:text-blue-400">Carrito</Link>
+          
           <Link to="/iniciasesion" onClick={closeMenu} className="block hover:text-blue-400">Inicia Sesion</Link>
           <Link to="/registro" onClick={closeMenu} className="block hover:text-blue-400">Registro</Link>
         </nav>
