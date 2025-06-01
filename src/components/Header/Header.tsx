@@ -39,40 +39,6 @@ export default function Header() {
         </div>
         <div className="flex flex-row items-center gap-4">
           {!user ? (
-<<<<<<< HEAD
-          <>
-            <Link to="/login" className="flex items-center gap-1">
-              <FontAwesomeIcon icon={faRightToBracket} /> Inicia Sesión
-            </Link>
-            <Link to="/register" className="flex items-center gap-1">
-              <FontAwesomeIcon icon={faRightToBracket} className="rotate-180" /> Regístrate
-            </Link>
-          </>
-        ) : (
-          <>
-            <p>
-              Hola, {user.first_name} {user.last_name}
-            </p>
-
-            {/* Botón para admin */}
-            {user.role === 2 && (
-              <Link
-                to="/admin/"
-                className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
-              >
-                <FontAwesomeIcon icon={faUserShield} /> Admin Panel
-              </Link>
-            )}
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 text-red-400 hover:text-red-600"
-            >
-              <FontAwesomeIcon icon={faRightFromBracket} /> Cerrar sesión
-            </button>
-          </>
-        )}
-=======
             <>
               <Link to="/login" className="flex items-center gap-1">
                 <FontAwesomeIcon icon={faRightToBracket} /> Inicia Sesión
@@ -108,18 +74,13 @@ export default function Header() {
               </button>
             </>
           )}
->>>>>>> timothy-coder
           <div className="border-r border-[#ffffff] mx-3 h-6" />
           <div
             className="flex flex-row items-center gap-2 cursor-pointer"
             onClick={() => setIsCartOpen(true)}
           >
             <p>
-<<<<<<< HEAD
-              <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} /> 
-=======
               <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
->>>>>>> timothy-coder
             </p>
             <p>(${totalPrice.toFixed(2)})</p>
           </div>
@@ -127,11 +88,7 @@ export default function Header() {
       </header>
 
       {/* Componente carrito */}
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> timothy-coder
     </>
   );
 }

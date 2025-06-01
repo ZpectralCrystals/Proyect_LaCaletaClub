@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-export default function RecomendacionesAdmin() {
-    return(
-        <>
-        Recomendaciones
-        </>
-    )
-}
-=======
 "use client";
 
 import { useEffect, useState } from "react";
@@ -141,4 +132,3 @@ export default function RecomendacionesAdmin() {
     </main>
   );
 }
->>>>>>> timothy-coder
