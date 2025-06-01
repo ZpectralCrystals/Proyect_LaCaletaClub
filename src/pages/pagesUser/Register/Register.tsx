@@ -65,7 +65,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: 'auto', padding: 20 }}>
+    <div style={{ maxWidth: 400, margin: 'auto', padding: 20 , paddingBottom: 20, backgroundColor: '#f5f5f5' }}>
       <h2>Registro</h2>
       <form onSubmit={handleSubmit}>
         <input

@@ -143,7 +143,7 @@ const Inicio = () => {
         <p className="mb-6">
           Disfruta del mejor sabor marino y acumula puntos por cada visita.
         </p>
-        <Link to="/registro">
+        <Link to="/register">
           <button className="bg-white text-sky-700 font-bold px-6 py-3 rounded-full hover:bg-blue-100 transition-all">
             Registrarme
           </button>
