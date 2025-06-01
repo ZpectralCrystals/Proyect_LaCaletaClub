@@ -1,11 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // // Páginas públicas
-// import Inicio from "../pages/pagesPublic/Inicio/Inicio";
-// import Menu from "../pages/pagesPublic/Menu/Menu";
-// import Blog from "../pages/pagesPublic/Blog/Blog";
-// import Contacto from "../pages/pagesPublic/Contacto/Contacto";
-// import Recomendaciones from "../pages/pagesPublic/Recomendaciones/Recomendaciones";
 import { Inicio, Blog, Contacto, Recomendaciones, Menu } from "@/pages/pagesPublic";
 import Carrito from "../pages/pagesUser/Carrito/Carrito";
 

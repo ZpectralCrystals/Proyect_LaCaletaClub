@@ -1,10 +1,12 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/services/supabase";
 import HeroSlider from "@/components/HeroSlider/HeroSlider";
-
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 interface Producto {
   id: number;
@@ -21,15 +23,6 @@ interface Producto {
 const Inicio = () => {
   const [productosDestacados, setProductosDestacados] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Map de categorías si las necesitas aquí (de lo contrario puedes importarlo o pasarlo como prop)
-  const categoryMap: Record<number, string> = {
-    1: "Ceviches",
-    2: "Tiraditos",
-    3: "Piqueos",
-    4: "Bebidas",
-    5: "Postres",
-  };
 
   useEffect(() => {
     const fetchProductosDestacados = async () => {
@@ -95,51 +88,55 @@ const Inicio = () => {
         </div>
       </section>
 
-      {/* PRODUCTOS DESTACADOS */}
-   <section className="bg-sky-50 py-16 px-6">
-  <div className="max-w-7xl mx-auto">
-    <h2 className="text-3xl font-semibold text-sky-800 mb-8 text-center">
-      Productos Destacados
-    </h2>
+      {/* PRODUCTOS DESTACADOS CON SWIPER */}
+      <section className="bg-sky-50 py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-semibold text-sky-800 mb-8 text-center">
+            Productos Destacados
+          </h2>
 
-    {loading ? (
-      <p className="text-center text-sky-600">Cargando...</p>
-    ) : (
-      <Swiper
-        spaceBetween={20}
-        slidesPerView={2}
-        breakpoints={{
-          640: { slidesPerView: 2.5 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4 },
-        }}
-        loop={true}
-        autoplay={{ delay: 3000, disableOnInteraction: false }}
-        modules={[Autoplay]}
-      >
-        {productosDestacados.map((p) => (
-          <SwiperSlide key={p.id}>
-            <div className="bg-white border border-sky-200 shadow-md hover:shadow-lg rounded-xl overflow-hidden relative w-full">
-              <img
-                src={p.image}
-                alt={p.name}
-                className="w-full h-52 object-cover"
-              />
-              <div className="p-5 text-center">
-                <h3 className="text-lg font-semibold text-sky-800 mb-2">
-                  {p.name}
-                </h3>
-              </div>
-              <div className="absolute top-0 right-0 bg-sky-600 text-white px-2 py-1 text-sm font-semibold shadow-md rounded-bl-lg">
-                S/ {p.price.toFixed(2)}
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-10">
+              <div className="w-10 h-10 border-4 border-sky-300 border-t-transparent rounded-full animate-spin"></div>
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    )}
-  </div>
-</section>
+          ) : (
+            <Swiper
+              spaceBetween={20}
+              slidesPerView={4}
+              loop={true}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              navigation
+              pagination={{ clickable: true }}
+              modules={[Autoplay, Navigation, Pagination]}
+              className="!overflow-visible"
+            >
+              {productosDestacados.map((p) => (
+                <SwiperSlide key={p.id}>
+                  <div className="w-full bg-white border border-sky-200 shadow-md hover:shadow-lg rounded-xl overflow-hidden relative">
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-full h-52 object-cover"
+                    />
+                    <div className="p-5 text-center">
+                      <h3 className="text-lg font-semibold text-sky-800 mb-2">
+                        {p.name}
+                      </h3>
+                      <button className="bg-sky-700 hover:bg-sky-800 text-white px-5 py-2 rounded-full font-semibold transition">
+                        Ver más
+                      </button>
+                    </div>
+                    <div className="absolute top-0 right-0 bg-sky-600 text-white px-2 py-1 text-sm font-semibold shadow-md rounded-bl-lg">
+                      S/ {p.price.toFixed(2)}
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </div>
+      </section>
+
       {/* CTA FINAL */}
       <section className="bg-sky-600 text-white text-center py-16 px-6">
         <h2 className="text-3xl font-bold mb-4">¡Únete a la experiencia CevicheClub!</h2>
