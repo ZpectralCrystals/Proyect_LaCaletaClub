@@ -47,6 +47,7 @@ interface Product {
   image: string;
   varietyOptions: string[];
   isActive: boolean;
+  isFavorite:boolean;
 }
 
 interface Category {
@@ -220,6 +221,21 @@ export default function ProductsAdmin() {
     showAlert('success', `Producto ${!current ? 'activado' : 'desactivado'} con éxito`);
     fetchProducts();
   };
+const toggleFavorite = async (id: number, current: boolean) => {
+  const { error } = await supabase
+    .from('productostab')
+    .update({ isFavorite: !current })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error actualizando favorito:', error);
+    showAlert('error', 'Error actualizando favorito');
+    return;
+  }
+
+  showAlert('success', `Producto ${!current ? 'marcado como favorito' : 'removido de favoritos'} con éxito`);
+  fetchProducts();
+};
 
   const getCategoryName = (id: number) => {
     const category = categories.find((cat) => cat.id === id);
@@ -314,6 +330,8 @@ export default function ProductsAdmin() {
               <th className="border px-4 py-2">Imagen</th>
               <th className="border px-4 py-2">Variedades</th>
               <th className="border px-4 py-2">Estado</th>
+              <th className="border px-4 py-2">Favorito</th>
+
               <th className="border px-4 py-2">Acciones</th>
             </tr>
           </thead>
@@ -345,6 +363,19 @@ export default function ProductsAdmin() {
                     />
                   </Button>
                 </td>
+                <td className="border px-4 py-2 text-center">
+  <Button
+    variant="ghost"
+    onClick={() => toggleFavorite(product.id, product.isFavorite)}
+    title={product.isFavorite ? 'Quitar de Favoritos' : 'Marcar como Favorito'}
+  >
+    <FontAwesomeIcon
+      icon={product.isFavorite ? faToggleOn : faToggleOff}
+      className={`text-xl ${product.isFavorite ? 'text-green-500' : 'text-gray-400'}`}
+    />
+  </Button>
+</td>
+
                 <td className="border px-4 py-2 space-x-2 text-center">
                   <Button variant="ghost" onClick={() => handleEdit(product)} title="Editar">
                     <FontAwesomeIcon icon={faPen} />
