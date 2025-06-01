@@ -19,7 +19,7 @@ interface Categoria {
   isActive: boolean;
 }
 
-export default function MenuList() {
+export function MenuList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categoryMap, setCategoryMap] = useState<Record<number, string>>({});
