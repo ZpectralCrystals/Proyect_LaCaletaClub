@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+// Tipo final para renderizar en la app
 interface Recomendacion {
   id: number;
   created_at: string;
@@ -35,30 +36,16 @@ const Recomendaciones = () => {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      // Usamos una interfaz temporal si Supabase no infiere correctamente
-      type RawRecomendacion = {
-        id: number;
-        created_at: string;
-        userid: string;
-        isActive: boolean;
-        description: string;
+      const resenasFormateadas: Recomendacion[] = (data as any[]).map((item) => ({
+        id: item.id as number,
+        created_at: item.created_at as string,
+        userid: item.userid as string,
+        isActive: item.isActive as boolean,
+        description: item.description as string,
         profile: {
-          first_name: string;
-          last_name: string;
-          avatar_url?: string;
-        };
-      };
-
-      const resenasFormateadas: Recomendacion[] = data.map((item: RawRecomendacion) => ({
-        id: item.id,
-        created_at: item.created_at,
-        userid: item.userid,
-        isActive: item.isActive,
-        description: item.description,
-        profile: {
-          first_name: item.profile.first_name,
-          last_name: item.profile.last_name,
-          avatar_url: item.profile.avatar_url ?? "/default-avatar.png",
+          first_name: item.profile.first_name as string,
+          last_name: item.profile.last_name as string,
+          avatar_url: (item.profile.avatar_url as string) ?? "/default-avatar.png",
         },
       }));
 
@@ -76,6 +63,7 @@ const Recomendaciones = () => {
     if (!nuevaResena.trim()) return;
 
     setLoading(true);
+
     const { error } = await supabase.from("recomendacionestab").insert({
       description: nuevaResena,
       userid: user?.id,
