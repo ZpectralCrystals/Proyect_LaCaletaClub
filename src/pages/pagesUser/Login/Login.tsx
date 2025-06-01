@@ -57,7 +57,7 @@ dispatch(setUser(userData));
 
     } catch (error: any) {
       dispatch(setError(error.message || 'Error al iniciar sesión'));
-      setMessage(error.message || 'Error al iniciar sesión');
+      setMessage( 'Su usuario aun no ha sido registrado');
     } finally {
       dispatch(setLoading(false));
     }
