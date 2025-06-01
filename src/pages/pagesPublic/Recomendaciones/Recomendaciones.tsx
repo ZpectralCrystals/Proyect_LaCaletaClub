@@ -35,7 +35,21 @@ const Recomendaciones = () => {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      const resenasFormateadas: Recomendacion[] = data.map((item: any) => ({
+      // Usamos una interfaz temporal si Supabase no infiere correctamente
+      type RawRecomendacion = {
+        id: number;
+        created_at: string;
+        userid: string;
+        isActive: boolean;
+        description: string;
+        profile: {
+          first_name: string;
+          last_name: string;
+          avatar_url?: string;
+        };
+      };
+
+      const resenasFormateadas: Recomendacion[] = data.map((item: RawRecomendacion) => ({
         id: item.id,
         created_at: item.created_at,
         userid: item.userid,
