@@ -98,7 +98,7 @@ const Inicio = () => {
         </p>
         <Link to="/registro">
           <button className="bg-white text-sky-700 font-bold px-6 py-3 rounded-full hover:bg-blue-100 transition-all">
-            Registrarme
+            Registrarmea
           </button>
         </Link>
       </section>
