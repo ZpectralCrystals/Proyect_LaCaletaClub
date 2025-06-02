@@ -5,15 +5,7 @@ import { Inicio, Blog, Contacto, Recomendaciones, Menu,Register ,Login } from "@
 import Carrito from "../pages/pagesUser/Carrito/Carrito";
 
 // Páginas administrativas
-import Category from "../pages/pagesAdmin/Category";
-import Discounts from "../pages/pagesAdmin/Discounts/Discounts";
-import Products from "../pages/pagesAdmin/Products/Products";
-import Profile from "../pages/pagesAdmin/Profile/Profile";
-import InicioAdmin from "../pages/pagesAdmin/Inicio/Inicio";
-import UsuariosAdmin from "../pages/pagesAdmin/Users/User";
-import CommentsAdmin from "../pages/pagesAdmin/Comments/Comments";
-import RecomendacionesAdmin from "../pages/pagesAdmin/Recomendaciones/Recomendaciones";
-import ReportesAdmin from "../pages/pagesAdmin/Reportes/Reportes";
+import { Category, Discounts, Products, Profile, InicioAdmin, UsuariosAdmin, CommentsAdmin, RecomendacionesAdmin, ReportesAdmin } from "@/pages/pagesAdmin";
 
 // Layout general
 import Layout from "../components/Layout/Layout";

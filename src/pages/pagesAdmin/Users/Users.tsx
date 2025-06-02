@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -63,7 +62,10 @@ export default function UserAdminPage() {
   // Cargar usuarios
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from<UserAdmin>('profiles').select('*');
+   const { data, error } = await supabase
+  .from('profiles')
+  .select('*');
+
     if (error) {
       toast.error('Error cargando usuarios');
     } else {
