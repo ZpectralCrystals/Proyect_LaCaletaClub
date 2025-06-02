@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "titulo": "¡Oferta especial!",
+      "mensaje": "Compra hoy con un 10% de descuento.",
+      "imagen": "/anuncio1.jpg",
+      "activo": true
+    },
+    {
+      "id": 2,
+      "titulo": "¡Oferta especial!",
+      "mensaje": "Compra hoy con un 30% de descuento.",
+      "imagen": "/anuncio2.jpg",
+      "activo": true
+    }
+  ]
+  

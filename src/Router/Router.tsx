@@ -1,24 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // // Páginas públicas
-// import Inicio from "../pages/pagesPublic/Inicio/Inicio";
-// import Menu from "../pages/pagesPublic/Menu/Menu";
-// import Blog from "../pages/pagesPublic/Blog/Blog";
-// import Contacto from "../pages/pagesPublic/Contacto/Contacto";
-// import Recomendaciones from "../pages/pagesPublic/Recomendaciones/Recomendaciones";
-import { Inicio, Blog, Contacto, Recomendaciones, Menu } from "@/pages/pagesPublic";
+import { Inicio, Blog, Contacto, Recomendaciones, Menu,Register ,Login } from "@/pages/pagesPublic";
 import Carrito from "../pages/pagesUser/Carrito/Carrito";
 
 // Páginas administrativas
-import Category from "../pages/pagesAdmin/Category";
-import Discounts from "../pages/pagesAdmin/Discounts/Discounts";
-import Products from "../pages/pagesAdmin/Products/Products";
-import Profile from "../pages/pagesAdmin/Profile/Profile";
-import InicioAdmin from "../pages/pagesAdmin/Inicio/Inicio";
-import UsuariosAdmin from "../pages/pagesAdmin/Users/User";
-import CommentsAdmin from "../pages/pagesAdmin/Comments/Comments";
-import RecomendacionesAdmin from "../pages/pagesAdmin/Recomendaciones/Recomendaciones";
-import ReportesAdmin from "../pages/pagesAdmin/Reportes/Reportes";
+import { Category, Discounts, Products, Profile, InicioAdmin, UsuariosAdmin, CommentsAdmin, RecomendacionesAdmin, ReportesAdmin } from "@/pages/pagesAdmin";
 
 // Layout general
 import Layout from "../components/Layout/Layout";
@@ -28,14 +15,13 @@ import LayoutAdmin from "../components/LayoutAdmin/LayoutAdmin";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
 // Login y registro
-import Login from "@/pages/pagesUser/Login/Login";
-import Register from "@/pages/pagesUser/Register/Register";
 import AuthRoute from "@/components/ProtectedRoute/AuthRoute";
 import ImagesCharge from "@/pages/pagesAdmin/ImagesCharge/ImagesCharge";
 import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
 import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
 import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
 import NoAutorizacion from "@/pages/pagesUser/NoAutorizacion/NoAutorizacion";
+
 
 
 export function Router() {
@@ -50,7 +36,7 @@ export function Router() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register />} /> 
           <Route path="/unauthorized" element={<NoAutorizacion />} />
 
           {/* Ruta protegida para usuarios logueados (sin importar el rol) */}

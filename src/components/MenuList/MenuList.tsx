@@ -82,7 +82,7 @@ export function MenuList() {
   if (loading) return <p className="text-center">Cargando productos...</p>;
 
   return (
-    <div className="lg:mt-24 sm:mt-15 px-4">
+    <div className="lg:mt-24 sm:mt-15 px-4 pb-24">
       <h1 className="text-sky-800 text-lg font-semibold text-center">Agrega tus platos para tu carrito</h1>
 
       <div>
@@ -128,7 +128,7 @@ export function MenuList() {
               />
             ))
           ) : (
-            <p className="text-gray-500 text-center col-span-full">No se encontraron productos.</p>
+            <p className="text-gray-500 text-center col-span-full" >No se encontraron productos.</p>
           )}
         </div>
       </div>
