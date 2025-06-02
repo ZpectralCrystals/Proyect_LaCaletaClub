@@ -65,6 +65,15 @@ export default function Header() {
                   {user.role === 5 && "Chef Panel"}
                 </Link>
               )}
+              {[1].includes(user.role) && (
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <FontAwesomeIcon icon={faUserShield} />
+                  {user.role === 1 && "Perfil"}
+                </Link>
+              )}
 
               <button
                 onClick={handleLogout}
