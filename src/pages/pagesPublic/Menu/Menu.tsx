@@ -1,7 +1,6 @@
-import React from 'react';
 import MenuList from '@/components/MenuList/MenuList';
 
-const Menu: React.FC = () => {
+const Menu = () => {
   return (
     <MenuList/>
   );

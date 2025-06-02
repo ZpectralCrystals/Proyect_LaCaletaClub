@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // // Páginas públicas
-import { Inicio, Blog, Contacto, Recomendaciones, Menu } from "@/pages/pagesPublic";
+import { Inicio, Blog, Contacto, Recomendaciones, Menu,Register ,Login } from "@/pages/pagesPublic";
 import Carrito from "../pages/pagesUser/Carrito/Carrito";
 
 // Páginas administrativas
@@ -23,14 +23,13 @@ import LayoutAdmin from "../components/LayoutAdmin/LayoutAdmin";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
 // Login y registro
-import Login from "@/pages/pagesUser/Login/Login";
-import Register from "@/pages/pagesUser/Register/Register";
 import AuthRoute from "@/components/ProtectedRoute/AuthRoute";
 import ImagesCharge from "@/pages/pagesAdmin/ImagesCharge/ImagesCharge";
 import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
 import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
 import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
 import NoAutorizacion from "@/pages/pagesUser/NoAutorizacion/NoAutorizacion";
+
 
 
 export function Router() {
@@ -45,7 +44,7 @@ export function Router() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/recomendaciones" element={<Recomendaciones />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register />} /> 
           <Route path="/unauthorized" element={<NoAutorizacion />} />
 
           {/* Ruta protegida para usuarios logueados (sin importar el rol) */}
