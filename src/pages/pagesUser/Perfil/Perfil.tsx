@@ -6,8 +6,8 @@ export default function Perfil() {
     telefono: "987654321",
     puntos: 240,
     compras: [
-      { id: 1, producto: "Combo Familiar", fecha: "2025-05-10", monto: 45.90 },
-      { id: 2, producto: "Pizza Grande", fecha: "2025-04-28", monto: 35.00 },
+      { id: 1, producto: "Combo cevichero", fecha: "2025-05-10", monto: 45.90 },
+      { id: 2, producto: "Ceviche mas leche de tigre", fecha: "2025-04-28", monto: 35.00 },
     ],
   };
 

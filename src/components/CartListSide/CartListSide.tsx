@@ -46,7 +46,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
         <Button
           variant="outline"
           size="sm"
-          className="relative hover:bg-gray-100 hover:text-gray-900"
+          className="relative text-gray-900 hover:bg-gray-100 hover:text-gray-900"
         >
           <ShoppingCart className="h-5 w-5" />
           {totalUnits > 0 && (
