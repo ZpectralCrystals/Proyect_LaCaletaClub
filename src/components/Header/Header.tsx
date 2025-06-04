@@ -28,7 +28,7 @@ export default function Header() {
     navigate('/');
   };
 
-  // const totalQuantity = products.reduce((acc, prod) => acc + prod.quantity, 0);
+  const totalQuantity = products.reduce((acc, prod) => acc + prod.quantity, 0);
   const totalPrice = products.reduce((acc, prod) => acc + Number(prod.price) * prod.quantity, 0);
 
   return (
@@ -49,9 +49,12 @@ export default function Header() {
             </>
           ) : (
             <>
-              <p>
-                Hola, {user.first_name} {user.last_name}
-              </p>
+              <div className="flex items-center gap-2">
+  
+
+  <span>Hola, {user.first_name} {user.last_name}</span>
+</div>
+
 
               {[2, 3, 4, 5].includes(user.role) && (
                 <Link
@@ -63,6 +66,15 @@ export default function Header() {
                   {user.role === 3 && "Cajero Panel"}
                   {user.role === 4 && "Mesero Panel"}
                   {user.role === 5 && "Chef Panel"}
+                </Link>
+              )}
+              {[1].includes(user.role) && (
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <FontAwesomeIcon icon={faUserShield} />
+                  {user.role === 1 && "Perfil"}
                 </Link>
               )}
 

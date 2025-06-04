@@ -1,5 +1,8 @@
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/store";
+import { addToCart } from "@/redux/cartSlice";
 
 interface Product {
   id: number;
@@ -20,12 +23,30 @@ interface Props {
 const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
   const [flipped, setFlipped] = useState(false);
   const [quantity, setQuantity] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
 
   if (!product.isActive) return null;
 
   const handleFlip = () => setFlipped(!flipped);
   const increment = () => setQuantity((q) => q + 1);
   const decrement = () => setQuantity((q) => (q > 0 ? q - 1 : 0));
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  if (quantity > 0) {
+    dispatch(
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: quantity,
+      })
+    );
+    setQuantity(0);
+  }
+};
+
 
   return (
     <div
@@ -75,7 +96,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
           </div>
 
           <button
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleAddToCart}
             className="mt-2 bg-sky-700 hover:bg-sky-800 text-white px-4 py-1 rounded-full flex items-center gap-2 text-sm"
           >
             <ShoppingCart className="w-4 h-4" />
@@ -87,17 +108,21 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
 
         {/* Reverso */}
         <div className="absolute w-full h-full bg-white border border-gray-200 rounded-md p-4 overflow-y-auto [backface-visibility:hidden] rotate-y-180">
-          <h3 className="text-sky-800 text-base font-semibold mb-2">{product.name}</h3>
+          <h3 className="text-sky-800 text-base font-semibold mb-2">
+            {product.name}
+          </h3>
           <p className="text-gray-600 text-sm mb-2">{product.description}</p>
 
           {product.varietyOptions.length > 0 && (
             <div className="text-xs text-gray-500 mb-2">
-              <strong>Opciones:</strong> {product.varietyOptions.join(", ")}
+              <strong>Opciones:</strong>{" "}
+              {product.varietyOptions.join(", ")}
             </div>
           )}
 
           <div className="text-xs text-sky-700 font-medium">
-            <strong>Categoría:</strong> {categoryMap[product.type] || "Sin categoría"}
+            <strong>Categoría:</strong>{" "}
+            {categoryMap[product.type] || "Sin categoría"}
           </div>
 
           <p className="text-xs text-gray-400 mt-4">(Haz clic para volver)</p>

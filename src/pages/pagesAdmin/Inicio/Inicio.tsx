@@ -1,40 +1,52 @@
-import { ResponsiveBar } from "@nivo/bar";
-import { ResponsiveLine } from "@nivo/line";
-import { ResponsivePie } from "@nivo/pie";
-import { ResponsiveRadar } from "@nivo/radar";
-import { ResponsiveStream } from "@nivo/stream";
-import { ResponsiveCalendar } from "@nivo/calendar";
-import { Bump } from "@nivo/bump";
-import { SwarmPlot } from "@nivo/swarmplot";
-import { Card, CardContent } from "@/components/ui/card";
+// pages/pagesAdmin/Inicio/Inicio.tsx
+import { ResponsiveBar } from '@nivo/bar';
+import { ResponsiveLine } from '@nivo/line';
+import { ResponsivePie } from '@nivo/pie';
+import { ResponsiveRadar } from '@nivo/radar';
+import { ResponsiveStream } from '@nivo/stream';
+import { ResponsiveBump } from '@nivo/bump';
+import { ResponsiveCalendar } from '@nivo/calendar';
+import { ResponsiveSwarmPlot } from '@nivo/swarmplot';
+
+import { Card, CardContent } from '@/components/ui/card';
 
 const InicioAdmin = () => {
+  // Datos de ejemplo
   const barData = [
-    { country: "AD", burgers: 50 },
-    { country: "AE", burgers: 80 },
-    { country: "AF", burgers: 65 },
+    { country: 'AD', burgers: 50 },
+    { country: 'AE', burgers: 80 },
+    { country: 'AF', burgers: 65 },
   ];
 
   const lineData = [
     {
-      id: "serie 1",
+      id: 'serie 1',
       data: [
-        { x: "Ene", y: 10 },
-        { x: "Feb", y: 50 },
-        { x: "Mar", y: 30 },
+        { x: 'Ene', y: 10 },
+        { x: 'Feb', y: 50 },
+        { x: 'Mar', y: 30 },
       ],
     },
   ];
 
   const pieData = [
-    { id: "A", value: 30, label: "A" },
-    { id: "B", value: 70, label: "B" },
+    { id: 'A', value: 30, label: 'A' },
+    { id: 'B', value: 70, label: 'B' },
   ];
 
   const radarData = [
-    { taste: "fruity", A: 120 },
-    { taste: "bitter", A: 98 },
-    { taste: "heavy", A: 86 },
+    {
+      taste: 'fruity',
+      A: 120,
+    },
+    {
+      taste: 'bitter',
+      A: 98,
+    },
+    {
+      taste: 'heavy',
+      A: 86,
+    },
   ];
 
   const streamData = [
@@ -45,7 +57,7 @@ const InicioAdmin = () => {
 
   const bumpData = [
     {
-      id: "Serie 1",
+      id: 'Serie 1',
       data: [
         { x: 2000, y: 3 },
         { x: 2001, y: 2 },
@@ -55,24 +67,24 @@ const InicioAdmin = () => {
   ];
 
   const calendarData = [
-    { day: "2025-01-01", value: 10 },
-    { day: "2025-01-02", value: 20 },
-    { day: "2025-01-03", value: 30 },
+    { day: '2025-01-01', value: 10 },
+    { day: '2025-01-02', value: 20 },
+    { day: '2025-01-03', value: 30 },
   ];
 
   const swarmData = [
-    { group: "A", id: "1", value: 20 },
-    { group: "A", id: "2", value: 40 },
-    { group: "B", id: "3", value: 35 },
+    { group: 'A', id: '1', value: 20 },
+    { group: 'A', id: '2', value: 40 },
+    { group: 'B', id: '3', value: 35 },
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-4 p-4 min-h-screen">
-      <Card className="col-span-1 h-96">
+    <div className="grid grid-cols-3 gap-4 p-4 h-screen overflow-hidden">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
           <ResponsiveBar
             data={barData}
-            keys={["burgers"]}
+            keys={['burgers']}
             indexBy="country"
             margin={{ top: 10, right: 10, bottom: 30, left: 40 }}
             padding={0.3}
@@ -80,23 +92,19 @@ const InicioAdmin = () => {
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 h-96">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
           <ResponsiveLine
             data={lineData}
             margin={{ top: 10, right: 10, bottom: 30, left: 40 }}
-            xScale={{ type: "point" }}
-            yScale={{ type: "linear", min: "auto", max: "auto" }}
-            axisBottom={{
-              legend: "Meses",
-              legendPosition: "middle",
-              legendOffset: 32,
-            }}
+            xScale={{ type: 'point' }}
+            yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+            axisBottom={{ legend: 'Meses', legendPosition: 'middle', legendOffset: 32 }}
           />
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 h-96">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
           <ResponsivePie
             data={pieData}
@@ -108,46 +116,38 @@ const InicioAdmin = () => {
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 h-96">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
           <ResponsiveRadar
             data={radarData}
-            keys={["A"]}
+            keys={['A']}
             indexBy="taste"
             margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
           />
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 h-96">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
           <ResponsiveStream
             data={streamData}
-            keys={["A", "B", "C"]}
+            keys={['A', 'B', 'C']}
             margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
           />
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 h-96">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
-          {/* Bump sin xScale personalizado */}
-          <Bump
+          <ResponsiveBump
             data={bumpData}
-            width={400}
-            height={300}
             margin={{ top: 10, right: 10, bottom: 30, left: 40 }}
-            // Usamos solo props compatibles
-            axisBottom={{
-              legend: "Años",
-              legendPosition: "middle",
-              legendOffset: 32,
-            }}
+            xScale={{ type: 'point' }}
           />
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 h-96">
+      <Card className="col-span-1 h-full">
         <CardContent className="h-full">
           <ResponsiveCalendar
             data={calendarData}
@@ -158,21 +158,16 @@ const InicioAdmin = () => {
         </CardContent>
       </Card>
 
-      <Card className="col-span-2 h-96">
+      <Card className="col-span-2 h-full">
         <CardContent className="h-full">
-          {/* SwarmPlot sin props incompatibles */}
-          <SwarmPlot
+          <ResponsiveSwarmPlot
             data={swarmData}
-            width={600}
-            height={300}
-            groups={["A", "B"]}
+            groups={['A', 'B']}
+            groupBy="group"
+            identity="id"
             value="value"
-            valueScale={{ type: "linear", min: 0, max: 50 }}
-            size={{
-              key: "value",
-              values: [0, 50],
-              sizes: [4, 20],
-            }}
+            valueScale={{ type: 'linear', min: 0, max: 50 }}
+            size={{ key: 'value', values: [4, 12], sizes: [6, 20] }}
             margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
           />
         </CardContent>

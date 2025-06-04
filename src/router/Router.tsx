@@ -21,6 +21,7 @@ import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
 import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
 import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
 import NoAutorizacion from "@/pages/pagesUser/NoAutorizacion/NoAutorizacion";
+import Perfil from "@/pages/pagesUser/Perfil/Perfil";
 
 
 
@@ -38,10 +39,12 @@ export function Router() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} /> 
           <Route path="/unauthorized" element={<NoAutorizacion />} />
+          
 
           {/* Ruta protegida para usuarios logueados (sin importar el rol) */}
           <Route element={<AuthRoute />}>
             <Route path="/carrito" element={<Carrito />} />
+            <Route path="/profile" element={<Perfil />} />
           </Route>
         </Route>
 
