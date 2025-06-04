@@ -7,9 +7,8 @@ export interface User {
   role: number;
   first_name?: string;
   last_name?: string;
+  avatar_url?: string; // ✅ Agregado
 }
-
-
 
 interface AuthState {
   user: User | null;

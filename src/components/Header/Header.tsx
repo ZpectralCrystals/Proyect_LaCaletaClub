@@ -49,9 +49,12 @@ export default function Header() {
             </>
           ) : (
             <>
-              <p>
-                Hola, {user.first_name} {user.last_name}
-              </p>
+              <div className="flex items-center gap-2">
+  
+
+  <span>Hola, {user.first_name} {user.last_name}</span>
+</div>
+
 
               {[2, 3, 4, 5].includes(user.role) && (
                 <Link
