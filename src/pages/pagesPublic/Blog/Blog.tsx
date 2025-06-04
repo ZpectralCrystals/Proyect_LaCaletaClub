@@ -24,21 +24,11 @@ const Blog = () => {
   const [descripcion, setDescripcion] = useState("");
   const [productId, setProductId] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
-  const [sessionUser, setSessionUser] = useState<any>(null);
-  const [newComment, setNewComment] = useState<string>("");
 
   useEffect(() => {
     fetchActiveBlogs();
     fetchProducts();
-    checkSession();
   }, []);
-
-  const checkSession = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    setSessionUser(session?.user || null);
-  };
 
   const fetchActiveBlogs = async () => {
     const { data, error } = await supabase
@@ -66,14 +56,18 @@ const Blog = () => {
   };
 
   const handleAgregarBlog = async () => {
-    if (!sessionUser || ![2, 3, 4, 5].includes(sessionUser.role)) return;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) return;
+
     if (!titulo || !descripcion || !productId) return alert("Todos los campos son obligatorios");
 
     const { error } = await supabase.from("blogtab").insert([
       {
         titulo,
         descripcion,
-        user_id: sessionUser.id,
+        user_id: session.user.id,
         product_id: Number(productId),
         isActive: false,
         searchTree: Date.now(),
@@ -88,47 +82,27 @@ const Blog = () => {
     }
   };
 
-  const handleAgregarCadena = async (blogId: number) => {
-    if (!sessionUser || !newComment.trim() || ![2, 3, 4, 5].includes(sessionUser.role)) return;
-    const { error } = await supabase
-      .from("blogtab")
-      .insert({
-        titulo: "(continuación)",
-        descripcion: newComment,
-        user_id: sessionUser.id,
-        product_id: null,
-        isActive: false,
-        searchTree: blogId,
-      });
-    if (!error) {
-      alert("Cadena enviada para revisión");
-      setNewComment("");
-    }
-  };
-
   return (
     <main className="bg-white min-h-screen py-16 px-6">
       <section className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-sky-800 mb-12 text-center">Blog Cevichero</h1>
 
-        {sessionUser && [2, 3, 4, 5].includes(sessionUser.role) && (
-          <div className="mb-10 bg-sky-50 p-6 rounded-lg shadow space-y-4">
-            <h2 className="text-xl font-semibold text-sky-700">Agrega una entrada al blog</h2>
-            <Input placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-            <Input placeholder="Descripción" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
-            <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un producto" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((prod) => (
-                  <SelectItem key={prod.id} value={prod.id.toString()}>{prod.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleAgregarBlog}>Enviar blog</Button>
-          </div>
-        )}
+        <div className="mb-10 bg-sky-50 p-6 rounded-lg shadow space-y-4">
+          <h2 className="text-xl font-semibold text-sky-700">Agrega una entrada al blog</h2>
+          <Input placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+          <Input placeholder="Descripción" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+          <Select value={productId} onValueChange={setProductId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona un producto" />
+            </SelectTrigger>
+            <SelectContent>
+              {products.map((prod) => (
+                <SelectItem key={prod.id} value={prod.id.toString()}>{prod.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={handleAgregarBlog}>Enviar blog</Button>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-10">
           {blogs.map((post) => (
@@ -145,16 +119,6 @@ const Blog = () => {
                   <li>📅 {post.fecha}</li>
                   <li>👨‍🍳 {post.autor}</li>
                 </ul>
-                {sessionUser && [2, 3, 4, 5].includes(sessionUser.role) && (
-                  <div className="mt-4 space-y-2">
-                    <Input
-                      placeholder="Agrega un comentario a esta cadena"
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                    />
-                    <Button onClick={() => handleAgregarCadena(post.id)}>Agregar a la cadena</Button>
-                  </div>
-                )}
               </div>
             </div>
           ))}
