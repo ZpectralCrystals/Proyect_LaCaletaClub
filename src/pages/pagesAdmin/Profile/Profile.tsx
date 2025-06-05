@@ -25,7 +25,7 @@ export default function PerfilAdministrador() {
 
       if (!session?.user) return;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("profiles")
         .select("email, first_name, last_name, avatar_url")
         .eq("id", session.user.id)
