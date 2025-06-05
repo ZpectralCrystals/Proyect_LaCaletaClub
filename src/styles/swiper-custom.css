@@ -1,0 +1,34 @@
+/* Estilos personalizados para Swiper */
+.swiper-pagination-bullet {
+  @apply bg-sky-300 opacity-50;
+}
+
+.swiper-pagination-bullet-active {
+  @apply bg-sky-600 opacity-100;
+}
+
+.swiper-button-disabled {
+  @apply opacity-30 cursor-not-allowed;
+}
+
+/* Animación personalizada para el spinner */
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-reverse {
+  animation-direction: reverse;
+}
+
+/* Utilidad para truncar texto */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

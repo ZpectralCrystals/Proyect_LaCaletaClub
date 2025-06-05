@@ -102,7 +102,7 @@ const Inicio = () => {
           ) : (
             <Swiper
               spaceBetween={20}
-              slidesPerView={4}
+              slidesPerView={5}
               loop={true}
               autoplay={{ delay: 3000, disableOnInteraction: false }}
               navigation

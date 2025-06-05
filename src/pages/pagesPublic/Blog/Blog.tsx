@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select";
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+} from "@/components/ui/select";
 
 interface BlogEntry {
   id: number;
@@ -18,6 +24,16 @@ interface Product {
   name: string;
 }
 
+// Tipo para datos sin procesar desde Supabase
+interface RawBlogData {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  created_at: string;
+  profiles: { first_name: string; last_name: string } | null;
+  productostab: { image: string } | null;
+}
+
 const Blog = () => {
   const [blogs, setBlogs] = useState<BlogEntry[]>([]);
   const [titulo, setTitulo] = useState("");
@@ -31,19 +47,25 @@ const Blog = () => {
   }, []);
 
   const fetchActiveBlogs = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("blogtab")
       .select("id, titulo, descripcion, created_at, profiles(first_name, last_name), productostab(image)")
       .eq("isActive", true)
       .order("created_at", { ascending: false });
 
     if (data) {
-      const formatted: BlogEntry[] = data.map((entry: any) => ({
+      const formatted: BlogEntry[] = (data as unknown as RawBlogData[]).map((entry) => ({
         id: entry.id,
         titulo: entry.titulo,
         descripcion: entry.descripcion,
-        fecha: new Date(entry.created_at).toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" }),
-        autor: entry.profiles?.first_name + " " + entry.profiles?.last_name,
+        fecha: new Date(entry.created_at).toLocaleDateString("es-PE", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        autor: entry.profiles
+          ? `${entry.profiles.first_name} ${entry.profiles.last_name}`
+          : "Desconocido",
         imagen: entry.productostab?.image || "/default.jpg",
       }));
       setBlogs(formatted);
@@ -87,6 +109,7 @@ const Blog = () => {
       <section className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-sky-800 mb-12 text-center">Blog Cevichero</h1>
 
+        {/* Formulario para crear blog */}
         <div className="mb-10 bg-sky-50 p-6 rounded-lg shadow space-y-4">
           <h2 className="text-xl font-semibold text-sky-700">Agrega una entrada al blog</h2>
           <Input placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
@@ -104,6 +127,7 @@ const Blog = () => {
           <Button onClick={handleAgregarBlog}>Enviar blog</Button>
         </div>
 
+        {/* Lista de blogs */}
         <div className="grid md:grid-cols-2 gap-10">
           {blogs.map((post) => (
             <div key={post.id} className="flex flex-col md:flex-row bg-blue-50 rounded-xl shadow overflow-hidden">
