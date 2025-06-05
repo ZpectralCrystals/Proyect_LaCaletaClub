@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { supabase } from "@/services/supabase";
+import type { AppDispatch } from "@/store";
 
 // slice siempre require un estado inicial
 // user => object, loading => bool, error => objecto
@@ -47,8 +48,10 @@ const authSlice = createSlice({
 
 export const { setUser, setLoading, setError, clearUser } = authSlice.actions;
 
-export const getSession = () => async (dispatch:any) => {
-  // cuando queramos obtener la session llamemos setLoading
+// Asegúrate de que la ruta sea correcta
+
+export const getSession = () => async (dispatch: AppDispatch) => {
+
   // inicia la carga
   dispatch(setLoading(true));
   try {
@@ -59,7 +62,7 @@ export const getSession = () => async (dispatch:any) => {
   }
 };
 
-export const login = (email:any, password:any) => async (dispatch:any) => {
+export const login = (email: string, password: string) => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -79,7 +82,7 @@ export const login = (email:any, password:any) => async (dispatch:any) => {
 };
 
 export const signUpWithEmail =
-  (email:any, password:any, metadata:any) => async (dispatch:any) => {
+  (email: string, password: string, metadata: Record<string, unknown>) => async (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
 
     try {
@@ -101,7 +104,7 @@ export const signUpWithEmail =
     }
   };
 
-export const logoutUser = () => async (dispatch:any) => {
+export const logoutUser = () => async (dispatch: AppDispatch) => {
   try {
     await supabase.auth.signOut();
     dispatch(clearUser());
