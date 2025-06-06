@@ -36,12 +36,11 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
   const dispatch = useDispatch();
   const cartItems: CartItem[] = useSelector((state: RootState) => state.cart.products);
 
-
   const totalUnits = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
-    <Sheet open={isCartOpen} onOpenChange={setIsCartOpen} >
+    <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
       <SheetTrigger asChild>
         <Button
           variant="outline"
@@ -80,7 +79,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
               </p>
               <Button
                 className="mt-6 bg-gray-900 hover:bg-gray-800"
-                onClick={() => setIsCartOpen(false)}
+                onClick={() => setIsCartOpen(false)} // Cierra el carrito cuando se hace clic
               >
                 Continuar comprando
               </Button>

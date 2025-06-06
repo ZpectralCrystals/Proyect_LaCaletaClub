@@ -50,10 +50,10 @@ export default function Header() {
           ) : (
             <>
               <div className="flex items-center gap-2">
-  
 
-  <span>Hola, {user.first_name} {user.last_name}</span>
-</div>
+
+                <span>Hola, {user.first_name} {user.last_name}</span>
+              </div>
 
 
               {[2, 3, 4, 5].includes(user.role) && (
@@ -87,15 +87,15 @@ export default function Header() {
             </>
           )}
           <div className="border-r border-[#ffffff] mx-3 h-6" />
-          <div
-            className="flex flex-row items-center gap-2 cursor-pointer"
-            onClick={() => setIsCartOpen(true)}
+          <div className="flex flex-row items-center gap-2 cursor-pointer"
+            onClick={() => setIsCartOpen(true)} // Cambia el estado para abrir el carrito
           >
-            <p>
-              <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
-            </p>
-            <p>(${totalPrice.toFixed(2)})</p>
+
+            <p>(s/ {totalPrice.toFixed(2)})</p>
           </div>
+
+
+          <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
         </div>
       </header>
 
