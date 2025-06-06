@@ -1,19 +1,63 @@
-import React from "react";
-import { useSelector,useDispatch  } from "react-redux";
-import type{ RootState } from "@/store";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { incrementQuantity, decrementQuantity, removeFromCart } from "@/redux/cartSlice";
+import { supabase } from "@/lib/supabaseClient"; // Importa Supabase
+import { toast } from "sonner";
 const Carrito: React.FC = () => {
   const dispatch = useDispatch();
   // Obtener los productos del carrito desde Redux
   const cartItems = useSelector((state: RootState) => state.cart.products);
 
+  // Estado para los puntos disponibles del usuario
+  const [availablePoints, setAvailablePoints] = useState<number>(0);
+  const [pointsToApply, setPointsToApply] = useState<number>(0); // Puntos que el usuario quiere aplicar
+
   // Calcular el subtotal
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  // Calcular el precio total después de aplicar los puntos
+  const totalAfterPoints = subtotal - pointsToApply;
+
+  // Obtener puntos del usuario desde Supabase
+  useEffect(() => {
+    const getUserPoints = async () => {
+      const { data } = await supabase.auth.getSession();
+const user = data.session?.user;
+
+
+      if (user) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("points")
+          .eq("id", user.id) // Obtener los puntos del usuario logueado
+          .single(); // Asegurarse de obtener solo un registro
+
+        if (error) {
+          console.error("Error obteniendo puntos del usuario:", error);
+        } else {
+          setAvailablePoints(data?.points || 0); // Establecer los puntos disponibles
+        }
+      }
+    };
+
+    getUserPoints(); // Llamar a la función cuando se cargue el componente
+  }, []);
+
+  // Función para manejar el cambio en el input de los puntos
+  const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const points = parseInt(e.target.value);
+    if (points <= availablePoints) {
+      setPointsToApply(points); // Solo permitir aplicar puntos que no excedan los disponibles
+    } else {
+      toast.error("No puedes aplicar más puntos de los que tienes disponibles");
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-20 p-6">
@@ -37,7 +81,6 @@ const Carrito: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-lg">{item.name}</p>
-                  
                   <Table className="mt-4">
                     <TableHeader>
                       <TableRow>
@@ -109,18 +152,30 @@ const Carrito: React.FC = () => {
                 <TableCell className="text-right">S/ {subtotal.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Puntos</TableCell>
-                <TableCell className="text-right text-green-600">-S/ 10.00</TableCell>
+                <TableCell>Puntos disponibles</TableCell>
+                <TableCell className="text-right text-green-600">{availablePoints} puntos</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Puntos aplicados</TableCell>
+                <TableCell className="text-right text-green-600">-S/ {pointsToApply.toFixed(2)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
           <div className="mt-4">
             <Label htmlFor="usar-puntos">Usar puntos</Label>
-            <Input id="usar-puntos" type="number" placeholder="Cantidad de puntos" className="mt-1" />
+            <Input
+              id="usar-puntos"
+              type="number"
+              placeholder="Cantidad de puntos"
+              className="mt-1"
+              value={pointsToApply}
+              onChange={handlePointsChange}
+              max={availablePoints} // Limitar el número de puntos a los puntos disponibles
+            />
           </div>
           <div className="mt-4 flex justify-between font-semibold text-lg">
             <span>Precio Total</span>
-            <span>S/ {(subtotal - 10).toFixed(2)}</span>
+            <span>S/ {totalAfterPoints.toFixed(2)}</span>
           </div>
           <Button className="w-full mt-4">Pagar</Button>
         </CardContent>

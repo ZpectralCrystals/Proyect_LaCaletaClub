@@ -365,7 +365,7 @@ const toggleFavorite = async (id: number, current: boolean) => {
                 </td>
                 <td className="border px-4 py-2 text-center">
   <Button
-    variant="default"
+    variant="ghost"
     onClick={() => toggleFavorite(product.id, product.isFavorite)}
     title={product.isFavorite ? 'Quitar de Favoritos' : 'Marcar como Favorito'}
   >
@@ -377,7 +377,7 @@ const toggleFavorite = async (id: number, current: boolean) => {
 </td>
 
                 <td className="border px-4 py-2 space-x-2 text-center">
-                  <Button variant="default" onClick={() => handleEdit(product)} title="Editar">
+                  <Button variant="ghost" onClick={() => handleEdit(product)} title="Editar">
                     <FontAwesomeIcon icon={faPen} />
                   </Button>
                   <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
