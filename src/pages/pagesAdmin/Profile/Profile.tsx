@@ -14,6 +14,14 @@ interface Profile {
   avatar_url: string;
 }
 
+interface Venta {
+  producto: string;
+  cantidad: number;
+  monto: number;
+  puntos_usados: number;
+  fecha: string;
+}
+
 export default function PerfilAdministrador() {
   const [profile, setProfile] = useState<Profile>({
     email: "",
@@ -21,20 +29,23 @@ export default function PerfilAdministrador() {
     last_name: "",
     avatar_url: "",
   });
-
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [ventas, setVentas] = useState<Venta[]>([]); // Estado para el historial de ventas
+  const [errorMessage, setErrorMessage] = useState<string>(""); // Estado para el mensaje de error
 
-  // Obtener datos del perfil
+  // Obtener datos del perfil y del historial de compras
   useEffect(() => {
-    const fetchProfile = async () => {
+  const fetchProfile = async () => {
+    try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
       if (!session?.user) return;
 
+      // Obtener perfil
       const { data } = await supabase
         .from("profiles")
         .select("email, first_name, last_name, avatar_url")
@@ -42,10 +53,33 @@ export default function PerfilAdministrador() {
         .single();
 
       if (data) setProfile(data);
-    };
 
-    fetchProfile();
-  }, []);
+     
+      const { data: ventasData, error } = await supabase
+        .from("ventas") 
+        .select("producto, cantidad, monto, puntos_usados, fecha")
+        .eq("user_id", session.user.id); 
+
+      if (error) {
+        setErrorMessage(`Error al obtener las ventas: ${error.message}`);
+        console.error("Error obteniendo el historial de ventas:", error);
+      } else {
+        setVentas(ventasData || []);
+      }
+    } catch (error: unknown) {
+      // Verificamos si el error es un objeto con un mensaje
+      if (error instanceof Error) {
+        setErrorMessage(`Error inesperado: ${error.message}`);
+        console.error("Error inesperado:", error.message);
+      } else {
+        setErrorMessage("Error inesperado");
+      }
+    }
+  };
+
+  fetchProfile();
+}, []);
+
 
   // Manejar carga de imagen
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +121,7 @@ export default function PerfilAdministrador() {
         last_name: profile.last_name,
         avatar_url,
       })
-      .eq("email", profile.email);
+      .eq("id", session.user.id);
 
     if (!error) {
       setMessage("Perfil actualizado correctamente.");
@@ -170,6 +204,27 @@ export default function PerfilAdministrador() {
           />
           <Button onClick={handleChangePassword}>Cambiar Contraseña</Button>
           {message && <p className="text-sm text-center text-green-600">{message}</p>}
+        </CardContent>
+      </Card>
+
+      {/* Card de Historial de compras */}
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <h2 className="font-semibold text-sky-600">Historial de Compras</h2>
+          {ventas.length === 0 ? (
+            <p className="text-sm text-center text-gray-500">No tienes compras previas.</p>
+          ) : (
+            <ul className="space-y-2">
+              {ventas.map((venta, index) => (
+                <li key={index} className="flex justify-between">
+                  <span className="text-sm">{venta.producto} (x{venta.cantidad})</span>
+                  <span className="text-sm text-gray-500">S/ {venta.monto.toFixed(2)}</span>
+                  <span className="text-xs text-gray-400">{venta.fecha}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </CardContent>
       </Card>
     </div>

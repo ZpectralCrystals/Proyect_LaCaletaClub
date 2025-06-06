@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { incrementQuantity, decrementQuantity, removeFromCart } from "@/redux/cartSlice";
 import { supabase } from "@/lib/supabaseClient"; // Importa Supabase
 import { toast } from "sonner";
+
 const Carrito: React.FC = () => {
   const dispatch = useDispatch();
   // Obtener los productos del carrito desde Redux
@@ -28,8 +29,7 @@ const Carrito: React.FC = () => {
   useEffect(() => {
     const getUserPoints = async () => {
       const { data } = await supabase.auth.getSession();
-const user = data.session?.user;
-
+      const user = data.session?.user;
 
       if (user) {
         const { data, error } = await supabase
@@ -57,6 +57,50 @@ const user = data.session?.user;
     } else {
       toast.error("No puedes aplicar más puntos de los que tienes disponibles");
     }
+  };
+
+  const handlePago = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.user) {
+      toast.error("Debes iniciar sesión para realizar la compra.");
+      return;
+    }
+
+    const userId = session.user.id;
+
+    // Registrar cada producto en la tabla 'ventas'
+    const productosVenta = cartItems.map((item) => ({
+      user_id: userId,
+      producto: item.name,
+      cantidad: item.quantity,
+      monto: item.price * item.quantity,
+      puntos_usados: pointsToApply, // Puntos utilizados
+    }));
+
+    const { error: ventaError } = await supabase.from("ventas").insert(productosVenta);
+
+    if (ventaError) {
+      toast.error("Error registrando la venta.");
+      return;
+    }
+
+    // Restar los puntos del usuario
+    const { error: puntosError } = await supabase
+      .from("profiles")
+      .update({
+        points: availablePoints - pointsToApply,
+      })
+      .eq("id", userId);
+
+    if (puntosError) {
+      toast.error("Error actualizando los puntos.");
+      return;
+    }
+
+    toast.success("Compra realizada exitosamente.");
   };
 
   return (
@@ -177,7 +221,9 @@ const user = data.session?.user;
             <span>Precio Total</span>
             <span>S/ {totalAfterPoints.toFixed(2)}</span>
           </div>
-          <Button className="w-full mt-4">Pagar</Button>
+          <Button onClick={handlePago} className="w-full mt-4">
+            Pagar
+          </Button>
         </CardContent>
       </Card>
     </div>
