@@ -127,10 +127,10 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
             )}
 
             {[2].includes(user.role) && (
-              <SidebarMenuButton asChild>
-                <Link to="/admin/carga-image" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">
+               <SidebarMenuButton asChild>
+                <Link to="/admin/puntos" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">
                   <HardDriveUpload className="w-4 h-4" />
-                  <span>Carga de Imágenes</span>
+                  <span>Puntos</span>
                 </Link>
               </SidebarMenuButton>
             )}
