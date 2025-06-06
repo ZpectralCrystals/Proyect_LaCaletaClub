@@ -102,12 +102,7 @@ export default function CommentsAdmin() {
         <h1 className="text-2xl font-bold text-sky-800">Gestión de Blogs</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => {
-              setEditMode(false);
-              setForm({ id: 0, titulo: "", descripcion: "", product_id: 0, isActive: false });
-            }}>
-              Nuevo Blog
-            </Button>
+            
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

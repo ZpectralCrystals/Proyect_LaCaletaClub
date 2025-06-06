@@ -12,7 +12,7 @@ export default function Perfil() {
     dni: "",
     avatar_url: "",
   });
-  const [puntos, setPuntos] = useState(0);
+  const [puntos, setPuntos] = useState(0); // Puntos ahora se extraen de `profiles`
   const [compras, setCompras] = useState<any[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
@@ -24,31 +24,30 @@ export default function Perfil() {
 
       if (!session?.user) return;
 
-      const { data: profileData } = await supabase
+      // Obtener información del perfil
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("first_name, last_name, dni, avatar_url")
+        .select("first_name, last_name, dni, avatar_url, points") // Agregar `points` aquí
         .eq("id", session.user.id)
         .single();
 
-      if (profileData) setProfile(profileData);
+      if (profileError) {
+        console.error("Error obteniendo el perfil:", profileError);
+      } else if (profileData) {
+        setProfile(profileData);
+        setPuntos(profileData.points || 0); // Asignar los puntos desde la tabla `profiles`
+      }
 
-      const { data: puntosData } = await supabase
-        .from("user_pointstabtab")
-        .select("points, compra_id")
-        .eq("user_id", session.user.id)
-        .single();
+      // Obtener las compras del usuario, si las hay
+      const { data: comprasData, error: comprasError } = await supabase
+        .from("compras")
+        .select("producto, fecha, monto")
+        .eq("user_id", session.user.id); // Cambié a `user_id` para obtener las compras del usuario
 
-      if (puntosData) {
-        setPuntos(puntosData.points || 0);
-
-        if (puntosData.compra_id) {
-          const { data: comprasData } = await supabase
-            .from("compras")
-            .select("producto, fecha, monto")
-            .eq("id", puntosData.compra_id);
-
-          if (comprasData) setCompras(comprasData);
-        }
+      if (comprasError) {
+        console.error("Error obteniendo las compras:", comprasError);
+      } else if (comprasData) {
+        setCompras(comprasData);
       }
 
       setLoading(false);
@@ -67,60 +66,65 @@ export default function Perfil() {
   };
 
   const handleSave = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session?.user) return;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) return;
 
-  let avatar_url = profile.avatar_url;
+    let avatar_url = profile.avatar_url;
 
-  if (avatarFile) {
-    const fileExt = avatarFile.name.split('.').pop();
-    const filePath = `avatars/${session.user.id}.${fileExt}`;
+    // Subir el nuevo avatar si es necesario
+    if (avatarFile) {
+      const fileExt = avatarFile.name.split('.').pop();
+      const filePath = `avatars/${session.user.id}.${fileExt}`;
 
-    // Borra primero si ya existe (opcional)
-    await supabase.storage.from("caletaclub").remove([filePath]);
+      // Borra primero si ya existe (opcional)
+      await supabase.storage.from("caletaclub").remove([filePath]);
 
-    const { error: uploadError } = await supabase.storage
-      .from("caletaclub")
-      .upload(filePath, avatarFile, {
-        cacheControl: "3600",
-        upsert: true,
-        contentType: avatarFile.type,
-      });
+      const { error: uploadError } = await supabase.storage
+        .from("caletaclub")
+        .upload(filePath, avatarFile, {
+          cacheControl: "3600",
+          upsert: true,
+          contentType: avatarFile.type,
+        });
 
-    if (uploadError) {
-      console.error("Error subiendo imagen:", uploadError.message);
-      return;
+      if (uploadError) {
+        console.error("Error subiendo imagen:", uploadError.message);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("caletaclub")
+        .getPublicUrl(filePath);
+
+      avatar_url = data.publicUrl;
     }
 
-    const { data } = supabase.storage
-      .from("caletaclub")
-      .getPublicUrl(filePath);
+    // Actualizar perfil con nuevos datos
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        dni: profile.dni,
+        avatar_url,
+      })
+      .eq("id", session.user.id);
 
-    avatar_url = data.publicUrl;
-  }
-
-  await supabase
-    .from("profiles")
-    .update({
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      dni: profile.dni,
-      avatar_url,
-    })
-    .eq("id", session.user.id);
-
-  // Actualiza el estado para reflejar la nueva URL
-  setProfile((prev) => ({ ...prev, avatar_url }));
-  setAvatarFile(null);
-};
-
+    if (updateError) {
+      console.error("Error actualizando perfil:", updateError);
+    } else {
+      // Actualiza el estado para reflejar la nueva URL
+      setProfile((prev) => ({ ...prev, avatar_url }));
+      setAvatarFile(null);
+    }
+  };
 
   if (loading) return <p className="text-center">Cargando perfil...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto pt-20 p-6">
       <h1 className="text-2xl font-bold text-sky-800 mb-4">Mi Perfil</h1>
 
       <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-col items-center gap-4">
