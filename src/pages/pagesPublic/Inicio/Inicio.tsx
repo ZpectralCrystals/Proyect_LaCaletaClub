@@ -47,7 +47,7 @@ const Inicio = () => {
   return (
     <main className="bg-white min-h-screen">
       <HeroSlider
-        images={["src/assets/portada/portada1.png", "src/assets/portada/portada2.jpg", "src/assets/portada/portada3.jpeg"]}
+        images={["portada1.png", "portada2.jpg", "portada3.jpeg"]}
         title="Sabor Marino Auténtico"
         subtitle="Bienvenido a CevicheClub — donde el ceviche se convierte en experiencia"
         ctaText="Ver el Menú"
