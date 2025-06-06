@@ -10,11 +10,10 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import CartFooter from "@/components/CartFooter/CartFooter";
 import { useCart } from "@/hooks/useCart";
 import { useCartTotals } from "@/hooks/useCartTotals";
 import type { CartItem } from "@/redux/cartSlice";
@@ -23,6 +22,27 @@ import type { CartItem } from "@/redux/cartSlice";
 interface CartListSideProps {
   isCartOpen: boolean;
   setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+// Componente para mostrar el mensaje de carrito vacío
+function EmptyCart({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="h-full flex flex-col items-center justify-center text-center p-4">
+      <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mb-4">
+        <ShoppingCart className="h-8 w-8 text-gray-400" />
+      </div>
+      <h3 className="font-medium text-gray-900 mb-1">Tu carrito está vacío</h3>
+      <p className="text-gray-500 text-sm">
+        No has agregado productos a tu carrito todavía.
+      </p>
+      <Button
+        className="mt-6 bg-gray-900 hover:bg-gray-800"
+        onClick={onClose}
+      >
+        Continuar comprando
+      </Button>
+    </div>
+  );
 }
 
 // Componente para mostrar cada producto del carrito
@@ -86,15 +106,18 @@ const CartListItem = React.memo(function CartListItem({ item, onIncrement, onDec
   );
 });
 
+// Componente para el footer del carrito
+
 // Componente principal del carrito lateral usando hooks personalizados
 export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSideProps) {
-  // Usar hooks personalizados
+  // Usar hooks personalizados para obtener productos y acciones del carrito
   const { cartItems, handleIncrement, handleDecrement, handleRemove } = useCart();
+  // Calcular subtotal del carrito
   const { subtotal } = useCartTotals(cartItems);
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-      {/* NO uses SheetTrigger aquí, el control es externo */}
+      {/* Contenido del carrito */}
       <SheetContent className="w-full sm:max-w-md flex flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
@@ -105,21 +128,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
         <div className="flex-1 overflow-hidden mt-6">
           {/* Si el carrito está vacío, muestra mensaje */}
           {cartItems.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center p-4">
-              <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mb-4">
-                <ShoppingCart className="h-8 w-8 text-gray-400" />
-              </div>
-              <h3 className="font-medium text-gray-900 mb-1">Tu carrito está vacío</h3>
-              <p className="text-gray-500 text-sm">
-                No has agregado productos a tu carrito todavía.
-              </p>
-              <Button
-                className="mt-6 bg-gray-900 hover:bg-gray-800"
-                onClick={() => setIsCartOpen(false)}
-              >
-                Continuar comprando
-              </Button>
-            </div>
+            <EmptyCart onClose={() => setIsCartOpen(false)} />
           ) : (
             // Si hay productos, los lista con scroll
             <ScrollArea className="h-[calc(100vh-220px)]">
@@ -139,18 +148,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
         </div>
         {/* Footer con subtotal y botón de pago si hay productos */}
         {cartItems.length > 0 && (
-          <SheetFooter className="mt-auto pt-4">
-            <div className="w-full space-y-4">
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Subtotal</span>
-                <span className="font-bold">S/ {subtotal.toFixed(2)}</span>
-              </div>
-              <Button className="w-full bg-gray-900 hover:bg-gray-800">
-                Proceder al pago
-              </Button>
-            </div>
-          </SheetFooter>
+          <CartFooter subtotal={subtotal} />
         )}
       </SheetContent>
     </Sheet>
