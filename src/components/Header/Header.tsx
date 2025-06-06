@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightToBracket, faRightFromBracket, faUserShield } from '@fortawesome/free-solid-svg-icons';
+import { faRightToBracket, faRightFromBracket, faUserShield, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../store';
@@ -10,15 +10,12 @@ import { setUser } from '../../store/authSlice';
 import { supabase } from '../../lib/supabaseClient';
 import CartListSide from '../CartListSide/CartListSide';
 
-
-
-
 export default function Header() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const user = useSelector((state: RootState) => state.auth.user);
-  const products = useSelector((state: RootState) => state.cart.products); // asumiendo que tienes carrito en redux
+  const products = useSelector((state: RootState) => state.cart.products);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -28,7 +25,6 @@ export default function Header() {
     navigate('/');
   };
 
-  //const totalQuantity = products.reduce((acc, prod) => acc + prod.quantity, 0);
   const totalPrice = products.reduce((acc, prod) => acc + Number(prod.price) * prod.quantity, 0);
 
   return (
@@ -50,12 +46,8 @@ export default function Header() {
           ) : (
             <>
               <div className="flex items-center gap-2">
-  
-
-  <span>Hola, {user.first_name} {user.last_name}</span>
-</div>
-
-
+                <span>Hola, {user.first_name} {user.last_name}</span>
+              </div>
               {[2, 3, 4, 5].includes(user.role) && (
                 <Link
                   to="/admin/"
@@ -77,7 +69,6 @@ export default function Header() {
                   {user.role === 1 && "Perfil"}
                 </Link>
               )}
-
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-1 text-red-400 hover:text-red-600"
@@ -87,20 +78,19 @@ export default function Header() {
             </>
           )}
           <div className="border-r border-[#ffffff] mx-3 h-6" />
+          {/* Botón para abrir el carrito */}
           <div
             className="flex flex-row items-center gap-2 cursor-pointer"
             onClick={() => setIsCartOpen(true)}
           >
-            <p>
-              <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
-            </p>
-            <p>(${totalPrice.toFixed(2)})</p>
+            <FontAwesomeIcon icon={faCartShopping} />
+            <span>(${totalPrice.toFixed(2)})</span>
           </div>
         </div>
       </header>
 
-      {/* Componente carrito */}
-
+      {/* Componente carrito fuera del botón */}
+      <CartListSide isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
     </>
   );
 }
