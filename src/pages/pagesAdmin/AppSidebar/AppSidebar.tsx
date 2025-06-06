@@ -39,7 +39,6 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
-import { useLogout } from "@/hooks/useLogout";
 
 interface SidebarContentBodyProps {
   onItemClick?: () => void;
@@ -48,10 +47,21 @@ interface SidebarContentBodyProps {
 function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
   const user = useSelector((state: RootState) => state.auth.user);
 
-  
+  // ✅ Evita que el componente se renderice si no hay usuario
   if (!user) return null;
 
-  const logout = useLogout();
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      toast.error("Error al cerrar sesión");
+      return;
+    }
+
+    toast.success("Sesión cerrada correctamente");
+    window.location.href = "/";
+  };
+
   return (
     <>
       <SidebarHeader className="px-4 py-6 text-lg font-bold text-center">
@@ -181,7 +191,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
             </SidebarMenuButton>
 
             <SidebarMenuButton asChild>
-              <button onClick={logout} className="flex items-center gap-3 w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors">
+              <button onClick={handleLogout} className="flex items-center gap-3 w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors">
                 <LogOut className="w-4 h-4" />
                 <span>Cerrar sesión</span>
               </button>

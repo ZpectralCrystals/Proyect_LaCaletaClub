@@ -28,7 +28,7 @@ export default function Header() {
     navigate('/');
   };
 
-  const totalQuantity = products.reduce((acc, prod) => acc + prod.quantity, 0);
+  //const totalQuantity = products.reduce((acc, prod) => acc + prod.quantity, 0);
   const totalPrice = products.reduce((acc, prod) => acc + Number(prod.price) * prod.quantity, 0);
 
   return (

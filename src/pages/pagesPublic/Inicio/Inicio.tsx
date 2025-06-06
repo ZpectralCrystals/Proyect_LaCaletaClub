@@ -47,7 +47,7 @@ const Inicio = () => {
   return (
     <main className="bg-white min-h-screen">
       <HeroSlider
-        images={["/portada1.png", "/portada2.png", "/portada3.png"]}
+        images={["src/assets/portada/portada1.png", "src/assets/portada/portada2.jpg", "src/assets/portada/portada3.jpeg"]}
         title="Sabor Marino Auténtico"
         subtitle="Bienvenido a CevicheClub — donde el ceviche se convierte en experiencia"
         ctaText="Ver el Menú"
@@ -102,7 +102,7 @@ const Inicio = () => {
           ) : (
             <Swiper
               spaceBetween={20}
-              slidesPerView={4}
+              slidesPerView={5}
               loop={true}
               autoplay={{ delay: 3000, disableOnInteraction: false }}
               navigation
