@@ -1,6 +1,7 @@
 import { SheetFooter } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import ProceedToPaymentButton from "../ProceedToPaymentButton/ProceedToPaymentButton";
 
 interface CartFooterProps {
   subtotal: number;
@@ -16,7 +17,7 @@ export default function CartFooter({ subtotal }: CartFooterProps) {
           <span className="font-bold">S/ {subtotal.toFixed(2)}</span>
         </div>
         <Button className="w-full bg-gray-900 hover:bg-gray-800">
-          Proceder al pago
+          <ProceedToPaymentButton />
         </Button>
       </div>
     </SheetFooter>
