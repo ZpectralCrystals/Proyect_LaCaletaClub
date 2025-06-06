@@ -26,6 +26,7 @@ import {
   decrementQuantity,
   removeFromCart,
 } from "@/redux/cartSlice";
+import ProceedToPaymentButton from "./ProceedToPaymentButton";
 
 interface CartListSideProps {
   isCartOpen: boolean;
@@ -147,9 +148,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
                 <span className="font-medium">Subtotal</span>
                 <span className="font-bold">S/ {subtotal.toFixed(2)}</span>
               </div>
-              <Button className="w-full bg-gray-900 hover:bg-gray-800">
-                Proceder al pago
-              </Button>
+              <ProceedToPaymentButton />
             </div>
           </SheetFooter>
         )}
