@@ -12,3 +12,28 @@ export interface UserAdmin {
   updated_at?: string;
   is_active?: boolean;
 }
+export interface Recomendacion {
+  id: number;
+  created_at: string;
+  userid: string;
+  isActive: boolean;
+  description: string;
+  profile: {
+    first_name: string;
+    last_name: string;
+    avatar_url: string;
+  };
+}
+
+export interface RecomendacionRaw {
+  id: number;
+  created_at: string;
+  userid: string;
+  isActive: boolean;
+  description: string;
+  profile: {
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}

@@ -1,1 +1,1 @@
-export * from "./Recomendaciones";
+export * from "./RecomendacionesAdmin";
