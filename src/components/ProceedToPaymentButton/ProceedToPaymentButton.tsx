@@ -5,12 +5,10 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { RootState } from "@/store";
-
 // ✅ Nueva prop: onClose, para cerrar el carrito
 interface ProceedToPaymentButtonProps {
   onClose: () => void;
 }
-
 const ProceedToPaymentButton = ({ onClose }: ProceedToPaymentButtonProps) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();

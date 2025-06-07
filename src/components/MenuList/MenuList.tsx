@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import MenuItem from "./MenuItem/MenuItem";
 import { supabase } from "@/lib/supabaseClient";
-
 // 📦 Tipos estrictos
 interface Product {
   id: number;
@@ -13,13 +12,11 @@ interface Product {
   varietyOptions: string[];
   isActive: boolean;
 }
-
 interface Categoria {
   id: number;
   descripcion: string;
   isActive: boolean;
 }
-
 /**
  * 🍽️ MenuList: lista los productos del menú con:
  * - Filtro por categoría
@@ -64,7 +61,6 @@ const MenuList = () => {
       if (categoriesRes.error) {
         console.error("Error al cargar categorías:", categoriesRes.error.message);
       }
-
       // ✅ Datos correctos
       if (productsRes.data && categoriesRes.data) {
         const productsData = productsRes.data as Product[];
@@ -74,18 +70,14 @@ const MenuList = () => {
           acc[cat.id] = cat.descripcion;
           return acc;
         }, {} as Record<number, string>);
-
         setProducts(productsData);
         setFilteredProducts(productsData);
         setCategoryMap(map);
       }
-
       setLoading(false);
     };
-
     fetchData();
   }, []);
-
   // 🎯 Aplicar búsqueda y filtro por categoría
   useEffect(() => {
     const filtered = products.filter((product) => {
@@ -93,7 +85,6 @@ const MenuList = () => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-
     setFilteredProducts(filtered);
   }, [products, selectedCategory, searchTerm]);
 
@@ -101,14 +92,12 @@ const MenuList = () => {
   if (loading) {
     return <p className="text-center text-sky-700">Cargando productos...</p>;
   }
-
   return (
     <div className="lg:mt-24 sm:mt-15 px-4 pb-24">
       {/* 🧾 Título */}
       <h1 className="text-sky-800 text-lg font-semibold text-center mb-4">
         Agrega tus platos para tu carrito
       </h1>
-
       {/* 🔍 Buscador */}
       <div className="flex justify-center my-4">
         <input
@@ -119,7 +108,6 @@ const MenuList = () => {
           className="border px-4 py-2 rounded-md w-full max-w-md"
         />
       </div>
-
       {/* 🗂️ Filtro de categorías */}
       <div className="flex flex-wrap justify-center gap-2 mb-4">
         <button
