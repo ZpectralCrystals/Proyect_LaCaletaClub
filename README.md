@@ -116,5 +116,4 @@ Desarrollado por el equipo:
 Proyecto desarrollado con fines educativos.  
 Todos los derechos reservados © **La Caleta Club** – 2025.
 
-})
 ```
