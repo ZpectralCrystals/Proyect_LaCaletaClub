@@ -7,12 +7,12 @@ import CartFooter from "@/components/CartFooter/CartFooter";
 import { useCart } from "@/hooks/useCart";
 import { useCartTotals } from "@/hooks/useCartTotals";
 import type { CartItem } from "@/redux/cartSlice";
-// Tipado para las props que recibe este componente
+// Tipado de props que recibe este componente
 interface CartListSideProps {
   isCartOpen: boolean;
   setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-// Mensaje de carrito vacío
+// 🧾 Componente que muestra mensaje de carrito vacío
 function EmptyCart({ onClose }: { onClose: () => void }) {
   return (
     <div className="h-full flex flex-col items-center justify-center text-center p-4">
@@ -29,7 +29,7 @@ function EmptyCart({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-// Ítem individual del carrito
+// 🧾 Ítem individual del carrito
 const CartListItem = React.memo(function CartListItem({
   item,
   onIncrement,
@@ -43,6 +43,7 @@ const CartListItem = React.memo(function CartListItem({
 }) {
   return (
     <div className="flex gap-4">
+      {/* Imagen del producto */}
       <div className="h-20 w-20 rounded-md border bg-gray-50 flex-shrink-0 overflow-hidden">
         <img
           src={item.image}
@@ -50,6 +51,7 @@ const CartListItem = React.memo(function CartListItem({
           className="h-full w-full object-contain p-1"
         />
       </div>
+      {/* Detalles del producto */}
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium text-gray-900 line-clamp-1">{item.name}</h4>
         <div className="flex items-center justify-between mt-2">
@@ -77,6 +79,7 @@ const CartListItem = React.memo(function CartListItem({
           </div>
         </div>
       </div>
+      {/* Eliminar producto */}
       <Button
         variant="ghost"
         size="icon"
@@ -89,13 +92,18 @@ const CartListItem = React.memo(function CartListItem({
     </div>
   );
 });
-// Componente principal
-export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSideProps) {
+// 🛒 Componente principal del carrito lateral
+export default function CartListSide({
+  isCartOpen,
+  setIsCartOpen,
+}: CartListSideProps) {
   const { cartItems, handleIncrement, handleDecrement, handleRemove } = useCart();
   const { subtotal } = useCartTotals(cartItems);
+
   return (
     <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
       <SheetContent className="w-full sm:max-w-md flex flex-col h-screen animate-in slide-in-from-right duration-300">
+        {/* Encabezado del carrito */}
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
@@ -107,7 +115,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
             )}
           </SheetTitle>
         </SheetHeader>
-
+        {/* Contenido scrollable del carrito */}
         <div className="flex-1 overflow-hidden mt-6">
           {cartItems.length === 0 ? (
             <EmptyCart onClose={() => setIsCartOpen(false)} />
@@ -127,6 +135,7 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
             </ScrollArea>
           )}
         </div>
+        {/* Pie del carrito con total, IGV y botón de pago */}
         {cartItems.length > 0 && (
           <CartFooter subtotal={subtotal} onClose={() => setIsCartOpen(false)} />
         )}
@@ -134,3 +143,5 @@ export default function CartListSide({ isCartOpen, setIsCartOpen }: CartListSide
     </Sheet>
   );
 }
+// Compara este fragmento de src/components/CartListSide/CartListSide.tsx:
+//               rel="noopener noreferrer"

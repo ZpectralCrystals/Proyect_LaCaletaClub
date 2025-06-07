@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store";
 import { addToCart } from "@/redux/cartSlice";
 
+// 📦 Tipado del producto
 interface Product {
   id: number;
   name: string;
@@ -15,24 +16,39 @@ interface Product {
   isActive: boolean;
 }
 
+// 📦 Props que recibe el componente
 interface Props {
   product: Product;
-  categoryMap: Record<number, string>;
+  categoryMap: Record<number, string>; // Mapea el ID de categoría al nombre
 }
 
+/**
+ * 🍽️ Componente de tarjeta individual del menú
+ * - Muestra info del producto (nombre, precio, imagen)
+ * - Tiene efecto de flip para mostrar descripción y opciones
+ * - Permite seleccionar cantidad y agregar al carrito
+ */
 const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
-  const [flipped, setFlipped] = useState(false);
-  const [quantity, setQuantity] = useState(0);
+  const [flipped, setFlipped] = useState(false);     // 🌀 Estado para voltear la tarjeta
+  const [quantity, setQuantity] = useState(0);       // 🔢 Cantidad seleccionada
   const dispatch = useDispatch<AppDispatch>();
 
+  // ❌ Si el producto está inactivo, no lo mostramos
   if (!product.isActive) return null;
 
+  // 🔄 Voltear la tarjeta
   const handleFlip = () => setFlipped(!flipped);
+
+  // ➕ Incrementar cantidad
   const increment = () => setQuantity((q) => q + 1);
+
+  // ➖ Disminuir cantidad (nunca menor a 0)
   const decrement = () => setQuantity((q) => Math.max(0, q - 1));
 
+  // 🛒 Agregar al carrito (despacha Redux)
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Evita voltear al hacer clic en botón
+
     if (quantity > 0) {
       dispatch(
         addToCart({
@@ -43,7 +59,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
           quantity,
         })
       );
-      setQuantity(0);
+      setQuantity(0); // Reinicia cantidad tras agregar
     }
   };
 
@@ -57,7 +73,8 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
           flipped ? "rotate-y-180" : ""
         }`}
       >
-        {/* Frente */}
+
+        {/* ✅ Lado frontal: imagen, precio, controles */}
         <div className="absolute w-full h-full bg-white border border-gray-200 rounded-md p-4 flex flex-col items-center hover:shadow-lg transition-shadow duration-300 [backface-visibility:hidden]">
           <div className="w-full flex justify-center relative mb-4">
             <img
@@ -75,7 +92,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
             S/ {product.price.toFixed(2)}
           </p>
 
-          {/* Controles de cantidad */}
+          {/* 🔢 Controles de cantidad */}
           <div
             className="flex justify-center items-center gap-3 my-3"
             onClick={(e) => e.stopPropagation()}
@@ -95,6 +112,7 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
             </button>
           </div>
 
+          {/* 🛒 Botón agregar al carrito */}
           <button
             onClick={handleAddToCart}
             className="bg-sky-700 hover:bg-sky-800 text-white px-5 py-1.5 text-sm rounded-full flex items-center gap-2 disabled:opacity-50"
@@ -107,9 +125,12 @@ const MenuItem: React.FC<Props> = ({ product, categoryMap }) => {
           <p className="text-xs text-gray-400 mt-3 sm:mt-4">(Haz clic para ver más)</p>
         </div>
 
-        {/* Reverso */}
+        {/* 🔁 Lado trasero: descripción y opciones */}
         <div className="absolute w-full h-full bg-white border border-gray-200 rounded-md p-4 overflow-auto [backface-visibility:hidden] rotate-y-180">
-          <h3 className="text-sky-800 text-base font-semibold mb-2">{product.name}</h3>
+          <h3 className="text-sky-800 text-base font-semibold mb-2">
+            {product.name}
+          </h3>
+
           <p className="text-gray-600 text-sm mb-2">{product.description}</p>
 
           {product.varietyOptions.length > 0 && (

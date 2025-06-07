@@ -37,3 +37,11 @@ export interface RecomendacionRaw {
     avatar_url: string | null;
   } | null;
 }
+export interface UserData {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: number;
+  avatar_url?: string;
+}
