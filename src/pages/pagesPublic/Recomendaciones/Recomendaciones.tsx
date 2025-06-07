@@ -1,12 +1,12 @@
-// Importaciones necesarias
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useNavigate } from "react-router-dom"; // para redireccionar a login
 
-// Tipado de la recomendación (una reseña)
+// Tipo de datos para una recomendación
 interface Recomendacion {
   id: number;
   created_at: string;
@@ -21,31 +21,29 @@ interface Recomendacion {
 }
 
 const Recomendaciones = () => {
-  // Estado para almacenar reseñas obtenidas de Supabase
   const [resenas, setResenas] = useState<Recomendacion[]>([]);
-
-  // Estado para el contenido de una nueva reseña a enviar
   const [nuevaResena, setNuevaResena] = useState("");
-
-  // Estado de carga mientras se envía la reseña
   const [loading, setLoading] = useState(false);
-
-  // Usuario autenticado desde Redux (solo puede enviar si está logueado)
   const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate(); // redirigir al login si no está logueado
 
-  // Función para obtener las recomendaciones activas desde Supabase
+  // Obtener reseñas activas al montar
+  useEffect(() => {
+    obtenerResenas();
+  }, []);
+
+  // Traer reseñas activas desde Supabase
   const obtenerResenas = async () => {
     const { data, error } = await supabase
-      .from("recomendacionestab") // tabla en Supabase
+      .from("recomendacionestab")
       .select(`
         id, created_at, userid, isActive, description,
         profile:userid (first_name, last_name, avatar_url)
-      `) // también traemos datos del perfil del usuario
-      .eq("isActive", true) // solo las que están aprobadas
-      .order("created_at", { ascending: false }); // ordenadas por fecha
+      `)
+      .eq("isActive", true)
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
-      // Formateamos los datos a nuestro tipo definido
       const resenasFormateadas: Recomendacion[] = (data as any[]).map((item) => ({
         id: item.id,
         created_at: item.created_at,
@@ -55,41 +53,34 @@ const Recomendaciones = () => {
         profile: {
           first_name: item.profile.first_name,
           last_name: item.profile.last_name,
-          avatar_url: item.profile.avatar_url || "/default-avatar.png", // por defecto si no hay imagen
+          avatar_url: item.profile.avatar_url || "/default-avatar.png",
         },
       }));
-
-      setResenas(resenasFormateadas); // Actualizamos el estado
+      setResenas(resenasFormateadas);
     } else {
-      console.error("Error al obtener recomendaciones:", error); // Log si falla
+      console.error("Error al obtener recomendaciones:", error);
     }
   };
 
-  // useEffect para cargar las recomendaciones una vez al montar
-  useEffect(() => {
-    obtenerResenas();
-  }, []);
-
-  // Función para enviar una nueva recomendación
+  // Enviar una nueva recomendación
   const handleSubmit = async () => {
-    if (!nuevaResena.trim()) return; // no enviar si está vacío
-
-    setLoading(true); // activamos estado de carga
+    if (!nuevaResena.trim()) return;
+    setLoading(true);
 
     const { error } = await supabase.from("recomendacionestab").insert({
       description: nuevaResena,
-      userid: user?.id, // usuario actual
-      isActive: false,  // pendiente de aprobación
+      userid: user?.id,
+      isActive: false,
     });
 
     if (!error) {
-      setNuevaResena(""); // limpiar textarea
+      setNuevaResena("");
       alert("Tu recomendación ha sido enviada para revisión.");
     } else {
       alert("Hubo un error al enviar tu recomendación.");
     }
 
-    setLoading(false); // desactivamos carga
+    setLoading(false);
   };
 
   return (
@@ -97,7 +88,7 @@ const Recomendaciones = () => {
       <section className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-sky-800 mb-12 text-center">Recomendaciones</h1>
 
-        {/* Mostrar todas las reseñas activas */}
+        {/* Lista de recomendaciones activas */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           {resenas.map((cliente) => (
             <div
@@ -117,8 +108,8 @@ const Recomendaciones = () => {
           ))}
         </div>
 
-        {/* Formulario para usuarios autenticados */}
-        {user && (
+        {/* Mostrar formulario si está logueado, sino mensaje con botón */}
+        {user ? (
           <div className="max-w-2xl mx-auto mt-10 bg-sky-50 p-6 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold text-sky-700 mb-4">Deja tu recomendación</h2>
             <Textarea
@@ -129,6 +120,13 @@ const Recomendaciones = () => {
             />
             <Button onClick={handleSubmit} disabled={loading}>
               {loading ? "Enviando..." : "Enviar recomendación"}
+            </Button>
+          </div>
+        ) : (
+          <div className="max-w-2xl mx-auto mt-10 bg-yellow-50 p-6 rounded-xl shadow-md text-center text-yellow-800">
+            <p className="text-lg font-medium mb-4">🔒 Inicia sesión para dejar tu recomendación.</p>
+            <Button variant="outline" onClick={() => navigate("/login")}>
+              Ir a iniciar sesión
             </Button>
           </div>
         )}
