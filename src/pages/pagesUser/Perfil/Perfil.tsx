@@ -17,45 +17,38 @@ export default function Perfil() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  const fetchData = async () => {
+    const token = localStorage.getItem("access");
+    if (!token) return;
 
-      if (!session?.user) return;
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/me/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setProfile(data);
 
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("first_name, last_name, dni, avatar_url")
-        .eq("id", session.user.id)
-        .single();
+      const resPuntos = await fetch("http://localhost:8000/api/user/puntos/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const puntosData = await resPuntos.json();
+      setPuntos(puntosData.points);
 
-      if (profileData) setProfile(profileData);
-
-      const { data: puntosData } = await supabase
-        .from("user_pointstabtab")
-        .select("points, compra_id")
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (puntosData) {
-        setPuntos(puntosData.points || 0);
-
-        if (puntosData.compra_id) {
-          const { data: comprasData } = await supabase
-            .from("compras")
-            .select("producto, fecha, monto")
-            .eq("id", puntosData.compra_id);
-
-          if (comprasData) setCompras(comprasData);
-        }
-      }
-
+      const resCompras = await fetch("http://localhost:8000/api/user/compras/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const comprasData = await resCompras.json();
+      setCompras(comprasData);
+    } catch (err) {
+      console.error("Error cargando datos del perfil:", err);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
-    fetchProfile();
-  }, []);
+  fetchData();
+}, []);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -67,54 +60,33 @@ export default function Perfil() {
   };
 
   const handleSave = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session?.user) return;
+  const token = localStorage.getItem("access");
+  if (!token) return;
 
-  let avatar_url = profile.avatar_url;
+  const formData = new FormData();
+  formData.append("first_name", profile.first_name);
+  formData.append("last_name", profile.last_name);
+  formData.append("dni", profile.dni);
+  if (avatarFile) formData.append("avatar", avatarFile);
 
-  if (avatarFile) {
-    const fileExt = avatarFile.name.split('.').pop();
-    const filePath = `avatars/${session.user.id}.${fileExt}`;
+  try {
+    const res = await fetch("http://localhost:8000/api/auth/me/", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-    // Borra primero si ya existe (opcional)
-    await supabase.storage.from("caletaclub").remove([filePath]);
-
-    const { error: uploadError } = await supabase.storage
-      .from("caletaclub")
-      .upload(filePath, avatarFile, {
-        cacheControl: "3600",
-        upsert: true,
-        contentType: avatarFile.type,
-      });
-
-    if (uploadError) {
-      console.error("Error subiendo imagen:", uploadError.message);
-      return;
-    }
-
-    const { data } = supabase.storage
-      .from("caletaclub")
-      .getPublicUrl(filePath);
-
-    avatar_url = data.publicUrl;
+    if (!res.ok) throw new Error("Error al guardar perfil");
+    const updated = await res.json();
+    setProfile(updated);
+    setAvatarFile(null);
+  } catch (error) {
+    console.error(error);
   }
-
-  await supabase
-    .from("profiles")
-    .update({
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      dni: profile.dni,
-      avatar_url,
-    })
-    .eq("id", session.user.id);
-
-  // Actualiza el estado para reflejar la nueva URL
-  setProfile((prev) => ({ ...prev, avatar_url }));
-  setAvatarFile(null);
 };
+
 
 
   if (loading) return <p className="text-center">Cargando perfil...</p>;

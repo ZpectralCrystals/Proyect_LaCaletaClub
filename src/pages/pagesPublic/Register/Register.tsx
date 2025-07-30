@@ -31,46 +31,44 @@ export function Register() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const { dni, firstName, lastName, email, password } = values;
+  const { dni, firstName, lastName, email, password } = values;
 
-    if (!dni || !firstName || !lastName || !email || !password) {
-      toast.error("Por favor completa todos los campos.");
-      return;
-    }
+  if (!dni || !firstName || !lastName || !email || !password) {
+    toast.error("Por favor completa todos los campos.");
+    return;
+  }
 
-    try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/auth/register/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: email,
         password,
-      });
+        email,
+        dni,
+        first_name: firstName,
+        last_name: lastName,
+        role: 1,
+      }),
+    });
 
-      if (signUpError) throw signUpError;
-
-      if (data.user) {
-        const { error: profileError } = await supabase.from("profiles").insert([
-          {
-            id: data.user.id,
-            email: data.user.email,
-            dni,
-            first_name: firstName,
-            last_name: lastName,
-            role: 1,
-          },
-        ]);
-
-        if (profileError) throw profileError;
-
-        toast.success("Registrado correctamente. Revisa tu correo.");
-        navigate("/login");
-      }
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Error al registrar";
-      toast.error(`❌ ${message}`);
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.detail || "Error al registrar");
     }
-  };
+
+    toast.success("✅ Registrado correctamente");
+    navigate("/login");
+  } catch (err: any) {
+    toast.error(err.message || "Error inesperado");
+  }
+};
+
 
   return (
     <section className="h-screen flex justify-center items-center bg-gray-50 px-4">

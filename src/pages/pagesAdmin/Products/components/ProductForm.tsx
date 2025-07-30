@@ -36,12 +36,11 @@ export default function ProductForm({
     <div className="space-y-2">
       <Input name="name" placeholder="Nombre" value={form.name} onChange={handleChange} />
       <Select
-  value={form.type}
-  onValueChange={(val: string) =>
-    setForm((f: typeof form) => ({ ...f, type: val }))
-  }
->
-
+        value={form.type}
+        onValueChange={(val: string) =>
+          setForm((f: typeof form) => ({ ...f, type: val }))
+        }
+      >
         <SelectTrigger>
           <SelectValue placeholder="Categoría" />
         </SelectTrigger>

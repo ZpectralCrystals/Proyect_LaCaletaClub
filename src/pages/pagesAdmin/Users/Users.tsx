@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 import {
   Dialog,
   DialogContent,
@@ -31,54 +30,57 @@ import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Toaster, toast } from 'sonner';
 
-interface UserAdmin {
-  id: string;
+export interface UserAdmin {
+  id: number;
   email: string;
-  role: number;
+  username: string;
   first_name: string;
   last_name: string;
-  dni: string;
+  profile: {
+    dni: string;
+    role: number;
+    avatar_url: string;
+    puntos: number;
+  };
 }
 
 export default function UserAdminPage() {
   const [users, setUsers] = useState<UserAdmin[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // Estados para dialogo de crear/editar
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<UserAdmin | null>(null);
-
-  // Estados para eliminar
-  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-  // Campos formulario
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState(1);
+  const [role, setRole] = useState<number>(1);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [dni, setDni] = useState('');
 
-  // Cargar usuarios
+  const API_URL = 'http://localhost:8000/api/auth/usuarios/';
+  const authHeader = {
+    Authorization: `Bearer ${localStorage.getItem('access')}`,
+    'Content-Type': 'application/json',
+  };
+
   const fetchUsers = async () => {
     setLoading(true);
-   const { data, error } = await supabase
-  .from('profiles')
-  .select('*');
-
-    if (error) {
+    try {
+      const res = await fetch(API_URL, { headers: authHeader });
+      const data = await res.json();
+      setUsers(data);
+    } catch {
       toast.error('Error cargando usuarios');
-    } else {
-      setUsers(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Abrir modal crear nuevo usuario
   const openCreateDialog = () => {
     setEditUser(null);
     setEmail('');
@@ -89,70 +91,79 @@ export default function UserAdminPage() {
     setIsDialogOpen(true);
   };
 
-  // Abrir modal editar usuario
   const openEditDialog = (user: UserAdmin) => {
     setEditUser(user);
     setEmail(user.email);
-    setRole(user.role);
+    setRole(user.profile?.role ?? 1);
     setFirstName(user.first_name);
     setLastName(user.last_name);
-    setDni(user.dni);
+    setDni(user.profile?.dni ?? '');
     setIsDialogOpen(true);
   };
 
-  // Guardar usuario (crear o editar)
   const handleSave = async () => {
     if (!email || !firstName || !lastName || !dni) {
       toast.error('Por favor completa todos los campos');
       return;
     }
 
-    const payload = {
-      email,
-      role,
-      first_name: firstName,
-      last_name: lastName,
-      dni,
-    };
+    const payload = editUser
+      ? {
+          first_name: firstName,
+          last_name: lastName,
+          profile: {
+            role,
+            dni,
+          },
+        }
+      : {
+          username: email,
+          email,
+          password: '123456',
+          first_name: firstName,
+          last_name: lastName,
+          profile: {
+            dni,
+            role,
+            avatar_url: '',
+            puntos: 0,
+          },
+        };
 
-    if (editUser) {
-      // Editar
-      const { error } = await supabase
-        .from('profiles')
-        .update(payload)
-        .eq('id', editUser.id);
+    try {
+  const res = await fetch(`${API_URL}${editUser.id}/`, {
+    method: "PATCH",
+    headers: authHeader,
+    body: JSON.stringify(payload),
+  });
 
-      if (error) {
-        toast.error('Error actualizando usuario');
-      } else {
-        toast.success('Usuario actualizado');
-        fetchUsers();
-        setIsDialogOpen(false);
-      }
-    } else {
-      // Crear
-      // Nota: aquí solo insertamos en profiles, sin creación auth.user real
-      const { error } = await supabase.from('profiles').insert([payload]);
-      if (error) {
-        toast.error('Error creando usuario');
-      } else {
-        toast.success('Usuario creado');
-        fetchUsers();
-        setIsDialogOpen(false);
-      }
-    }
+  const resData = await res.json();
+  if (!res.ok) {
+    console.error("❌ Error del backend:", JSON.stringify(resData, null, 2));
+    throw new Error("Error actualizando usuario");
+  }
+
+  toast.success("Usuario actualizado");
+  fetchUsers();
+  setIsDialogOpen(false);
+} catch (err) {
+  toast.error("Error actualizando usuario");
+}
+
   };
 
-  // Confirmar eliminar usuario
   const handleDelete = async () => {
     if (!deleteUserId) return;
-
-    const { error } = await supabase.from('profiles').delete().eq('id', deleteUserId);
-    if (error) {
-      toast.error('Error eliminando usuario');
-    } else {
+    try {
+      const res = await fetch(`${API_URL}${deleteUserId}/`, {
+        method: 'DELETE',
+        headers: authHeader,
+      });
+      if (!res.ok) throw new Error();
       toast.success('Usuario eliminado');
       fetchUsers();
+    } catch {
+      toast.error('Error eliminando usuario');
     }
     setIsAlertOpen(false);
     setDeleteUserId(null);
@@ -182,95 +193,68 @@ export default function UserAdminPage() {
             </tr>
           </thead>
           <tbody>
-            {users.length === 0 && (
+            {users.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center p-4">
                   No hay usuarios.
                 </td>
               </tr>
+            ) : (
+              users.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-100">
+                  <td className="border border-gray-300 p-2">{user.email}</td>
+                  <td className="border border-gray-300 p-2">{user.first_name}</td>
+                  <td className="border border-gray-300 p-2">{user.last_name}</td>
+                  <td className="border border-gray-300 p-2">{user.profile?.dni}</td>
+                  <td className="border border-gray-300 p-2">
+                    {user.profile?.role === 1 ? 'Usuario' :
+                     user.profile?.role === 2 ? 'Administrador' :
+                     user.profile?.role === 3 ? 'Cajero' :
+                     user.profile?.role === 4 ? 'Chef' :
+                     user.profile?.role === 5 ? 'Mesero' : 'Desconocido'}
+                  </td>
+                  <td className="border border-gray-300 p-2 flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                      <FontAwesomeIcon icon={faPen} />
+                    </Button>
+                    <AlertDialog open={isAlertOpen && deleteUserId === user.id} onOpenChange={setIsAlertOpen}>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={() => {
+                          setDeleteUserId(user.id);
+                          setIsAlertOpen(true);
+                        }}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
+                </tr>
+              ))
             )}
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-100">
-                <td className="border border-gray-300 p-2">{user.email}</td>
-                <td className="border border-gray-300 p-2">{user.first_name}</td>
-                <td className="border border-gray-300 p-2">{user.last_name}</td>
-                <td className="border border-gray-300 p-2">{user.dni}</td>
-                <td className="border border-gray-300 p-2">
-                  {
-  user.role === 1 ? 'Usuario' :
-  user.role === 2 ? 'Administrador' :
-  user.role === 3 ? 'Cajero' :
-  user.role === 4 ? 'Chef' :
-  user.role === 5 ? 'Mesero' :
-  'Desconocido'
-}
-
-                </td>
-                <td className="border border-gray-300 p-2 flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
-                    <FontAwesomeIcon icon={faPen} />
-                  </Button>
-                  <AlertDialog
-                    open={isAlertOpen && deleteUserId === user.id}
-                    onOpenChange={setIsAlertOpen}
-                  >
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => {
-                        setDeleteUserId(user.id);
-                        setIsAlertOpen(true);
-                      }}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Confirmar eliminación</AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </td>
-              </tr>
-            ))}
           </tbody>
         </table>
       )}
 
-      {/* Dialog Crear / Editar */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editUser ? 'Editar Usuario' : 'Crear Usuario'}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3 mt-2">
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              placeholder="Nombres"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <Input
-              placeholder="Apellidos"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-            <Input
-              placeholder="DNI"
-              value={dni}
-              onChange={(e) => setDni(e.target.value)}
-            />
-            <Select
-              onValueChange={(val) => setRole(Number(val))}
-              defaultValue={role.toString()}
-            >
+            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input placeholder="Nombres" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Input placeholder="Apellidos" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <Input placeholder="DNI" value={dni} onChange={(e) => setDni(e.target.value)} />
+            <Select onValueChange={(val) => setRole(Number(val))} defaultValue={(role ?? 1).toString()}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona rol" />
               </SelectTrigger>
