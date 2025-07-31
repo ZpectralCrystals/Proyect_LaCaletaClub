@@ -20,7 +20,7 @@ interface ProductTableProps {
   onEdit: (product: Product) => void;
   onDelete: (id: number) => void;
   onToggleActive: (producto: Product) => void;
-onToggleFavorite: (producto: Product) => void;
+  onToggleFavorite: (producto: Product) => void;
 
 }
 
@@ -49,8 +49,8 @@ export default function ProductTable({
               <td className="border px-4 py-2">{product.name}</td>
               <td className="border px-4 py-2">{categoryMap[product.type] || 'Sin categoría'}</td>
               <td className="border px-4 py-2">
-  S/.{Number(product.price || 0).toFixed(2)}
-</td>
+                S/.{Number(product.price || 0).toFixed(2)}
+              </td>
 
               <td className="border px-4 py-2">{product.description}</td>
               <td className="border px-4 py-2">
