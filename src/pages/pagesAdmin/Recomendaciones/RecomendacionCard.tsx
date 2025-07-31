@@ -28,8 +28,12 @@ export function RecomendacionCard({ data, onToggle, onEdit, onDelete }: Props) {
         </time>
         <div className="mt-3 flex flex-wrap gap-2 items-center">
           <label className="flex items-center gap-2">
-            <Switch checked={data.isActive} onCheckedChange={onToggle} />
-            <span className="text-sm">{data.isActive ? "Activo" : "Inactivo"}</span>
+            <Switch
+  checked={data.isActive}
+  onCheckedChange={(checked) => onToggle(checked)} // Pasamos el nuevo estado
+/>
+<span className="text-sm">{data.isActive ? "Activo" : "Inactivo"}</span>
+
           </label>
           <Button size="sm" variant="outline" onClick={onEdit}>Editar</Button>
           <Button size="icon" variant="destructive" onClick={onDelete}>

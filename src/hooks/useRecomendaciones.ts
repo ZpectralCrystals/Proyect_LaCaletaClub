@@ -1,11 +1,8 @@
 // src/hooks/useRecomendaciones.ts
-
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 
-// Tipos estrictos
-interface Profile {
+export interface Profile {
   first_name: string;
   last_name: string;
   avatar_url?: string;
@@ -20,135 +17,130 @@ export interface Recomendacion {
   profile: Profile;
 }
 
-interface RecomendacionRaw {
-  id: number;
-  created_at: string;
-  userid: string;
-  isActive: boolean;
-  description: string;
-  profile: {
-    first_name: string;
-    last_name: string;
-    avatar_url: string | null;
-  } | null;
-}
-
-// Hook personalizado para manejar lógica de recomendaciones
-export function useRecomendaciones(userId?: string) {
+export function useRecomendaciones() {
   const [resenas, setResenas] = useState<Recomendacion[]>([]);
   const [nuevaResena, setNuevaResena] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Cargar automáticamente al montar
+  const API_URL = "http://localhost:8000/api/recomendaciones/";
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("access")}`,
+  };
+
+  const fetchResenas = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch(API_URL, { headers });
+
+    const body = await res.text(); // <-- usa .text() para ver el error si es JSON o HTML
+    console.log("Respuesta cruda:", body);
+
+    if (!res.ok) throw new Error("Error al obtener recomendaciones");
+
+    const data = JSON.parse(body);
+    const dataArray = Array.isArray(data) ? data : [];
+
+    const formateadas: Recomendacion[] = dataArray.map((item: any) => ({
+      id: item.id,
+      created_at: item.created_at,
+      userid: item.userid,
+      isActive: item.isActive,
+      description: item.description,
+      profile: {
+        first_name: item.profile?.first_name ?? "Desconocido",
+        last_name: item.profile?.last_name ?? "",
+        avatar_url: item.profile?.avatar_url ?? "/default-avatar.png",
+      },
+    }));
+
+    setResenas(formateadas);
+  } catch (error) {
+    console.error(error);
+    toast.error("Error al cargar recomendaciones");
+    setResenas([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  const enviarResena = async (userid?: string) => {
+    if (!nuevaResena.trim()) return;
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          description: nuevaResena,
+          userid,
+          isActive: false,
+        }),
+      });
+      if (!res.ok) throw new Error("Error creando recomendación");
+      toast.success("✅ Enviada para revisión.");
+      setNuevaResena("");
+      fetchResenas();
+    } catch {
+      toast.error("❌ No se pudo enviar la recomendación.");
+    }
+  };
+
+  const eliminarResena = async (id: number) => {
+    try {
+      const res = await fetch(`${API_URL}${id}/`, {
+        method: "DELETE",
+        headers,
+      });
+      if (!res.ok) throw new Error();
+      toast.success("🗑️ Eliminada correctamente.");
+      fetchResenas();
+    } catch {
+      toast.error("❌ No se pudo eliminar.");
+    }
+  };
+
+  const editarResena = async (
+    id: number,
+    nuevaDescripcion: string,
+    nuevoEstado: boolean
+  ) => {
+    try {
+      const res = await fetch(`${API_URL}${id}/`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          description: nuevaDescripcion,
+          isActive: nuevoEstado,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("✏️ Recomendación actualizada.");
+      fetchResenas();
+    } catch {
+      toast.error("❌ Error al editar.");
+    }
+  };
+
+  const aprobarResena = async (id: number) => {
+    try {
+      const res = await fetch(`${API_URL}${id}/`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ isActive: true }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("✅ Recomendación aprobada.");
+      fetchResenas();
+    } catch {
+      toast.error("❌ No se pudo aprobar.");
+    }
+  };
+
   useEffect(() => {
     fetchResenas();
   }, []);
-
-  // Obtener recomendaciones activas
-  const fetchResenas = async () => {
-    const { data, error } = await supabase
-      .from("recomendacionestab")
-      .select(`
-        id, created_at, userid, isActive, description,
-        profile:profiles!userid(first_name, last_name, avatar_url)
-      `)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Error al cargar recomendaciones");
-      return;
-    }
-
-    const formateadas: Recomendacion[] = (data as unknown as RecomendacionRaw[]).map((item) => {
-      const {
-        first_name = "",
-        last_name = "",
-        avatar_url = "/default-avatar.png",
-      } = item.profile ?? {};
-      return {
-        id: item.id,
-        created_at: item.created_at,
-        userid: item.userid,
-        isActive: item.isActive,
-        description: item.description,
-        profile: {
-          first_name,
-          last_name,
-          avatar_url: avatar_url || "/default-avatar.png",
-        },
-      };
-    });
-
-    setResenas(formateadas);
-  };
-
-  // Crear una nueva recomendación
-  const enviarResena = async () => {
-    if (!nuevaResena.trim()) return;
-
-    setLoading(true);
-
-    const { error } = await supabase.from("recomendacionestab").insert({
-      description: nuevaResena,
-      userid: userId,
-      isActive: false, // se debe aprobar
-    });
-
-    setLoading(false);
-
-    if (error) {
-      toast.error("❌ No se pudo enviar la recomendación.");
-    } else {
-      setNuevaResena("");
-      toast.success("✅ Enviada para revisión.");
-      fetchResenas();
-    }
-  };
-
-  // Eliminar una recomendación por ID
-  const eliminarResena = async (id: number) => {
-    const { error } = await supabase
-      .from("recomendacionestab")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      toast.error("❌ No se pudo eliminar.");
-    } else {
-      toast.success("🗑️ Eliminada correctamente.");
-      fetchResenas();
-    }
-  };
-
-  // Editar descripción de una recomendación
-  const editarResena = async (id: number, nuevaDescripcion: string) => {
-    const { error } = await supabase
-      .from("recomendacionestab")
-      .update({ description: nuevaDescripcion })
-      .eq("id", id);
-
-    if (error) {
-      toast.error("❌ Error al editar.");
-    } else {
-      toast.success("✏️ Recomendación actualizada.");
-      fetchResenas();
-    }
-  };
-
-  // Aprobar recomendación pendiente (activar)
-  const aprobarResena = async (id: number) => {
-    const { error } = await supabase
-      .from("recomendacionestab")
-      .update({ isActive: true })
-      .eq("id", id);
-
-    if (error) {
-      toast.error("❌ No se pudo aprobar.");
-    } else {
-      toast.success("✅ Recomendación aprobada.");
-      fetchResenas();
-    }
-  };
 
   return {
     resenas,
