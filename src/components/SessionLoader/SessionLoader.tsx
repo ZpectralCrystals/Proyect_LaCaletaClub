@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { supabase } from '@/lib/supabaseClient';
 import { setUser } from '@/store/authSlice';
-import type { AppDispatch } from '@/store';
+import { AppDispatch } from '@/store';
 
 /**
  * 🧠 SessionLoader
  * Este componente se monta una sola vez al iniciar la app.
  * Su propósito es:
- * - Consultar si hay una sesión activa en Supabase
- * - Si la hay, obtener el perfil del usuario desde la tabla `profiles`
+ * - Consultar si hay una sesión activa en Django usando el token JWT
+ * - Si la hay, obtener el perfil del usuario desde la API de Django
  * - Guardar los datos en Redux mediante `setUser`
  */
 const SessionLoader = () => {
@@ -17,27 +16,35 @@ const SessionLoader = () => {
 
   useEffect(() => {
     const loadSession = async () => {
-      // 🔐 Consultamos sesión activa en Supabase
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
+      // 🔐 Consultamos la sesión activa en Django con el JWT
+      const token = localStorage.getItem('access');  // Recuperamos el token JWT
 
-      if (session?.user) {
-        // 👤 Si hay usuario logueado, consultamos su perfil personalizado
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('role, first_name, last_name')
-          .eq('id', session.user.id)
-          .single();
+      if (token) {
+        try {
+          // Hacemos una solicitud a la API de Django para obtener el perfil
+          const res = await fetch('http://localhost:8000/api/auth/me/', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
 
-        // ✅ Si el perfil existe, lo guardamos en Redux con estructura tipada
-        if (!profileError && profileData) {
+          if (!res.ok) {
+            throw new Error('Error al obtener los datos del perfil');
+          }
+
+          const profileData = await res.json();
+
+          // ✅ Si el perfil existe, lo guardamos en Redux con la estructura tipada
           dispatch(setUser({
-            id: session.user.id,
-            email: session.user.email!,
-            role: Number(profileData.role),
+            id: profileData.id,
+            email: profileData.email,
+            role: profileData.role,
             first_name: profileData.first_name || '',
             last_name: profileData.last_name || '',
           }));
+        } catch (error) {
+          console.error('Error cargando la sesión:', error);
         }
       }
     };

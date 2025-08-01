@@ -48,6 +48,11 @@ export function useRecomendaciones(userid?: string) {
   const enviarResena = async () => {
     if (!nuevaResena.trim()) return;
 
+    if (!userid) {
+      toast.error("No se encontró el usuario para enviar la recomendación.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(API_URL, {
@@ -55,7 +60,7 @@ export function useRecomendaciones(userid?: string) {
         headers,
         body: JSON.stringify({
           description: nuevaResena,
-          userid: userid,  // Asegúrate de que 'userid' sea válido
+          userid: userid, // Asegúrate de que 'userid' sea válido
           isActive: false,
         }),
       });
