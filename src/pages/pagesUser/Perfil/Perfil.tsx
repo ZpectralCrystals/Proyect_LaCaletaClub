@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -11,44 +10,50 @@ export default function Perfil() {
     last_name: "",
     dni: "",
     avatar_url: "",
+    puntos: 0,  // Asegúrate de inicializar los puntos en 0
   });
-  const [puntos, setPuntos] = useState(0);
+  
   const [compras, setCompras] = useState<any[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
-  const fetchData = async () => {
-    const token = localStorage.getItem("access");
-    if (!token) return;
+    const fetchData = async () => {
+      const token = localStorage.getItem("access");
+      if (!token) return;
 
-    try {
-      const res = await fetch("http://localhost:8000/api/auth/me/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setProfile(data);
+      try {
+        // Obtener datos del perfil
+        const res = await fetch("http://127.0.0.1:8000/api/auth/me/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setProfile(data);
 
-      const resPuntos = await fetch("http://localhost:8000/api/user/puntos/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const puntosData = await resPuntos.json();
-      setPuntos(puntosData.points);
+        // Obtener puntos del usuario
+        const resPuntos = await fetch("http://127.0.0.1:8000/api/auth/user/puntos/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const puntosData = await resPuntos.json();
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          puntos: puntosData.points, // Actualizar los puntos
+        }));
 
-      const resCompras = await fetch("http://localhost:8000/api/user/compras/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const comprasData = await resCompras.json();
-      setCompras(comprasData);
-    } catch (err) {
-      console.error("Error cargando datos del perfil:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        // Obtener historial de compras
+        const resCompras = await fetch("http://127.0.0.1:8000/api/user/compras/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const comprasData = await resCompras.json();
+        setCompras(comprasData);
+      } catch (err) {
+        console.error("Error cargando datos del perfil:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchData();
-}, []);
-
+    fetchData();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -60,34 +65,33 @@ export default function Perfil() {
   };
 
   const handleSave = async () => {
-  const token = localStorage.getItem("access");
-  if (!token) return;
+    const token = localStorage.getItem("access");
+    if (!token) return;
 
-  const formData = new FormData();
-  formData.append("first_name", profile.first_name);
-  formData.append("last_name", profile.last_name);
-  formData.append("dni", profile.dni);
-  if (avatarFile) formData.append("avatar", avatarFile);
+    const formData = new FormData();
+    formData.append("first_name", profile.first_name);
+    formData.append("last_name", profile.last_name);
+    formData.append("dni", profile.dni);
+    if (avatarFile) formData.append("avatar", avatarFile);
 
-  try {
-    const res = await fetch("http://localhost:8000/api/auth/me/", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    try {
+      // Solicitar actualización del perfil
+      const res = await fetch("http://127.0.0.1:8000/api/auth/profile/update/", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-    if (!res.ok) throw new Error("Error al guardar perfil");
-    const updated = await res.json();
-    setProfile(updated);
-    setAvatarFile(null);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-
+      if (!res.ok) throw new Error("Error al guardar perfil");
+      const updated = await res.json();
+      setProfile(updated);
+      setAvatarFile(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (loading) return <p className="text-center">Cargando perfil...</p>;
 
@@ -140,7 +144,7 @@ export default function Perfil() {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
         <h2 className="text-lg font-semibold text-blue-700 mb-1">Mis Puntos</h2>
-        <p className="text-2xl font-bold text-blue-800">{puntos} pts</p>
+        <p className="text-2xl font-bold text-blue-800">{profile.puntos} pts</p>
         <p className="text-sm text-gray-500">¡Sigue comprando para acumular más!</p>
       </div>
 
