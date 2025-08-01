@@ -23,7 +23,7 @@ export function useBlogs() {
     Authorization: `Bearer ${localStorage.getItem("access")}`,
   };
 
-  // 🔹 Obtener todos los blogs
+  // 🔹 Obtener todos los blogs y filtrar solo los activos
   const fetchBlogs = async () => {
     setLoading(true);
     try {
@@ -31,17 +31,21 @@ export function useBlogs() {
       const body = await res.text();
 
       if (!res.ok) throw new Error("Error al obtener blogs");
+
       const data = JSON.parse(body);
       const dataArray = Array.isArray(data) ? data : [];
 
-      const formateadas: Blog[] = dataArray.map((item: any) => ({
-        id: item.id,
-        titulo: item.titulo,
-        descripcion: item.descripcion,
-        isActive: item.isActive,
-        created_at: item.created_at,
-        producto: item.producto,
-      }));
+      // Filtrar blogs que tengan isActive === true
+      const formateadas: Blog[] = dataArray
+        .filter((item: any) => item.isActive === true) // Solo blogs activos
+        .map((item: any) => ({
+          id: item.id,
+          titulo: item.titulo,
+          descripcion: item.descripcion,
+          isActive: item.isActive,
+          created_at: item.created_at,
+          producto: item.producto,
+        }));
 
       setBlogs(formateadas);
     } catch {
@@ -52,7 +56,7 @@ export function useBlogs() {
     }
   };
 
-  // 🔹 Crear blog (sin pedir profile)
+  // 🔹 Crear blog
   const enviarBlog = async (productoId: number) => {
     if (!tituloBlog.trim() || !descripcionBlog.trim()) return;
 

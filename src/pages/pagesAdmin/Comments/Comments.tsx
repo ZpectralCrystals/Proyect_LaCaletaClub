@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,36 +49,75 @@ export default function CommentsAdmin() {
   }, []);
 
   const fetchBlogs = async () => {
-    const { data } = await supabase.from("blogtab").select("*").order("created_at", { ascending: false });
-    if (data) setBlogs(data);
+    const token = localStorage.getItem("access");
+    if (!token) return;
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/blogs/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setBlogs(data);
+    } catch (error) {
+      toast.error("Error al cargar los blogs");
+    }
   };
 
   const fetchProducts = async () => {
-    const { data } = await supabase.from("productostab").select("id, name");
-    if (data) setProducts(data);
+    const token = localStorage.getItem("access");
+    if (!token) return;
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/productos/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      toast.error("Error al cargar los productos");
+    }
   };
 
   const handleSubmit = async () => {
-    if (!form.titulo || !form.descripcion || !form.product_id) return alert("Completa todos los campos");
+  // Validar que todos los campos requeridos estén presentes
+  if (!form.titulo || !form.descripcion || !form.product_id) {
+    return alert("Completa todos los campos");
+  }
 
-    const payload = {
-      titulo: form.titulo,
-      descripcion: form.descripcion,
-      product_id: Number(form.product_id),
-      isActive: form.isActive,
-    };
+  const payload = {
+    titulo: form.titulo,
+    descripcion: form.descripcion,
+    product_id: Number(form.product_id), // Asegúrate de que product_id sea un número
+    isActive: form.isActive, // El estado de activación (por defecto será falso)
+  };
 
-    if (editMode) {
-      await supabase.from("blogtab").update(payload).eq("id", form.id);
-    } else {
-      await supabase.from("blogtab").insert([{ ...payload, searchTree: Date.now() }]);
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/blogs/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("access")}`, // Token JWT para autenticación
+      },
+      body: JSON.stringify(payload), // Solo los campos necesarios
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json(); // Obtener los detalles del error
+      console.error(errorData); // Imprimir el error para más detalles
+      throw new Error(errorData.detail || "Error desconocido");
     }
 
-    fetchBlogs();
+    toast.success("✅ Enviada para revisión.");
     setForm({ id: 0, titulo: "", descripcion: "", product_id: 0, isActive: false });
-    setEditMode(false);
-    setOpen(false);
-  };
+    fetchBlogs();
+    setOpen(false); // Cerrar el modal de creación
+  } catch (error) {
+    toast.error(`❌ ${error.message || "No se pudo enviar el blog."}`);
+  }
+};
+
+
+
 
   const handleEdit = (blog: Blog) => {
     setForm(blog);
@@ -87,13 +126,34 @@ export default function CommentsAdmin() {
   };
 
   const handleDelete = async (id: number) => {
-    await supabase.from("blogtab").delete().eq("id", id);
-    fetchBlogs();
+    const token = localStorage.getItem("access");
+    if (!token) return;
+
+    try {
+      await fetch(`http://127.0.0.1:8000/api/blogs/${id}/`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchBlogs();
+    } catch (error) {
+      toast.error("Error al eliminar el blog");
+    }
   };
 
   const toggleActive = async (id: number, current: boolean) => {
-    await supabase.from("blogtab").update({ isActive: !current }).eq("id", id);
-    fetchBlogs();
+    const token = localStorage.getItem("access");
+    if (!token) return;
+
+    try {
+      await fetch(`http://127.0.0.1:8000/api/blogs/${id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ isActive: !current }),
+      });
+      fetchBlogs();
+    } catch (error) {
+      toast.error("Error al actualizar estado");
+    }
   };
 
   return (
