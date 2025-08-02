@@ -1,176 +1,171 @@
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { faPen } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Toaster, toast } from 'sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-interface UserAdmin {
-  id: string;
-  first_name: string;
-  last_name: string;
-  dni: string;
-  puntos: number;
-}
-
-export default function UserAdminPage() {
-  const [users, setUsers] = useState<UserAdmin[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editUser, setEditUser] = useState<UserAdmin | null>(null);
-
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [dni, setDni] = useState('');
-  const [points, setPoints] = useState<number>(0);
-
-  const API_URL = 'http://localhost:8000/api/auth/profiles/';
-  const PUNTOS_URL = 'http://127.0.0.1:8000/api/auth/user/puntos/';
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('access')}`,
-  };
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(API_URL, { headers });
-      const data = await res.json();
-      console.log('Usuarios actualizados:', data);
-      setUsers(data);
-    } catch (err) {
-      toast.error('Error cargando usuarios');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserPoints = async (userId: string) => {
-    try {
-      const res = await fetch(`${PUNTOS_URL}${userId}/`, { headers });
-      const data = await res.json();
-      if (data && data.puntos !== undefined) {
-        setPoints(data.puntos);
-      } else {
-        setPoints(0); // Asignamos 0 si no se encuentra la propiedad puntos
-      }
-    } catch (error) {
-      console.error('Error obteniendo puntos del usuario:', error);
-    }
-  };
+export default function Perfil() {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState({
+    first_name: "",
+    last_name: "",
+    dni: "",
+    avatar_url: "",
+    puntos: 0,  // Asegúrate de inicializar los puntos en 0
+  });
+  
+  const [compras, setCompras] = useState<any[]>([]);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchUsers();
+    const fetchData = async () => {
+      const token = localStorage.getItem("access");
+      if (!token) return;
+
+      try {
+        // Obtener datos del perfil
+        const res = await fetch("http://127.0.0.1:8000/api/auth/me/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setProfile(data);
+
+        // Obtener puntos del usuario
+        const resPuntos = await fetch("http://127.0.0.1:8000/api/auth/user/puntos/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const puntosData = await resPuntos.json();
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          puntos: puntosData.points, // Actualizar los puntos
+        }));
+
+        // Obtener historial de compras
+        const resCompras = await fetch("http://127.0.0.1:8000/api/user/compras/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const comprasData = await resCompras.json();
+        setCompras(comprasData);
+      } catch (err) {
+        console.error("Error cargando datos del perfil:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const openEditDialog = (user: UserAdmin) => {
-    setEditUser(user);
-    setFirstName(user.first_name);
-    setLastName(user.last_name);
-    setDni(user.dni);
-    setPoints(user.puntos); // Asignamos los puntos del usuario al abrir el modal
-    setIsDialogOpen(true);
-    fetchUserPoints(user.id); // Obtenemos los puntos desde la API
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setAvatarFile(file);
   };
 
   const handleSave = async () => {
-  if (!editUser) return;
+    const token = localStorage.getItem("access");
+    if (!token) return;
 
-  try {
-    const res = await fetch(`${API_URL}${editUser.id}/`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify({ puntos: points }),
-    });
+    const formData = new FormData();
+    formData.append("first_name", profile.first_name);
+    formData.append("last_name", profile.last_name);
+    formData.append("dni", profile.dni);
+    if (avatarFile) formData.append("avatar", avatarFile);
 
-    if (!res.ok) throw new Error();
+    try {
+      // Solicitar actualización del perfil
+      const res = await fetch("http://127.0.0.1:8000/api/auth/profile/update/", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-    toast.success('Puntos actualizados');
-    setIsDialogOpen(false);
+      if (!res.ok) throw new Error("Error al guardar perfil");
+      const updated = await res.json();
+      setProfile(updated);
+      setAvatarFile(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    // Actualizamos los puntos del usuario directamente en el frontend
-    setUsers((prevUsers) => 
-      prevUsers.map((user) => 
-        user.id === editUser.id ? { ...user, puntos: points } : user
-      )
-    );
-    
-    console.log('Guardado:', res.status);
-  } catch {
-    toast.error('Error actualizando puntos');
-  }
-};
+  if (loading) return <p className="text-center">Cargando perfil...</p>;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <Toaster position="top-right" />
-      <h1 className="text-2xl mb-6">Gestión de Usuarios</h1>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold text-sky-800 mb-4">Mi Perfil</h1>
 
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 p-2">Nombre</th>
-              <th className="border border-gray-300 p-2">Apellido</th>
-              <th className="border border-gray-300 p-2">DNI</th>
-              <th className="border border-gray-300 p-2">Puntos</th>
-              <th className="border border-gray-300 p-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center p-4">No hay usuarios.</td>
-              </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 p-2">{user.first_name}</td>
-                  <td className="border border-gray-300 p-2">{user.last_name}</td>
-                  <td className="border border-gray-300 p-2">{user.dni}</td>
-                  <td key={`${user.id}-${user.puntos}`} className="border border-gray-300 p-2">{user.puntos}</td>
-                  <td className="border border-gray-300 p-2 flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
-                      <FontAwesomeIcon icon={faPen} />
-                    </Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      )}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-col items-center gap-4">
+        <Avatar className="h-16 w-16">
+          <AvatarImage src={profile.avatar_url} />
+          <AvatarFallback>{profile.first_name[0]}{profile.last_name[0]}</AvatarFallback>
+        </Avatar>
+        <div>
+          <input type="file" accept="image/*" onChange={handleAvatarUpload} />
+        </div>
+      </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Usuario</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 mt-2">
-            <Input placeholder="Nombres" value={firstName} disabled />
-            <Input placeholder="Apellidos" value={lastName} disabled />
-            <Input placeholder="DNI" value={dni} disabled />
-            <Input
-              type="number"
-              placeholder="Puntos"
-              value={points}
-              onChange={(e) => setPoints(Number(e.target.value))}
-            />
-          </div>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave}>Actualizar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Nombres</label>
+          <Input
+            name="first_name"
+            value={profile.first_name}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Apellidos</label>
+          <Input
+            name="last_name"
+            value={profile.last_name}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">DNI</label>
+          <Input
+            name="dni"
+            value={profile.dni}
+            onChange={handleChange}
+          />
+        </div>
+
+        <Button onClick={handleSave} className="bg-sky-700 text-white mt-4">
+          Guardar cambios
+        </Button>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
+        <h2 className="text-lg font-semibold text-blue-700 mb-1">Mis Puntos</h2>
+        <p className="text-2xl font-bold text-blue-800">{profile.puntos} pts</p>
+        <p className="text-sm text-gray-500">¡Sigue comprando para acumular más!</p>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-4 mt-6">
+        <h2 className="text-lg font-semibold text-sky-700 mb-2">Historial de compras</h2>
+        {compras.length === 0 ? (
+          <p className="text-gray-500 text-sm">Aún no has realizado compras.</p>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            {compras.map((compra: any, index: number) => (
+              <li key={index} className="py-2">
+                <div className="flex justify-between">
+                  <span className="text-sm">{compra.producto}</span>
+                  <span className="text-sm text-gray-500">S/ {compra.monto.toFixed(2)}</span>
+                </div>
+                <p className="text-xs text-gray-400">{compra.fecha}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

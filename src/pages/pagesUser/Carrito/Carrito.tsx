@@ -136,7 +136,7 @@ const Carrito: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell>S/ {item.price.toFixed(2)}</TableCell>
+                        <TableCell>S/ {item.price}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button
@@ -163,7 +163,7 @@ const Carrito: React.FC = () => {
                             </Button>
                           </div>
                         </TableCell>
-                        <TableCell>S/ {(item.price * item.quantity).toFixed(2)}</TableCell>
+                        <TableCell>S/ {(item.price * item.quantity)}</TableCell>
                         <TableCell>
                           <Button
                             variant="destructive"
