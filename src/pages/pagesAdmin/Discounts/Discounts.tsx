@@ -70,33 +70,47 @@ export default function DescuentosAdmin() {
 
   // Fetch all data needed (only types and days when necessary)
   const fetchData = async () => {
-    const API_URL = 'http://127.0.0.1:8000/api/desc/';
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('access')}`,
-    };
-
-    try {
-      const resDescuentos = await fetch(API_URL, { headers });
-      if (!resDescuentos.ok) throw new Error('Error cargando descuentos');
-      const resProductos = await fetch('http://127.0.0.1:8000/api/productos/', { headers });
-      if (!resProductos.ok) throw new Error('Error cargando productos');
-      const resCategorias = await fetch('http://127.0.0.1:8000/api/categorias/', { headers });
-      if (!resCategorias.ok) throw new Error('Error cargando categorías');
-
-      const descData = await resDescuentos.json();
-      const productosData = await resProductos.json();
-      const categoriasData = await resCategorias.json();
-
-      setDescuentos(descData);
-      setProductos(productosData);
-      setCategorias(categoriasData);
-      showAlert('success', 'Datos cargados correctamente');
-    } catch (error) {
-      console.error(error);
-      showAlert('error', 'Error cargando datos');
-    }
+  const API_URL = 'http://127.0.0.1:8000/api/desc/';
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${localStorage.getItem('access')}`,
   };
+
+  try {
+    // Verifica que el token esté presente en localStorage
+    const token = localStorage.getItem('access');
+if (!token) {
+  console.error('Token no encontrado en localStorage');
+  toast.error('No se encuentra el token de autenticación');
+  // Redirige al login si no hay token
+  window.location.href = '/login';
+  return;
+}
+
+
+    const resDescuentos = await fetch(API_URL, { headers });
+    if (!resDescuentos.ok) throw new Error('Error cargando descuentos');
+    
+    const resProductos = await fetch('http://127.0.0.1:8000/api/productos/', { headers });
+    if (!resProductos.ok) throw new Error('Error cargando productos');
+    
+    const resCategorias = await fetch('http://127.0.0.1:8000/api/categorias/', { headers });
+    if (!resCategorias.ok) throw new Error('Error cargando categorías');
+
+    const descData = await resDescuentos.json();
+    const productosData = await resProductos.json();
+    const categoriasData = await resCategorias.json();
+
+    setDescuentos(descData);
+    setProductos(productosData);
+    setCategorias(categoriasData);
+    showAlert('success', 'Datos cargados correctamente');
+  } catch (error) {
+    console.error(error);
+    showAlert('error', 'Error cargando datos');
+  }
+};
+
 
   useEffect(() => {
     fetchData();

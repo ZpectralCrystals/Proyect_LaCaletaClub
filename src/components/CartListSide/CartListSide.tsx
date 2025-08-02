@@ -41,6 +41,9 @@ const CartListItem = React.memo(function CartListItem({
   onDecrement: () => void;
   onRemove: () => void;
 }) {
+  // Validamos y aseguramos que 'price' sea un número válido
+  const formattedPrice = !isNaN(Number(item.price)) ? Number(item.price).toFixed(2) : 'S/ 0.00';
+
   return (
     <div className="flex gap-4">
       {/* Imagen del producto */}
@@ -55,7 +58,7 @@ const CartListItem = React.memo(function CartListItem({
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium text-gray-900 line-clamp-1">{item.name}</h4>
         <div className="flex items-center justify-between mt-2">
-          <p className="font-medium">S/ {item.price.toFixed(2)}</p>
+          <p className="font-medium">S/ {formattedPrice}</p>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -92,6 +95,7 @@ const CartListItem = React.memo(function CartListItem({
     </div>
   );
 });
+
 // 🛒 Componente principal del carrito lateral
 export default function CartListSide({
   isCartOpen,

@@ -1,29 +1,23 @@
 import { useEffect, useState } from "react";
 import MenuItem from "./MenuItem/MenuItem";
-import { supabase } from "@/lib/supabaseClient";
-// 📦 Tipos estrictos
+
 interface Product {
   id: number;
   name: string;
   type: number;
   price: number;
-  description: string;
   image: string;
+  description: string;
   varietyOptions: string[];
   isActive: boolean;
 }
+
 interface Categoria {
   id: number;
   descripcion: string;
   isActive: boolean;
 }
-/**
- * 🍽️ MenuList: lista los productos del menú con:
- * - Filtro por categoría
- * - Búsqueda por nombre
- * - Lógica de carga de Supabase
- * - Integración con MenuItem
- */
+
 const MenuList = () => {
   // 📊 Estado de datos
   const [products, setProducts] = useState<Product[]>([]);
@@ -37,47 +31,56 @@ const MenuList = () => {
   // ⏳ Estado de carga
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Obtener productos y categorías desde Supabase
+  // 🔄 Obtener productos y categorías desde Django
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
-      // ⚡ Peticiones simultáneas
-      const [productsRes, categoriesRes] = await Promise.all([
-        supabase
-          .from("productostab")
-          .select("id, name, type, price, description, image, varietyOptions, isActive")
-          .eq("isActive", true),
-        supabase
-          .from("categoriatab")
-          .select("id, descripcion, isActive")
-          .eq("isActive", true),
-      ]);
+      const token = localStorage.getItem("access"); // Obtener el token JWT
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "", // Agregar token si existe
+      };
 
-      // ❌ Errores
-      if (productsRes.error) {
-        console.error("Error al cargar productos:", productsRes.error.message);
-      }
-      if (categoriesRes.error) {
-        console.error("Error al cargar categorías:", categoriesRes.error.message);
-      }
-      // ✅ Datos correctos
-      if (productsRes.data && categoriesRes.data) {
-        const productsData = productsRes.data as Product[];
-        const categoriesData = categoriesRes.data as Categoria[];
+      try {
+        // Hacer peticiones simultáneas para obtener productos y categorías desde Django
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch("http://127.0.0.1:8000/api/productos/", { headers }), // Reemplazar con tu API Django
+          fetch("http://127.0.0.1:8000/api/categorias/", { headers }), // Reemplazar con tu API Django
+        ]);
 
-        const map = categoriesData.reduce((acc, cat) => {
+        // Validación de las respuestas
+        if (!productsRes.ok) {
+          throw new Error("Error al cargar productos");
+        }
+        if (!categoriesRes.ok) {
+          throw new Error("Error al cargar categorías");
+        }
+
+        // Procesar los datos de la respuesta
+        const productsData = await productsRes.json();
+        const categoriesData = await categoriesRes.json();
+
+        // Mapeo de categorías a productos
+        const map = categoriesData.reduce((acc: Record<number, string>, cat: Categoria) => {
           acc[cat.id] = cat.descripcion;
           return acc;
-        }, {} as Record<number, string>);
+        }, {});
+
+        // Actualizar los estados con los datos obtenidos
         setProducts(productsData);
         setFilteredProducts(productsData);
         setCategoryMap(map);
+      } catch (error) {
+        console.error("Error al cargar productos o categorías:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchData();
-  }, []);
+  }, []); // El hook solo se ejecutará una vez al montar el componente
+
   // 🎯 Aplicar búsqueda y filtro por categoría
   useEffect(() => {
     const filtered = products.filter((product) => {
@@ -92,6 +95,7 @@ const MenuList = () => {
   if (loading) {
     return <p className="text-center text-sky-700">Cargando productos...</p>;
   }
+
   return (
     <div className="lg:mt-24 sm:mt-15 px-4 pb-24">
       {/* 🧾 Título */}
@@ -152,3 +156,4 @@ const MenuList = () => {
 };
 
 export default MenuList;
+
