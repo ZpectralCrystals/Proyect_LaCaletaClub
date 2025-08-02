@@ -27,36 +27,45 @@ const Carrito: React.FC = () => {
 
   // Obtener puntos del usuario desde Supabase
   useEffect(() => {
-    const getUserPoints = async () => {
-      const { data } = await supabase.auth.getSession();
-      const user = data.session?.user;
+    const fetchUserPoints = async () => {
+      const token = localStorage.getItem("access"); // Recupera el token del localStorage
 
-      if (user) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("points")
-          .eq("id", user.id) // Obtener los puntos del usuario logueado
-          .single(); // Asegurarse de obtener solo un registro
+      if (!token) {
+        toast.error("No se encontró el token de autenticación.");
+        return;
+      }
 
-        if (error) {
-          console.error("Error obteniendo puntos del usuario:", error);
-        } else {
-          setAvailablePoints(data?.points || 0); // Establecer los puntos disponibles
-        }
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/auth/user/puntos/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Error al obtener puntos");
+
+        const puntosData = await res.json();
+        setAvailablePoints(puntosData.points); // Actualiza los puntos disponibles
+      } catch (error) {
+        console.error("Error al obtener los puntos:", error);
+        toast.error("Error al cargar los puntos.");
       }
     };
 
-    getUserPoints(); // Llamar a la función cuando se cargue el componente
+    fetchUserPoints(); // Llama la función al cargar el componente
   }, []);
 
-  // Función para manejar el cambio en el input de los puntos
   const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const points = parseInt(e.target.value);
-    if (points <= availablePoints) {
-      setPointsToApply(points); // Solo permitir aplicar puntos que no excedan los disponibles
-    } else {
-      toast.error("No puedes aplicar más puntos de los que tienes disponibles");
+    let points = parseInt(e.target.value);
+    if (points > availablePoints) {
+      toast.error("No puedes aplicar más puntos de los que tienes disponibles.");
+      points = availablePoints; // Ajustar puntos a los disponibles
     }
+     if (points > subtotal) {
+      toast.error("No puedes aplicar más puntos de los que corresponden al total.");
+      points = subtotal; // Ajustar puntos al total del carrito
+    }
+    setPointsToApply(points);
   };
 
   const handlePago = async () => {
@@ -198,11 +207,12 @@ const Carrito: React.FC = () => {
               <TableRow>
                 <TableCell>Puntos disponibles</TableCell>
                 <TableCell className="text-right text-green-600">{availablePoints} puntos</TableCell>
-              </TableRow>
+          </TableRow>
               <TableRow>
                 <TableCell>Puntos aplicados</TableCell>
-                <TableCell className="text-right text-green-600">-S/ {pointsToApply.toFixed(2)}</TableCell>
-              </TableRow>
+                <TableCell className="text-right text-green-600">-S/ {pointsToApply}</TableCell>
+          </TableRow>
+
             </TableBody>
           </Table>
           <div className="mt-4">
