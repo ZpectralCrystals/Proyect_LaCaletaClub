@@ -31,44 +31,46 @@ export function Register() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const { dni, firstName, lastName, email, password } = values;
+    const { dni, firstName, lastName, email, password } = values;
 
-  if (!dni || !firstName || !lastName || !email || !password) {
-    toast.error("Por favor completa todos los campos.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://127.0.0.1:8000/api/auth/register/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: email,
-        password,
-        email,
-        dni,
-        first_name: firstName,
-        last_name: lastName,
-        role: 1,
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.detail || "Error al registrar");
+    if (!dni || !firstName || !lastName || !email || !password) {
+      toast.error("Por favor completa todos los campos.");
+      return;
     }
 
-    toast.success("✅ Registrado correctamente");
-    navigate("/login");
-  } catch (err: any) {
-    toast.error(err.message || "Error inesperado");
-  }
-};
+    try {
+      // 1️⃣ Crear usuario en Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
+      if (authError || !authData.user) throw authError || new Error("Error al crear usuario");
+
+      // 2️⃣ Guardar datos adicionales en profiles
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert([
+          {
+            id: authData.user.id, // el mismo id que Auth
+            dni,
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            role: 1, // usuario normal
+          },
+        ]);
+
+      if (profileError) throw profileError;
+
+      toast.success("✅ Registrado correctamente");
+      navigate("/login");
+    } catch (err: any) {
+      toast.error(err.message || "Error inesperado");
+    }
+  };
 
   return (
     <section className="h-screen flex justify-center items-center bg-gray-50 px-4">

@@ -1,3 +1,4 @@
+// src/components/admin/UserAdminPage.tsx
 import { useEffect, useState } from 'react';
 import {
   Dialog,
@@ -29,11 +30,11 @@ import {
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Toaster, toast } from 'sonner';
+import { supabase } from '@/lib/supabaseClient';
 
 export interface UserAdmin {
-  id: number;
+  id: string;
   email: string;
-  username: string;
   first_name: string;
   last_name: string;
   profile: {
@@ -49,7 +50,7 @@ export default function UserAdminPage() {
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<UserAdmin | null>(null);
-  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const [email, setEmail] = useState('');
@@ -58,19 +59,47 @@ export default function UserAdminPage() {
   const [lastName, setLastName] = useState('');
   const [dni, setDni] = useState('');
 
-  const API_URL = 'http://localhost:8000/api/auth/usuarios/';
-  const authHeader = {
-    Authorization: `Bearer ${localStorage.getItem('access')}`,
-    'Content-Type': 'application/json',
-  };
-
+  // 🟢 Traer usuarios con perfiles y puntos
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL, { headers: authHeader });
-      const data = await res.json();
-      setUsers(data);
-    } catch {
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          dni,
+          role,
+          avatar_url,
+          user_pointstab: user_pointstab(points)
+        `);
+
+      if (profilesError) throw profilesError;
+
+      // Obtener emails desde auth.users
+      const formattedUsers: UserAdmin[] = await Promise.all(
+        (profiles as any).map(async (p: any) => {
+          const { data: userData, error: userError } = await supabase.auth.admin.getUserById(p.id);
+          if (userError) throw userError;
+          return {
+            id: p.id,
+            email: userData?.email ?? 'Sin email',
+            first_name: p.first_name,
+            last_name: p.last_name,
+            profile: {
+              dni: p.dni,
+              role: p.role,
+              avatar_url: p.avatar_url,
+              puntos: p.user_pointstab?.[0]?.points ?? 0,
+            },
+          };
+        })
+      );
+
+      setUsers(formattedUsers);
+    } catch (err) {
+      console.error(err);
       toast.error('Error cargando usuarios');
     } finally {
       setLoading(false);
@@ -107,62 +136,61 @@ export default function UserAdminPage() {
       return;
     }
 
-    const payload = editUser
-      ? {
-          first_name: firstName,
-          last_name: lastName,
-          profile: {
-            role,
-            dni,
-          },
-        }
-      : {
-          username: email,
+    try {
+      if (editUser) {
+        // Actualizar perfil
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ first_name: firstName, last_name: lastName, dni, role })
+          .eq('id', editUser.id);
+
+        if (profileError) throw profileError;
+        toast.success('Usuario actualizado');
+      } else {
+        // Crear usuario con Auth
+        const { data: userData, error: authError } = await supabase.auth.admin.createUser({
           email,
           password: '123456',
+        });
+        if (authError || !userData.user) throw authError;
+
+        // Crear perfil asociado
+        const { error: profileError } = await supabase.from('profiles').insert({
+          id: userData.user.id,
           first_name: firstName,
           last_name: lastName,
-          profile: {
-            dni,
-            role,
-            avatar_url: '',
-            puntos: 0,
-          },
-        };
+          dni,
+          role,
+          avatar_url: '',
+          puntos: 0,
+        });
+        if (profileError) throw profileError;
 
-    try {
-  const res = await fetch(`${API_URL}${editUser.id}/`, {
-    method: "PATCH",
-    headers: authHeader,
-    body: JSON.stringify(payload),
-  });
+        toast.success('Usuario creado');
+      }
 
-  const resData = await res.json();
-  if (!res.ok) {
-    console.error("❌ Error del backend:", JSON.stringify(resData, null, 2));
-    throw new Error("Error actualizando usuario");
-  }
-
-  toast.success("Usuario actualizado");
-  fetchUsers();
-  setIsDialogOpen(false);
-} catch (err) {
-  toast.error("Error actualizando usuario");
-}
-
+      fetchUsers();
+      setIsDialogOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast.error('Error guardando usuario');
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteUserId) return;
     try {
-      const res = await fetch(`${API_URL}${deleteUserId}/`, {
-        method: 'DELETE',
-        headers: authHeader,
-      });
-      if (!res.ok) throw new Error();
+      // Eliminar usuario con Supabase Admin
+      const { error } = await supabase.auth.admin.deleteUser(deleteUserId);
+      if (error) throw error;
+
+      // Eliminar perfil asociado
+      await supabase.from('profiles').delete().eq('id', deleteUserId);
+
       toast.success('Usuario eliminado');
       fetchUsers();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error('Error eliminando usuario');
     }
     setIsAlertOpen(false);
@@ -189,13 +217,14 @@ export default function UserAdminPage() {
               <th className="border border-gray-300 p-2">Apellido</th>
               <th className="border border-gray-300 p-2">DNI</th>
               <th className="border border-gray-300 p-2">Rol</th>
+              <th className="border border-gray-300 p-2">Puntos</th>
               <th className="border border-gray-300 p-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center p-4">
+                <td colSpan={7} className="text-center p-4">
                   No hay usuarios.
                 </td>
               </tr>
@@ -213,6 +242,7 @@ export default function UserAdminPage() {
                      user.profile?.role === 4 ? 'Chef' :
                      user.profile?.role === 5 ? 'Mesero' : 'Desconocido'}
                   </td>
+                  <td className="border border-gray-300 p-2">{user.profile?.puntos}</td>
                   <td className="border border-gray-300 p-2 flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
                       <FontAwesomeIcon icon={faPen} />
@@ -262,7 +292,7 @@ export default function UserAdminPage() {
                 <SelectGroup>
                   <SelectLabel>Roles</SelectLabel>
                   <SelectItem value="1">Usuario</SelectItem>
-                  <SelectItem value="2">Admin</SelectItem>
+                  <SelectItem value="2">Administrador</SelectItem>
                   <SelectItem value="3">Cajero</SelectItem>
                   <SelectItem value="4">Chef</SelectItem>
                   <SelectItem value="5">Mesero</SelectItem>

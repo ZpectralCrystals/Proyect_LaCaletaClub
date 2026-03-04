@@ -126,41 +126,7 @@ function SidebarContentBody({ onItemClick }: SidebarContentBodyProps) {
               </SidebarMenuButton>
             )}
 
-            {[2].includes(user.role) && (
-               <SidebarMenuButton asChild>
-                <Link to="/admin/puntos" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                  <HardDriveUpload className="w-4 h-4" />
-                  <span>Puntos</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-
-            {[2, 3].includes(user.role) && (
-              <SidebarMenuButton asChild>
-                <Link to="/admin/cobranza" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                  <BadgeCheck className="w-4 h-4" />
-                  <span>Caja</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-
-            {[2, 4].includes(user.role) && (
-              <SidebarMenuButton asChild>
-                <Link to="/admin/pedidos" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                  <ClipboardPen className="w-4 h-4" />
-                  <span>Pedidos</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-
-            {[2, 5].includes(user.role) && (
-              <SidebarMenuButton asChild>
-                <Link to="/admin/ver-pedido" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                  <BellElectric className="w-4 h-4" />
-                  <span>Ver Pedido</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
+           
 
             <SidebarMenuButton asChild>
               <Link to="/admin/reportes" onClick={onItemClick} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors">

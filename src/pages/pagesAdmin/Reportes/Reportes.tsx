@@ -56,7 +56,7 @@ export default function ReportesAdmin() {
     const [, setProducts] = useState<Product[]>([]);
  
     const fetchProducts = async () => {
-        const { data, error } = await supabase.from('productostab').select('*');
+        const { data, error } = await supabase.from('productos').select('*');
         if (error) {
           console.error(error);
          

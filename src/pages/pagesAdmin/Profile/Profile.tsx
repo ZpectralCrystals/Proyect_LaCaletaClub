@@ -1,3 +1,4 @@
+// src/components/admin/PerfilAdministrador.tsx
 import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -5,8 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/lib/supabaseClient"; // tu cliente Supabase configurado
 
 interface Profile {
+  id: string;
   email: string;
   first_name: string;
   last_name: string;
@@ -19,21 +22,21 @@ export default function PerfilAdministrador() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  // Obtener datos del perfil desde Django API
+  // Obtener datos del perfil desde Supabase
   useEffect(() => {
     const fetchProfile = async () => {
-      const response = await fetch("http://localhost:8000/api/auth/profile/", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-      });
+      const user = supabase.auth.getUser(); // Opcionalmente puedes usar supabase.auth.getSession()
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", (await user).data.user?.id)
+        .single();
 
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data); // Actualizar el perfil con los datos obtenidos
-      } else {
+      if (error) {
         toast.error("No se pudo obtener el perfil");
+        console.error(error);
+      } else {
+        setProfile(data as Profile);
       }
     };
 
@@ -56,70 +59,66 @@ export default function PerfilAdministrador() {
     let avatar_url = profile.avatar_url;
 
     if (avatarFile) {
-      // Aquí puedes subir el avatar si se selecciona uno
       const fileExt = avatarFile.name.split(".").pop();
-      const filePath = `avatars/${new Date().getTime()}.${fileExt}`;
+      const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
 
-      const { error: uploadError } = await fetch("http://localhost:8000/api/auth/upload-avatar/", {
-        method: "POST",
-        body: avatarFile,
-      });
+      // Subir a Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from("avatars") // nombre del bucket en Supabase
+        .upload(filePath, avatarFile, { upsert: true });
 
-      if (!uploadError) {
-        const { data } = await fetch(`http://localhost:8000/media/${filePath}`);
-        avatar_url = data.publicUrl;
+      if (uploadError) {
+        toast.error("Error subiendo la imagen");
+        console.error(uploadError);
+        return;
       }
+
+      // Obtener la URL pública de la imagen
+      const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      avatar_url = publicUrlData.publicUrl;
     }
 
-    const payload = {
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      avatar_url,
-    };
+    // Actualizar datos en tabla profiles
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        avatar_url,
+      })
+      .eq("id", profile.id);
 
-    const response = await fetch("http://localhost:8000/api/auth/profile/update/", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("access")}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      toast.success("Perfil actualizado correctamente");
-    } else {
+    if (error) {
       toast.error("Error al actualizar el perfil");
+      console.error(error);
+    } else {
+      toast.success("Perfil actualizado correctamente");
+      setProfile({ ...profile, avatar_url });
+      setAvatarFile(null);
     }
   };
 
-  // Cambiar contraseña del usuario
+  // Cambiar contraseña usando Supabase Auth
   const handleChangePassword = async () => {
     if (!password) {
       setMessage("La contraseña no puede estar vacía.");
       return;
     }
 
-    const response = await fetch("http://localhost:8000/api/auth/change-password/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("access")}`,
-      },
-      body: JSON.stringify({ password }),
-    });
+    const { error } = await supabase.auth.updateUser({ password });
 
-    if (response.ok) {
+    if (error) {
+      setMessage("Error al actualizar la contraseña");
+      console.error(error);
+    } else {
       setMessage("Contraseña actualizada correctamente");
       setPassword("");
-    } else {
-      setMessage("Error al actualizar la contraseña");
     }
   };
 
-  // Mostrar un mensaje de carga si el perfil aún no ha sido cargado
   if (!profile) {
-    return <div>Cargando perfil...</div>; // Aseguramos que si no está cargado, mostramos un mensaje
+    return <div>Cargando perfil...</div>;
   }
 
   return (
@@ -145,18 +144,14 @@ export default function PerfilAdministrador() {
               <Label>Nombre</Label>
               <Input
                 value={profile.first_name}
-                onChange={(e) =>
-                  setProfile({ ...profile, first_name: e.target.value })
-                }
+                onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
               />
             </div>
             <div>
               <Label>Apellido</Label>
               <Input
                 value={profile.last_name}
-                onChange={(e) =>
-                  setProfile({ ...profile, last_name: e.target.value })
-                }
+                onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
               />
             </div>
           </div>

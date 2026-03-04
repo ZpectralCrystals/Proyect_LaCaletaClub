@@ -1,5 +1,7 @@
+// hooks/useProductos.ts
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
 
 export interface Producto {
   id: number;
@@ -17,95 +19,106 @@ export const useProductos = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://localhost:8000/api/productos/";
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("access")}`,
-  };
-
+  // 🔹 Obtener productos
   const fetchProductos = async () => {
     setLoading(true);
-    try {
-      const res = await fetch(API_URL, { headers });
-      if (!res.ok) throw new Error("Error al obtener productos");
-      const data = await res.json();
-      setProductos(data);
-    } catch {
+
+    const { data, error } = await supabase
+      .from("productos")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
       toast.error("Error cargando productos");
-    } finally {
-      setLoading(false);
+      setProductos([]);
+    } else {
+      setProductos((data as Producto[]) || []);
     }
+
+    setLoading(false);
   };
 
+  // 🔹 Crear o actualizar producto
   const addOrUpdateProducto = async (
     producto: Omit<Producto, "id" | "isActive" | "isFavorite">,
     editing?: Producto
   ) => {
-    const payload = JSON.stringify({
+    const payload = {
       ...producto,
       varietyOptions: producto.varietyOptions,
       isActive: true,
       isFavorite: true,
-    });
+    };
 
-    try {
-      const res = editing
-        ? await fetch(`${API_URL}${editing.id}/`, {
-            method: "PATCH",
-            headers,
-            body: payload,
-          })
-        : await fetch(API_URL, {
-            method: "POST",
-            headers,
-            body: payload,
-          });
+    if (editing) {
+      // UPDATE
+      const { error } = await supabase
+        .from("productos")
+        .update(payload)
+        .eq("id", editing.id);
 
-      if (!res.ok) throw new Error();
-      toast.success(editing ? "Actualizado" : "Agregado");
-      fetchProductos();
-    } catch {
-      toast.error(editing ? "Error actualizando" : "Error agregando");
+      if (error) {
+        toast.error("Error actualizando");
+        return;
+      }
+
+      toast.success("Actualizado");
+    } else {
+      // INSERT
+      const { error } = await supabase
+        .from("productos")
+        .insert(payload);
+
+      if (error) {
+        toast.error("Error agregando");
+        return;
+      }
+
+      toast.success("Agregado");
     }
+
+    fetchProductos();
   };
 
+  // 🔹 Eliminar producto
   const deleteProducto = async (id: number) => {
-    try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "DELETE",
-        headers,
-      });
-      if (!res.ok) throw new Error();
-      toast.success("Producto eliminado");
-      fetchProductos();
-    } catch {
+    const { error } = await supabase
+      .from("productos")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
       toast.error("Error eliminando producto");
+      return;
     }
+
+    toast.success("Producto eliminado");
+    fetchProductos();
   };
 
+  // 🔹 Toggle isActive / isFavorite
   const toggleCampo = async (
-  producto: Producto,
-  campo: "isActive" | "isFavorite"
-) => {
-  if (!producto?.id) {
-    toast.error("ID no válido para actualizar campo");
-    return;
-  }
+    producto: Producto,
+    campo: "isActive" | "isFavorite"
+  ) => {
+    if (!producto?.id) {
+      toast.error("ID no válido para actualizar campo");
+      return;
+    }
 
-  try {
-    const res = await fetch(`${API_URL}${producto.id}/`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({ [campo]: !producto[campo] }),
-    });
-    if (!res.ok) throw new Error();
+    const { error } = await supabase
+      .from("productos")
+      .update({ [campo]: !producto[campo] })
+      .eq("id", producto.id);
+
+    if (error) {
+      toast.error("Error actualizando campo");
+      return;
+    }
+
     toast.success("Campo actualizado");
     fetchProductos();
-  } catch {
-    toast.error("Error actualizando campo");
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchProductos();

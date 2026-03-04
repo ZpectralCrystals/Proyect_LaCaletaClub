@@ -26,10 +26,6 @@ import {
   RecomendacionesAdmin,
   ReportesAdmin,
 } from "@/pages/pagesAdmin";
-import ImagesCharge from "@/pages/pagesAdmin/PointsUser/PointUser";
-import CajaAdmin from "@/pages/pagesAdmin/Caja/Caja";
-import Pedido from "@/pages/pagesAdmin/Pedido/Pedido";
-import PedidoView from "@/pages/pagesAdmin/PedidoView/PedidoView";
 import DashboardAdmin from "@/components/DashboardAdmin/DashboardAdmin";
 
 /**
@@ -77,10 +73,6 @@ export function Router() {
           <Route path="/admin/comentarios" element={<CommentsAdmin />} />
           <Route path="/admin/recomendaciones" element={<RecomendacionesAdmin />} />
           <Route path="/admin/reportes" element={<ReportesAdmin />} />
-          <Route path="/admin/puntos" element={<ImagesCharge />} />
-          <Route path="/admin/cobranza" element={<CajaAdmin />} />
-          <Route path="/admin/pedidos" element={<Pedido />} />
-          <Route path="/admin/ver-pedido" element={<PedidoView />} />
         </Route>
 
       </Routes>

@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Producto } from "./useProductos";
+import { supabase } from "@/lib/supabaseClient";
+
+export interface Producto {
+  id: number;
+  nombre: string;
+  precio: number;
+  // agrega los campos que necesites
+}
 
 export interface Blog {
   id: number;
@@ -8,7 +15,7 @@ export interface Blog {
   descripcion: string;
   isActive: boolean;
   created_at: string;
-  producto: Producto;
+  producto: Producto | null;
 }
 
 export function useBlogs() {
@@ -17,100 +24,90 @@ export function useBlogs() {
   const [descripcionBlog, setDescripcionBlog] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://localhost:8000/api/blogs/";
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("access")}`,
-  };
-
-  // 🔹 Obtener todos los blogs y filtrar solo los activos
+  // 🔹 Obtener todos los blogs activos y sus productos
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL, { headers });
-      const body = await res.text();
+      const { data, error } = await supabase
+        .from("blogs")
+        .select(`
+          id,
+          titulo,
+          descripcion,
+          "isActive",
+          created_at,
+          producto:product_id(*)  -- join correcto con FK product_id
+        `)
+        .eq("isActive", true)
+        .order("created_at", { ascending: false });
 
-      if (!res.ok) throw new Error("Error al obtener blogs");
-
-      const data = JSON.parse(body);
-      const dataArray = Array.isArray(data) ? data : [];
-
-      // Filtrar blogs que tengan isActive === true
-      const formateadas: Blog[] = dataArray
-        .filter((item: any) => item.isActive === true) // Solo blogs activos
-        .map((item: any) => ({
-          id: item.id,
-          titulo: item.titulo,
-          descripcion: item.descripcion,
-          isActive: item.isActive,
-          created_at: item.created_at,
-          producto: item.producto,
-        }));
-
-      setBlogs(formateadas);
-    } catch {
+      if (error) throw error;
+      setBlogs(data as Blog[]);
+    } catch (err: any) {
       toast.error("Error al cargar blogs");
+      console.error(err);
       setBlogs([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Crear blog
-  const enviarBlog = async (productoId: number) => {
+  // 🔹 Crear un nuevo blog (inactivo por defecto)
+  const enviarBlog = async (productoId: number, userId: string) => {
     if (!tituloBlog.trim() || !descripcionBlog.trim()) return;
 
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
+      const { error } = await supabase.from("blogs").insert([
+        {
           titulo: tituloBlog,
           descripcion: descripcionBlog,
-          producto: productoId,
-          isActive: false,
-        }),
-      });
+          "isActive": false,
+          product_id: productoId,
+          user_id: userId,
+        },
+      ]);
 
-      if (!res.ok) throw new Error("Error creando blog");
-      toast.success("✅ Enviada para revisión.");
+      if (error) throw error;
 
+      toast.success("✅ Enviado para revisión.");
       setTituloBlog("");
       setDescripcionBlog("");
       fetchBlogs();
-    } catch {
+    } catch (err: any) {
       toast.error("❌ No se pudo enviar el blog.");
+      console.error(err);
     }
   };
 
   // 🔹 Eliminar blog
   const eliminarBlog = async (id: number) => {
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "DELETE",
-        headers,
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase.from("blogs").delete().eq("id", id);
+      if (error) throw error;
+
       toast.success("🗑️ Eliminado correctamente.");
       fetchBlogs();
-    } catch {
+    } catch (err: any) {
       toast.error("❌ No se pudo eliminar.");
+      console.error(err);
     }
   };
 
-  // 🔹 Aprobar blog
+  // 🔹 Aprobar blog (solo admins)
   const aprobarBlog = async (id: number) => {
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ isActive: true }),
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase
+        .from("blogs")
+        .update({ "isActive": true })
+        .eq("id", id);
+
+      if (error) throw error;
+
       toast.success("✅ Blog aprobado.");
       fetchBlogs();
-    } catch {
+    } catch (err: any) {
       toast.error("❌ No se pudo aprobar.");
+      console.error(err);
     }
   };
 

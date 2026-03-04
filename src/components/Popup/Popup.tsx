@@ -47,7 +47,7 @@ export default function DescuentosDelDia() {
       const todayId = getTodayId(); // Día actual (1-7)
       // Consulta: trae descuentos activos del día actual o que no tienen día asignado
       const { data, error } = await supabase
-        .from("descuentostab")
+        .from("descuentos")
         .select("*")
         .eq("isActive", true)
         .or(`id_dia.eq.${todayId},id_dia.is.null`);

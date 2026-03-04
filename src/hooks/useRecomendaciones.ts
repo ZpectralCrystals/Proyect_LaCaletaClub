@@ -1,50 +1,56 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
+
+export interface Perfil {
+  first_name: string;
+  last_name: string;
+  avatar_url: string;
+}
+
+export interface Recomendacion {
+  id: number;
+  created_at: string;
+  userid: string;
+  isActive: boolean;
+  description: string;
+  profile: Perfil | null;
+}
 
 export function useRecomendaciones(userid?: string) {
-  const [resenas, setResenas] = useState<any[]>([]);
+  const [resenas, setResenas] = useState<Recomendacion[]>([]);
   const [nuevaResena, setNuevaResena] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://localhost:8000/api/recomendaciones/";
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("access")}`,
-  };
-
-  // Función para obtener las recomendaciones
+  // 🔹 Obtener todas las recomendaciones activas
   const fetchResenas = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL, { headers });
-      const body = await res.json(); // Usamos .json() para obtener los datos correctamente
-      if (!res.ok) throw new Error("Error al obtener recomendaciones");
+      const { data, error } = await supabase
+        .from("recomendaciones")
+        .select(`
+          id,
+          created_at,
+          userid,
+          "isActive",
+          description,
+          profile:userid(first_name,last_name,avatar_url)  -- join con profiles
+        `)
+        .order("created_at", { ascending: false });
 
-      // Si la respuesta es válida, formateamos las recomendaciones
-      const formateadas = body.map((item: any) => ({
-        id: item.id,
-        created_at: item.created_at,
-        userid: item.userid,
-        isActive: item.isActive,
-        description: item.description,
-        profile: {
-          first_name: item.profile?.first_name ?? "Desconocido",
-          last_name: item.profile?.last_name ?? "",
-          avatar_url: item.profile?.avatar_url ?? "/default-avatar.png",
-        },
-      }));
+      if (error) throw error;
 
-      setResenas(formateadas);
-    } catch (error) {
-      console.error(error);
+      setResenas(data as Recomendacion[]);
+    } catch (err: any) {
       toast.error("Error al cargar recomendaciones");
+      console.error(err);
       setResenas([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para enviar una nueva recomendación
+  // 🔹 Enviar una nueva recomendación (inactiva por defecto)
   const enviarResena = async () => {
     if (!nuevaResena.trim()) return;
 
@@ -55,82 +61,77 @@ export function useRecomendaciones(userid?: string) {
 
     setLoading(true);
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
+      const { error } = await supabase.from("recomendaciones").insert([
+        {
           description: nuevaResena,
-          userid: userid, // Asegúrate de que 'userid' sea válido
-          isActive: false,
-        }),
-      });
+          userid,
+          "isActive": false,
+        },
+      ]);
 
-      if (!res.ok) throw new Error("Error creando recomendación");
+      if (error) throw error;
+
       toast.success("✅ Recomendación enviada para revisión.");
-      setNuevaResena(""); // Limpiamos el campo de entrada
-      fetchResenas();  // Actualizamos las recomendaciones después de enviar una nueva
-    } catch (error) {
+      setNuevaResena("");
+      fetchResenas();
+    } catch (err: any) {
       toast.error("❌ No se pudo enviar la recomendación.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Eliminar recomendación
+  // 🔹 Eliminar recomendación
   const eliminarResena = async (id: number) => {
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "DELETE",
-        headers,
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase.from("recomendaciones").delete().eq("id", id);
+      if (error) throw error;
+
       toast.success("🗑️ Eliminada correctamente.");
-      fetchResenas();  // Volver a cargar las recomendaciones
-    } catch {
+      fetchResenas();
+    } catch (err: any) {
       toast.error("❌ No se pudo eliminar.");
+      console.error(err);
     }
   };
 
-  // Editar recomendación
-  const editarResena = async (
-    id: number,
-    nuevaDescripcion: string,
-    nuevoEstado: boolean
-  ) => {
+  // 🔹 Editar recomendación
+  const editarResena = async (id: number, nuevaDescripcion: string, nuevoEstado: boolean) => {
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({
-          description: nuevaDescripcion,
-          isActive: nuevoEstado,
-        }),
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase
+        .from("recomendaciones")
+        .update({ description: nuevaDescripcion, "isActive": nuevoEstado })
+        .eq("id", id);
+
+      if (error) throw error;
+
       toast.success("✏️ Recomendación actualizada.");
-      fetchResenas();  // Volver a cargar las recomendaciones
-    } catch {
+      fetchResenas();
+    } catch (err: any) {
       toast.error("❌ Error al editar.");
+      console.error(err);
     }
   };
 
-  // Aprobar recomendación
+  // 🔹 Aprobar recomendación (solo admins)
   const aprobarResena = async (id: number) => {
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ isActive: true }),
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase
+        .from("recomendaciones")
+        .update({ "isActive": true })
+        .eq("id", id);
+
+      if (error) throw error;
+
       toast.success("✅ Recomendación aprobada.");
-      fetchResenas();  // Volver a cargar las recomendaciones
-    } catch {
+      fetchResenas();
+    } catch (err: any) {
       toast.error("❌ No se pudo aprobar.");
+      console.error(err);
     }
   };
 
-  // Cargar las recomendaciones al montar el componente
   useEffect(() => {
     fetchResenas();
   }, []);

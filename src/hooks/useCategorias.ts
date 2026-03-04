@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
 
 export interface Categoria {
   id: number;
@@ -12,83 +13,84 @@ export const useCategorias = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://localhost:8000/api/categorias/";
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("access")}`,
-  };
-
+  // 🔹 Obtener todas las categorías
   const fetchCategorias = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL, { headers });
-      if (!res.ok) throw new Error("Error al obtener categorías");
-      const data = await res.json();
-      setCategorias(data);
-    } catch {
+      const { data, error } = await supabase
+        .from("categorias")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) throw error;
+
+      setCategorias(data as Categoria[]);
+    } catch (err: any) {
       toast.error("Error cargando categorías");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔹 Crear o actualizar categoría
   const addOrUpdateCategoria = async (
     categoria: Omit<Categoria, "id" | "isActive">,
     editing?: Categoria
   ) => {
-    const payload = JSON.stringify({
-      descripcion: categoria.descripcion,
-      icon: categoria.icon,
-      isActive: true,
-    });
-
     try {
-      const res = editing
-        ? await fetch(`${API_URL}${editing.id}/`, {
-            method: "PUT",
-            headers,
-            body: payload,
+      if (editing) {
+        const { error } = await supabase
+          .from("categorias")
+          .update({
+            descripcion: categoria.descripcion,
+            icon: categoria.icon,
           })
-        : await fetch(API_URL, {
-            method: "POST",
-            headers,
-            body: payload,
-          });
+          .eq("id", editing.id);
 
-      if (!res.ok) throw new Error();
-      toast.success(editing ? "Actualizado" : "Agregado");
+        if (error) throw error;
+        toast.success("Actualizado");
+      } else {
+        const { error } = await supabase
+          .from("categorias")
+          .insert([{ ...categoria, isActive: true }]);
+        if (error) throw error;
+        toast.success("Agregado");
+      }
       fetchCategorias();
-    } catch {
+    } catch (err: any) {
       toast.error(editing ? "Error actualizando" : "Error agregando");
+      console.error(err);
     }
   };
 
+  // 🔹 Eliminar categoría
   const deleteCategoria = async (id: number) => {
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "DELETE",
-        headers,
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase.from("categorias").delete().eq("id", id);
+      if (error) throw error;
       toast.success("Eliminado correctamente");
       fetchCategorias();
-    } catch {
+    } catch (err: any) {
       toast.error("Error eliminando");
+      console.error(err);
     }
   };
 
+  // 🔹 Activar / desactivar categoría
   const toggleEstado = async (categoria: Categoria) => {
     try {
-      const res = await fetch(`${API_URL}${categoria.id}/`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ isActive: !categoria.isActive }),
-      });
-      if (!res.ok) throw new Error();
+      const { error } = await supabase
+        .from("categorias")
+        .update({ isActive: !categoria.isActive })
+        .eq("id", categoria.id);
+
+      if (error) throw error;
       toast.success(categoria.isActive ? "Desactivado" : "Activado");
       fetchCategorias();
-    } catch {
+    } catch (err: any) {
       toast.error("Error actualizando estado");
+      console.error(err);
     }
   };
 

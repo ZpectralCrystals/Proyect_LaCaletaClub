@@ -25,69 +25,55 @@ export function Login() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  dispatch(setLoading(true));
-  dispatch(setError(null));
+    e.preventDefault();
+    dispatch(setLoading(true));
+    dispatch(setError(null));
 
-  try {
-    // 1. Hacer login
-    const loginRes = await fetch("http://127.0.0.1:8000/api/auth/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: values.email,
+    try {
+      // 🔑 Login con Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: values.email,
         password: values.password,
-      }),
-    });
+      });
 
-    if (!loginRes.ok) {
-      throw new Error("Credenciales inválidas");
+      if (authError || !authData.user) throw authError || new Error("Credenciales inválidas");
+
+      // 📝 Obtener perfil desde tabla 'profiles'
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, email, role, first_name, last_name")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (profileError || !profileData) throw profileError || new Error("Error al obtener perfil");
+
+      const userData: User = {
+        id: profileData.id,
+        email: profileData.email,
+        role: Number(profileData.role),
+        first_name: profileData.first_name || "",
+        last_name: profileData.last_name || "",
+      };
+
+      dispatch(setUser(userData));
+      toast.success(`Bienvenido ${userData.first_name || userData.email}`);
+
+      // 🔄 Redirección por rol
+      if ([2, 3, 4, 5].includes(userData.role)) {
+        navigate("/admin/");
+      } else if (userData.role === 1) {
+        navigate("/");
+      } else {
+        navigate("/unauthorized");
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error inesperado";
+      dispatch(setError(message));
+      toast.error(message);
+    } finally {
+      dispatch(setLoading(false));
     }
-
-    const loginData = await loginRes.json();
-    localStorage.setItem("access", loginData.access);
-    localStorage.setItem("refresh", loginData.refresh);
-
-    // 2. Obtener perfil
-    const profileRes = await fetch("http://127.0.0.1:8000/api/auth/me/", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${loginData.access}`,
-      },
-    });
-
-    if (!profileRes.ok) throw new Error("Error al obtener perfil");
-
-    const profile = await profileRes.json();
-
-    const userData: User = {
-      id: profile.id,
-      email: profile.email,
-      role: Number(profile.role),
-      first_name: profile.first_name || "",
-      last_name: profile.last_name || "",
-    };
-
-    dispatch(setUser(userData));
-    toast.success(`Bienvenido ${userData.first_name || userData.email}`);
-
-    // 3. Redireccionar por rol
-    if ([2, 3, 4, 5].includes(userData.role)) {
-      navigate("/admin/");
-    } else if (userData.role === 1) {
-      navigate("/");
-    } else {
-      navigate("/unauthorized");
-    }
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error inesperado";
-    dispatch(setError(message));
-    toast.error(message);
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
+  };
 
   return (
     <section className="h-screen flex justify-center items-center bg-gray-50">
@@ -145,4 +131,5 @@ export function Login() {
     </section>
   );
 }
+
 export default Login;

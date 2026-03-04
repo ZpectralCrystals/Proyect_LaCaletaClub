@@ -27,7 +27,7 @@ const Inicio = () => {
   useEffect(() => {
     const fetchProductosDestacados = async () => {
       const { data, error } = await supabase
-        .from("productostab")
+        .from("productos")
         .select("*")
         .eq("isFavorite", true)
         .eq("isActive", true);
